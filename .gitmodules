@@ -1,0 +1,3 @@
+[submodule "GCGen"]
+	path = GCGen
+	url = https://github.com/UNN-ITMM-Software/GCGen
