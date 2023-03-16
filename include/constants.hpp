@@ -4,4 +4,5 @@ namespace constants {
     const static int DEF_COMPLEXITY = 0;
     const static int MIN_R = 1;
     const static int BIDIMENSIONAL_POINT_SIZE = 1;
+    const static long double DEFAULT_ERROR = 0.001;
 }

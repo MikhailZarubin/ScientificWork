@@ -31,7 +31,7 @@ GlobalSearchTaskParams::GlobalSearchTaskParams(double rCoeff, double accuracy) {
     this->accuracy = accuracy;
 }
 
-GlobalSearchTaskParams::GlobalSearchTaskParams(const GlobalSearchTaskParams& params) : GlobalSearchTaskParams(params.rCoeff, params.rCoeff) {}
+GlobalSearchTaskParams::GlobalSearchTaskParams(const GlobalSearchTaskParams& params) : GlobalSearchTaskParams(params.rCoeff, params.accuracy) {}
 
 Borders::Borders(const Point& leftBorder, const Point& rightBorder) {
     if (rightBorder < leftBorder) {

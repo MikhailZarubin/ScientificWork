@@ -1,5 +1,127 @@
+#pragma once
+
 #include "utils.hpp"
-#include <math.h>
+
+
+long double universalPow(long double base, long double deg, long double err) {
+    if (deg < 0.0) {
+        base = 1.0 / base;
+        deg = -deg;
+    }
+
+    long double checkedCubRoot = deg / (1. / 3.);
+    int counter = 0;
+    while (checkedCubRoot > 1.0 - err) {
+        checkedCubRoot -= 1.0;
+        counter++;
+    }
+
+    if (fabsl(checkedCubRoot) <= err && counter % 3) {
+        return powl(cbrtl(base), counter);
+    }
+
+    return pow(base, deg);
+}
+
+
+bool isOpeningBrackets(const OperationsHelper& operationsHelper, char symbol) {
+    return operationsHelper.getPriority(symbol) == Priority::BRACKETS_PRIORITY &&
+        symbol != static_cast<char>(AssistiveSymbols::CLOSING_BRACKET);
+}
+std::string utils::infixToPostfix(const std::string& infixExpr) {
+    OperationsHelper operationsHelper;
+    std::stack<char> operationsStack;
+    std::string postfixExpression;
+    char topStack;
+    for (char symbol : infixExpr) {
+        if (operationsHelper.getPriority(symbol) != Priority::NUMBER_PRIORITY && !postfixExpression.empty() &&
+            operationsHelper.getPriority(postfixExpression[postfixExpression.size() - 1]) == Priority::NUMBER_PRIORITY) {
+            postfixExpression += static_cast<char>(AssistiveSymbols::DELIMITER);
+        }
+
+        if (operationsHelper.getPriority(symbol) == Priority::NUMBER_PRIORITY) {
+            postfixExpression += symbol;
+        } else if (isOpeningBrackets(operationsHelper, symbol)) {
+            operationsStack.push(symbol);
+        } else if (symbol == static_cast<char>(AssistiveSymbols::CLOSING_BRACKET)) {
+            topStack = operationsStack.top();
+            while (!isOpeningBrackets(operationsHelper, topStack)) {
+                postfixExpression += topStack;
+                operationsStack.pop();
+                topStack = operationsStack.top();
+            }
+            operationsStack.pop();
+
+            if (topStack != static_cast<char>(AssistiveSymbols::OPENING_BRACKET)) {
+                postfixExpression += topStack;
+            }
+        } else {
+            topStack = operationsStack.top();
+            while (operationsHelper.getPriority(topStack) >= operationsHelper.getPriority(symbol)) {
+                postfixExpression += topStack;
+                operationsStack.pop();
+                topStack = operationsStack.top();
+            }
+            operationsStack.push(symbol);
+        }
+    }
+
+    if (!operationsStack.empty()) {
+        throw errors::INCORRECT_EXPRESSION_ERR_CODE;
+    }
+
+    return postfixExpression;
+}
+
+bool utils::isCorrectExpression(const OperationsHelper& operationsHelper, const std::string& infixExpr) {
+    return std::count_if(infixExpr.begin(), infixExpr.end(), [&](char symbol) { return operationsHelper.getPriority(symbol) == Priority::BRACKETS_PRIORITY && symbol != static_cast<char>(AssistiveSymbols::CLOSING_BRACKET); }) ==
+        std::count_if(infixExpr.begin(), infixExpr.end(), [&](char symbol) { return operationsHelper.getPriority(symbol) == Priority::BRACKETS_PRIORITY && symbol == static_cast<char>(AssistiveSymbols::CLOSING_BRACKET); });
+}
+
+long double utils::applyBinaryOperation(Operation operation, long double firstArg, long double secondArg) {
+    long double resultOperation = DBL_MIN;
+    switch (operation) {
+    case Operation::SUM:
+        resultOperation = secondArg + firstArg;
+        break;
+    case Operation::SUB:
+        resultOperation = secondArg - firstArg;
+        break;
+    case Operation::MUL:
+        resultOperation = secondArg * firstArg;
+        break;
+    case Operation::DIV:
+        resultOperation = secondArg / firstArg;
+        break;
+    case Operation::POW:
+        resultOperation = universalPow(secondArg, firstArg, constants::DEFAULT_ERROR);
+        break;
+    default:
+        break;
+    }
+    return resultOperation;
+}
+
+long double utils::applyUnaryOperation(Operation operation, long double arg) {
+    long double resultOperation = DBL_MIN;
+    switch (operation) {
+    case Operation::SIN:
+        resultOperation = sin(arg);
+        break;
+    case Operation::COS:
+        resultOperation = cos(arg);
+        break;
+    case Operation::LOG:
+        resultOperation = log(arg);
+        break;
+    case Operation::EXP:
+        resultOperation = exp(arg);
+        break;
+    default:
+        break;
+    }
+    return resultOperation;
+}
 
 int n1, nexp, l, iq, iu[10], iv[10];
 void utils::mapd(long double x, int m, long double* y, int n, int key)

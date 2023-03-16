@@ -1,25 +1,17 @@
 #pragma once
 
 #include "models.hpp"
+#include "operations_helper.hpp"
+#include "utils.hpp"
 #include <string>
-#include<stack>
+#include <stack>
 
 
-class Calculator
-{
-	std::string infixExpression;
-	std::string postfixExpression;
-
-	int getPriority(char symbol) const;
-
-	bool checkCorrectnessExpression() const;
-	bool openingBrackets(char symbol) const;
-	bool beginComplexFunction(char symbol) const;
-
-	bool configureExpression(const std::string& basicExpression);
-	void infixToPostfix();
+class Calculator {
+	std::string _infixExpression;
+	OperationsHelper _operationsHelper;
 public:
 	Calculator() = delete;
-	Calculator(const std::string& basicExpression);
+	Calculator(std::string basicExpression);
 	long double calculateResult();
 };

@@ -10,14 +10,14 @@ namespace {
         return point[constants::BIDIMENSIONAL_POINT_SIZE - 1];
     }
 
-    bool comparisonPair(const TrialPoint& firstPoint, const TrialPoint& secondPoint) {
+    bool comparisonPoints(const TrialPoint& firstPoint, const TrialPoint& secondPoint) {
         return convertPointToBidimensional(firstPoint.point) < convertPointToBidimensional(secondPoint.point);
     }
 }
 
 
 BidimensionalGlobalSearch::BidimensionalGlobalSearch(const Function& task, const GlobalSearchTaskParams& params) :
-    _task(task), _params(params), _globalMinimum(), _points(), _complexity(), _checkedPoints() {}
+    _task(task), _params(params), _globalMinimum(), _points(), _complexity(), _checkedPoints(::comparisonPoints) {}
 
 void BidimensionalGlobalSearch::startIteration() {
     Point leftBorder = _task.getLeftBorder();
@@ -25,10 +25,11 @@ void BidimensionalGlobalSearch::startIteration() {
     PointType valueFuncLeftBorder = _task.getValue(leftBorder);
     PointType valueFuncRightBorder = _task.getValue(rightBorder);
 
-    if (valueFuncLeftBorder <= valueFuncRightBorder)
+    if (valueFuncLeftBorder <= valueFuncRightBorder) {
         _globalMinimum = TrialPoint(leftBorder, valueFuncLeftBorder);
-    else
+    } else {
         _globalMinimum = TrialPoint(rightBorder, valueFuncRightBorder);
+    }
 
     _checkedPoints.insert({ leftBorder, valueFuncLeftBorder });
     _checkedPoints.insert({ rightBorder, valueFuncRightBorder });
@@ -43,11 +44,8 @@ TrialPoint BidimensionalGlobalSearch::run() {
 
     bool stopÑondition = false;
     PointType maxDiff = PointType();
-
-    while (!stopÑondition)
-    {
-        for (auto iter = ++_checkedPoints.begin(); iter != _checkedPoints.end(); iter++)
-        {
+    while (!stopÑondition) {
+        for (auto iter = ++_checkedPoints.begin(); iter != _checkedPoints.end(); iter++) {
             TrialPoint currentElem = *(iter--);
             TrialPoint lastELem = *(iter++);
 
@@ -58,23 +56,22 @@ TrialPoint BidimensionalGlobalSearch::run() {
 
         auto m = _params.rCoeff * maxDiff;
 
-        if (m == 0) {
-            m = 1;
+        if (maxDiff == 0.0) {
+            m = 1.0;
         }
 
-        PointType maxValueInterval = PointType();
+        PointType maxR = PointType();
         auto desiredInterval = ++_checkedPoints.begin();
-        for (auto iter = ++_checkedPoints.begin(); iter != _checkedPoints.end(); iter++)
-        {
+        for (auto iter = ++_checkedPoints.begin(); iter != _checkedPoints.end(); iter++) {
             TrialPoint currentElem = *(iter--);
-            TrialPoint lastELem = *(iter++);
+            TrialPoint lastElem = *(iter++);
 
-            PointType temporaryValue = m * (::convertPointToBidimensional(currentElem.point) - ::convertPointToBidimensional(lastELem.point));
-            PointType valueInterval = temporaryValue + (currentElem.value - lastELem.value) * (currentElem.value - lastELem.value)
-                / temporaryValue - 2 * (currentElem.value + lastELem.value);
+            PointType pointInterval = ::convertPointToBidimensional(currentElem.point) - ::convertPointToBidimensional(lastElem.point);
+            PointType valueInterval = currentElem.value - lastElem.value;
+            auto R = m * pointInterval + (valueInterval * valueInterval) / (m * pointInterval) - 2.0 * (currentElem.value + lastElem.value);
 
-            if (iter == ++_checkedPoints.begin() || valueInterval > maxValueInterval) {
-                maxValueInterval = valueInterval;
+            if (iter == ++_checkedPoints.begin() || R > maxR) {
+                maxR = R;
                 desiredInterval = iter;
             }
         }
@@ -82,11 +79,12 @@ TrialPoint BidimensionalGlobalSearch::run() {
         TrialPoint currentElemDesiredInterval = *(desiredInterval--);
         TrialPoint lastElemDesiredInterval = *(desiredInterval++);
 
-        Point newCoordinate = Point{ (::convertPointToBidimensional(currentElemDesiredInterval.point) + ::convertPointToBidimensional(lastElemDesiredInterval.point)) * 0.5
-            - (currentElemDesiredInterval.value - lastElemDesiredInterval.value) * 0.5 / m };
+        Point newCoordinate = Point{ 0.5 * (
+            ::convertPointToBidimensional(currentElemDesiredInterval.point) + ::convertPointToBidimensional(lastElemDesiredInterval.point)
+            + ((1.0 / m) * (currentElemDesiredInterval.value - lastElemDesiredInterval.value))) };
         PointType newValue = _task.getValue(newCoordinate);
-        _checkedPoints.insert({ newCoordinate, newValue });
 
+        _checkedPoints.insert({ newCoordinate, newValue });
         _points.push_back(newCoordinate);
 
         if (newValue < _globalMinimum.value) {
@@ -101,11 +99,6 @@ TrialPoint BidimensionalGlobalSearch::run() {
 }
 
 Points BidimensionalGlobalSearch::getPoints() {
-    if (_points.empty()) {
-        for (TrialPoint trialPoint : _checkedPoints) {
-            _points.push_back(trialPoint.point);
-        }
-    }
     return _points;
 }
 
