@@ -35,6 +35,7 @@ class IndexAlgorithm : public Algorithm {
 public:
 	IndexAlgorithm() = delete;
 	IndexAlgorithm(const Function& task, const std::vector<Function>& constraints, const IndexAlgorithmParams& params);
+	IndexAlgorithm(IConstrainedOptProblem* generator, const IndexAlgorithmParams& params);
 	Points getPoints();
 	Complexity getComplexity();
 	TrialPoint run();

@@ -54,6 +54,6 @@ Point Function::getRightBorder() {
     return _borders.value().rightBorder;
 }
 
-int Function::getDimensionSize() {
+std::size_t Function::getDimensionSize() {
     return _variableSet.size();
 }

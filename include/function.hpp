@@ -17,5 +17,5 @@ public:
     Point getLeftBorder();
     Point getRightBorder();
     PointType getValue(const Point& point);
-    int getDimensionSize();
+    std::size_t getDimensionSize();
 };

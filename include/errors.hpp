@@ -10,4 +10,5 @@ namespace errors {
     const static int INCORRECT_VARIABLE_SET_ERR_CODE = 7;
     const static int CALCULATOR_INTERNAL_ERROR_ERR_CODE = 8;
     const static int INDEX_ALGORITHM_INTERNAL_ERROR_ERR_CODE = 9;
+    const static int TASK_HELPER_INTERNAL_ERROR_ERR_CODE = 10;
 }

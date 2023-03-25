@@ -8,17 +8,22 @@ IndexAlgorithm::IndexAlgorithm(const Function& task, const std::vector<Function>
 	_peanoPoints(), _peanoPointsClassification(), _performedStepsMap(), _isNeededStop(false),
 	_estimationLipschitzConstant(constraints.size() + 1, -DBL_MAX), _minZs(constraints.size() + 1, DBL_MAX) {}
 
+IndexAlgorithm::IndexAlgorithm(IConstrainedOptProblem* generator, const IndexAlgorithmParams& params) :
+	_taskHelper(generator), _params(params), _points(), _complexity(),
+	_peanoPoints(), _peanoPointsClassification(), _performedStepsMap(), _isNeededStop(false),
+	_estimationLipschitzConstant(generator->GetConstraintsNumber() + 1, -DBL_MAX), _minZs(generator->GetConstraintsNumber() + 1, DBL_MAX) {}
+
 Point IndexAlgorithm::parsePoint(PointType peanoPoint) {
-	if (_taskHelper.getTask().getDimensionSize() > 1) {
+	if (_taskHelper.getTaskDimensionSize() > 1) {
 		if (peanoPoint < constants::MIN_PEANO_POINT || peanoPoint > constants::MAX_PEANO_POINT) {
 			throw errors::INDEX_ALGORITHM_INTERNAL_ERROR_ERR_CODE;
 		}
 
-		double* y = new double[_taskHelper.getTask().getDimensionSize()];
-		utils::mapd(peanoPoint, constants::DEFAULT_MAPD_M, y, static_cast<int>(_taskHelper.getTask().getDimensionSize()), constants::DEFAULT_MAPD_KEY);
+		double* y = new double[_taskHelper.getTaskDimensionSize()];
+		utils::mapd(peanoPoint, constants::DEFAULT_MAPD_M, y, static_cast<int>(_taskHelper.getTaskDimensionSize()), constants::DEFAULT_MAPD_KEY);
 
-		std::vector<PointType> nonLinearizedPoint(y, y + _taskHelper.getTask().getDimensionSize());
-		auto linearArg = utils::linearTransform(nonLinearizedPoint, _taskHelper.getTask().getLeftBorder(), _taskHelper.getTask().getRightBorder());
+		std::vector<PointType> nonLinearizedPoint(y, y + _taskHelper.getTaskDimensionSize());
+		auto linearArg = utils::linearTransform(nonLinearizedPoint, _taskHelper.getTaskBorders().leftBorder, _taskHelper.getTaskBorders().rightBorder);
 
 		delete[] y;
 
@@ -50,7 +55,7 @@ std::string IndexAlgorithm::performStep(PointType peanoPoint) {
 	std::size_t v = _taskHelper.getConstraintsCount();
 	PointType z = -1;
 	for (std::size_t i = 0; i < v; i++) {
-		z = _taskHelper.getConstraint(i).getValue(point);
+		z = _taskHelper.getConstraintValue(i, point);
 		if (z > 0) {
 			v = i;
 			break;
@@ -58,7 +63,7 @@ std::string IndexAlgorithm::performStep(PointType peanoPoint) {
 	}
 
 	if (z <= 0) {
-		z = _taskHelper.getTask().getValue(point);
+		z = _taskHelper.getTaskValue(point);
 	}
 
 	_performedStepsMap[stepKey] = IndexAlgorithmStepResult(v, z);
@@ -73,7 +78,7 @@ void IndexAlgorithm::updateData(const std::string& performedStepKey, PointType p
 		stepKey = std::to_string(peanoPoint);
 		_estimationLipschitzConstant[performedStepResult.v] = std::max(_estimationLipschitzConstant[performedStepResult.v],
 			fabs(performedStepResult.z - _performedStepsMap[stepKey].z) /
-				powl(fabs(performedStepPeanoPoint - peanoPoint), 1.0 / _taskHelper.getTask().getDimensionSize()));
+				powl(fabs(performedStepPeanoPoint - peanoPoint), 1.0 / _taskHelper.getTaskDimensionSize()));
 	}
 
 	if (_estimationLipschitzConstant[performedStepResult.v] <= 0.0 || _peanoPointsClassification[performedStepResult.v].empty()) {
@@ -115,7 +120,7 @@ PointType IndexAlgorithm::calculateNextStepPeanoPoint(const std::vector<long dou
 		previousPointStepResult = _performedStepsMap[std::to_string(previousPoint)];
 		currentPointStepResult = _performedStepsMap[std::to_string(currentPoint)];
 
-		delta = powl(currentPoint - previousPoint, 1.0 / _taskHelper.getTask().getDimensionSize());
+		delta = powl(currentPoint - previousPoint, 1.0 / _taskHelper.getTaskDimensionSize());
 
 		if (previousPointStepResult.v == currentPointStepResult.v) {
 			R = delta + pow((currentPointStepResult.z - previousPointStepResult.z), 2) /
@@ -138,7 +143,7 @@ PointType IndexAlgorithm::calculateNextStepPeanoPoint(const std::vector<long dou
 		previousPointIter = currentPointIter;
 	}
 
-	_isNeededStop = pow(nextStepInterval.second - nextStepInterval.first, 1.0 / _taskHelper.getTask().getDimensionSize()) <= _params.accuracy;
+	_isNeededStop = pow(nextStepInterval.second - nextStepInterval.first, 1.0 / _taskHelper.getTaskDimensionSize()) <= _params.accuracy;
 
 	std::string startIntervalPointKey = std::to_string(nextStepInterval.first);
 	std::string endIntervalPointKey = std::to_string(nextStepInterval.second);
@@ -148,7 +153,7 @@ PointType IndexAlgorithm::calculateNextStepPeanoPoint(const std::vector<long dou
 		return (nextStepInterval.first + nextStepInterval.second) / 2.0 - 
 			utils::sign(_performedStepsMap[endIntervalPointKey].z - _performedStepsMap[startIntervalPointKey].z) *
 			(1.0 / (2.0 * _params.rCoeff)) * pow(fabsl(_performedStepsMap[endIntervalPointKey].z - _performedStepsMap[startIntervalPointKey].z) /
-				_estimationLipschitzConstant[_performedStepsMap[startIntervalPointKey].v], _taskHelper.getTask().getDimensionSize());
+				_estimationLipschitzConstant[_performedStepsMap[startIntervalPointKey].v], _taskHelper.getTaskDimensionSize());
 	}
 }
 
@@ -172,7 +177,7 @@ TrialPoint IndexAlgorithm::run() {
 
 	auto arguments = parsePoint(newPoint);
 	_points.push_back(arguments);
-	auto value = _taskHelper.getTask().getValue(arguments);
+	auto value = _taskHelper.getTaskValue(arguments);
 
 	return TrialPoint(arguments, value);
 }
