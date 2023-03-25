@@ -22,7 +22,7 @@ Complexity::Complexity(long int iterationCount) {
 
 Complexity::Complexity(const Complexity& complexity) : Complexity(complexity.iterationCount) {}
 
-GlobalSearchTaskParams::GlobalSearchTaskParams(double rCoeff, double accuracy) {
+GlobalSearchAlgorithmParams::GlobalSearchAlgorithmParams(double rCoeff, double accuracy) {
     if (rCoeff <= constants::MIN_R) {
         throw errors::INCORRECT_PARAM_ERR_CODE;
     }
@@ -31,7 +31,19 @@ GlobalSearchTaskParams::GlobalSearchTaskParams(double rCoeff, double accuracy) {
     this->accuracy = accuracy;
 }
 
-GlobalSearchTaskParams::GlobalSearchTaskParams(const GlobalSearchTaskParams& params) : GlobalSearchTaskParams(params.rCoeff, params.accuracy) {}
+GlobalSearchAlgorithmParams::GlobalSearchAlgorithmParams(const GlobalSearchAlgorithmParams& params) : GlobalSearchAlgorithmParams(params.rCoeff, params.accuracy) {}
+
+IndexAlgorithmParams::IndexAlgorithmParams(double rCoeff, double accuracy, double delta) {
+    if (rCoeff <= constants::MIN_R) {
+        throw errors::INCORRECT_PARAM_ERR_CODE;
+    }
+
+    this->rCoeff = rCoeff;
+    this->accuracy = accuracy;
+    this->delta = delta;
+}
+
+IndexAlgorithmParams::IndexAlgorithmParams(const IndexAlgorithmParams& params) : IndexAlgorithmParams(params.rCoeff, params.accuracy, params.delta) {}
 
 Borders::Borders(const Point& leftBorder, const Point& rightBorder) {
     if (rightBorder < leftBorder) {
@@ -42,3 +54,11 @@ Borders::Borders(const Point& leftBorder, const Point& rightBorder) {
 }
 
 Borders::Borders(const Borders& borders) : Borders(borders.leftBorder, borders.rightBorder) {}
+
+IndexAlgorithmStepResult::IndexAlgorithmStepResult(std::size_t v, PointType z) {
+    this->v = v;
+    this->z = z;
+}
+
+IndexAlgorithmStepResult::IndexAlgorithmStepResult(const IndexAlgorithmStepResult& indexAlgorithmStepResult) :
+    IndexAlgorithmStepResult(indexAlgorithmStepResult.v, indexAlgorithmStepResult.z) {}

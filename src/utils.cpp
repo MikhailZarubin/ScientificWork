@@ -41,9 +41,11 @@ std::string utils::infixToPostfix(const std::string& infixExpr) {
 
         if (operationsHelper.getPriority(symbol) == Priority::NUMBER_PRIORITY) {
             postfixExpression += symbol;
-        } else if (isOpeningBrackets(operationsHelper, symbol)) {
+        }
+        else if (isOpeningBrackets(operationsHelper, symbol)) {
             operationsStack.push(symbol);
-        } else if (symbol == static_cast<char>(AssistiveSymbols::CLOSING_BRACKET)) {
+        }
+        else if (symbol == static_cast<char>(AssistiveSymbols::CLOSING_BRACKET)) {
             topStack = operationsStack.top();
             while (!isOpeningBrackets(operationsHelper, topStack)) {
                 postfixExpression += topStack;
@@ -55,7 +57,8 @@ std::string utils::infixToPostfix(const std::string& infixExpr) {
             if (topStack != static_cast<char>(AssistiveSymbols::OPENING_BRACKET)) {
                 postfixExpression += topStack;
             }
-        } else {
+        }
+        else {
             topStack = operationsStack.top();
             while (operationsHelper.getPriority(topStack) >= operationsHelper.getPriority(symbol)) {
                 postfixExpression += topStack;
@@ -74,8 +77,12 @@ std::string utils::infixToPostfix(const std::string& infixExpr) {
 }
 
 bool utils::isCorrectExpression(const OperationsHelper& operationsHelper, const std::string& infixExpr) {
-    return std::count_if(infixExpr.begin(), infixExpr.end(), [&](char symbol) { return operationsHelper.getPriority(symbol) == Priority::BRACKETS_PRIORITY && symbol != static_cast<char>(AssistiveSymbols::CLOSING_BRACKET); }) ==
-        std::count_if(infixExpr.begin(), infixExpr.end(), [&](char symbol) { return operationsHelper.getPriority(symbol) == Priority::BRACKETS_PRIORITY && symbol == static_cast<char>(AssistiveSymbols::CLOSING_BRACKET); });
+    return std::count_if(infixExpr.begin(), infixExpr.end(), [&](char symbol)
+        { return operationsHelper.getPriority(symbol) == Priority::BRACKETS_PRIORITY &&
+        symbol != static_cast<char>(AssistiveSymbols::CLOSING_BRACKET); }) ==
+        std::count_if(infixExpr.begin(), infixExpr.end(), [&](char symbol) {
+        return operationsHelper.getPriority(symbol) ==
+            Priority::BRACKETS_PRIORITY && symbol == static_cast<char>(AssistiveSymbols::CLOSING_BRACKET); });
 }
 
 long double utils::applyBinaryOperation(Operation operation, long double firstArg, long double secondArg) {
@@ -123,9 +130,21 @@ long double utils::applyUnaryOperation(Operation operation, long double arg) {
     return resultOperation;
 }
 
+Point utils::linearTransform(const Point nonLinearizedPoint, const Point& leftBorders, const Point& rightBorders) {
+    Point linearizedPoint(nonLinearizedPoint.size());
+    for (std::vector<long double>::size_type i = 0; i < linearizedPoint.size(); i++) {
+        linearizedPoint[i] = leftBorders[i] + 
+            (nonLinearizedPoint[i] + 0.5) * (rightBorders[i] - leftBorders[i]);
+    }
+    return linearizedPoint;
+}
+
+PointType utils::sign(PointType arg) {
+    return arg < 0.0 ? -1.0 : (arg > 0.0 ? 1.0 : 0.0);
+}
+
 int n1, nexp, l, iq, iu[10], iv[10];
-void utils::mapd(long double x, int m, long double* y, int n, int key)
-{
+void utils::mapd(double x, int m, double* y, int n, int key) {
     /* mapping y(x) : 1 - center, 2 - line, 3 - node */
 
     double d, mne, dd, dr;
@@ -157,7 +176,7 @@ void utils::mapd(long double x, int m, long double* y, int n, int key)
             dd = dr - fmod(dr, 1.0);
             //заменил эту строчку на следующую
                 // dr=dd+d*mne/nexp;
-            dr = dd + (dd - 1) / (nexp - 1);
+            dr = dd + (dd - 1) / (nexp - 1.0);
             dd = dr - fmod(dr, 1.0);
             //заменил эту строчку на следующую
                 // d=dd*(1./(mne-1.0));
@@ -170,7 +189,7 @@ void utils::mapd(long double x, int m, long double* y, int n, int key)
         }
         else {
             d = d * nexp;
-            is = (int)d;
+            is = d;
             d = d - is;
         }
         i = is;
@@ -186,27 +205,27 @@ void utils::mapd(long double x, int m, long double* y, int n, int key)
         else if (l == it) l = 0;
         if ((iq > 0) || ((iq == 0) && (is == 0)))  k = l;
         else if (iq < 0) k = (it == n1) ? 0 : n1;
-        r = r * 0.5f;
+        r = r * 0.5;
         it = l;
         for (i = 0; i < n; i++) {
             iu[i] = iu[i] * iw[i];
             iw[i] = -iv[i] * iw[i];
             p = r * iu[i];
-            p = p + (float)y[i];
+            p = p + y[i];
             y[i] = p;
         }
     }
     if (key == 2) {
         if (is == (nexp - 1)) i = -1;
         else i = 1;
-        p = 2 * i * iu[k] * r * (float)d;
-        p = (float)y[k] - p;
+        p = 2 * i * iu[k] * r * d;
+        p = y[k] - p;
         y[k] = p;
     }
     else if (key == 3) {
         for (i = 0; i < n; i++) {
             p = r * iu[i];
-            p = p + (float)y[i];
+            p = p + y[i];
             y[i] = p;
         }
     }

@@ -9,4 +9,5 @@ namespace errors {
     const static int INCORRECT_PARAM_ERR_CODE = 6;
     const static int INCORRECT_VARIABLE_SET_ERR_CODE = 7;
     const static int CALCULATOR_INTERNAL_ERROR_ERR_CODE = 8;
+    const static int INDEX_ALGORITHM_INTERNAL_ERROR_ERR_CODE = 9;
 }

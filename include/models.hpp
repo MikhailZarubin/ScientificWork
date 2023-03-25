@@ -24,12 +24,21 @@ struct Complexity {
     Complexity(const Complexity& complexity);
 };
 
-struct GlobalSearchTaskParams {
+struct GlobalSearchAlgorithmParams {
     double rCoeff;
     double accuracy;
 
-    GlobalSearchTaskParams(double rCoeff, double accuracy);
-    GlobalSearchTaskParams(const GlobalSearchTaskParams& params);
+    GlobalSearchAlgorithmParams(double rCoeff, double accuracy);
+    GlobalSearchAlgorithmParams(const GlobalSearchAlgorithmParams& params);
+};
+
+struct IndexAlgorithmParams {
+    double rCoeff;
+    double accuracy;
+    double delta;
+
+    IndexAlgorithmParams(double rCoeff, double accuracy, double delta);
+    IndexAlgorithmParams(const IndexAlgorithmParams& params);
 };
 
 struct Borders {
@@ -38,4 +47,12 @@ struct Borders {
 
     Borders(const Point& leftBorder, const Point& rightBorder);
     Borders(const Borders& borders);
+};
+
+struct IndexAlgorithmStepResult {
+    std::size_t v;
+    PointType z;
+
+    IndexAlgorithmStepResult(std::size_t v = 0, PointType z = 0);
+    IndexAlgorithmStepResult(const IndexAlgorithmStepResult& indexAlgorithmStepResult);
 };

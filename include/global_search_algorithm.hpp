@@ -7,7 +7,7 @@
 
 class BidimensionalGlobalSearch : public Algorithm {
 	Function _task;
-	GlobalSearchTaskParams _params;
+	GlobalSearchAlgorithmParams _params;
 
 	TrialPoint _globalMinimum;
 	std::set<TrialPoint, bool(*) (const TrialPoint&, const TrialPoint&)> _checkedPoints;
@@ -15,11 +15,11 @@ class BidimensionalGlobalSearch : public Algorithm {
 	Points _points;
 
 	void startIteration();
-	void clearCache();
+	void clearData();
 
 public:
 	BidimensionalGlobalSearch() = delete;
-	BidimensionalGlobalSearch(const Function& task, const GlobalSearchTaskParams& params);
+	BidimensionalGlobalSearch(const Function& task, const GlobalSearchAlgorithmParams& params);
 	Points getPoints();
 	Complexity getComplexity();
 	TrialPoint run();

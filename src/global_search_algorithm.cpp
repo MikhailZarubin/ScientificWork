@@ -16,7 +16,7 @@ namespace {
 }
 
 
-BidimensionalGlobalSearch::BidimensionalGlobalSearch(const Function& task, const GlobalSearchTaskParams& params) :
+BidimensionalGlobalSearch::BidimensionalGlobalSearch(const Function& task, const GlobalSearchAlgorithmParams& params) :
     _task(task), _params(params), _globalMinimum(), _points(), _complexity(), _checkedPoints(::comparisonPoints) {}
 
 void BidimensionalGlobalSearch::startIteration() {
@@ -39,7 +39,7 @@ void BidimensionalGlobalSearch::startIteration() {
 }
 
 TrialPoint BidimensionalGlobalSearch::run() {
-    clearCache();
+    clearData();
     startIteration();
 
     bool stop—ondition = false;
@@ -106,7 +106,7 @@ Complexity BidimensionalGlobalSearch::getComplexity() {
     return _complexity;
 }
 
-void BidimensionalGlobalSearch::clearCache() {
+void BidimensionalGlobalSearch::clearData() {
     _complexity = Complexity();
     _checkedPoints.clear();
     _points.clear();
