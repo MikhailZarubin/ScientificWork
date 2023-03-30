@@ -21,6 +21,7 @@ class IndexAlgorithm : public Algorithm {
 	std::map<std::string, IndexAlgorithmStepResult> _performedStepsMap;
 	std::vector<long double> _estimationLipschitzConstant;
 	std::vector<PointType> _minZs;
+	std::size_t maxV;
 	bool _isNeededStop;
 
 	Point parsePoint(PointType peanoPoint);

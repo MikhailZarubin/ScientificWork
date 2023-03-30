@@ -4,14 +4,14 @@
 
 
 IndexAlgorithm::IndexAlgorithm(const Function& task, const std::vector<Function>& constraints, const IndexAlgorithmParams& params) :
-    _taskHelper(task, constraints), _params(params), _points(), _complexity(),
+    _taskHelper(task, constraints), _params(params), _points(), _complexity(), maxV(),
 	_peanoPoints(), _peanoPointsClassification(), _performedStepsMap(), _isNeededStop(false),
-	_estimationLipschitzConstant(constraints.size() + 1, -DBL_MAX), _minZs(constraints.size() + 1, DBL_MAX) {}
+	_estimationLipschitzConstant(_taskHelper.getConstraintsCount() + 1, -DBL_MAX), _minZs(_taskHelper.getConstraintsCount() + 1, DBL_MAX) {}
 
 IndexAlgorithm::IndexAlgorithm(IConstrainedOptProblem* generator, const IndexAlgorithmParams& params) :
-	_taskHelper(generator), _params(params), _points(), _complexity(),
+	_taskHelper(generator), _params(params), _points(), _complexity(), maxV(),
 	_peanoPoints(), _peanoPointsClassification(), _performedStepsMap(), _isNeededStop(false),
-	_estimationLipschitzConstant(generator->GetConstraintsNumber() + 1, -DBL_MAX), _minZs(generator->GetConstraintsNumber() + 1, DBL_MAX) {}
+	_estimationLipschitzConstant(_taskHelper.getConstraintsCount() + 1, -DBL_MAX), _minZs(_taskHelper.getConstraintsCount() + 1, DBL_MAX) {}
 
 Point IndexAlgorithm::parsePoint(PointType peanoPoint) {
 	if (_taskHelper.getTaskDimensionSize() > 1) {
@@ -66,13 +66,14 @@ std::string IndexAlgorithm::performStep(PointType peanoPoint) {
 		z = _taskHelper.getTaskValue(point);
 	}
 
+	maxV = std::max(maxV, v);
 	_performedStepsMap[stepKey] = IndexAlgorithmStepResult(v, z);
 	return stepKey;
 }
 
 void IndexAlgorithm::updateData(const std::string& performedStepKey, PointType performedStepPeanoPoint) {
 	IndexAlgorithmStepResult performedStepResult = _performedStepsMap[performedStepKey];
-
+	
 	std::string stepKey;
 	for (auto peanoPoint: _peanoPointsClassification[performedStepResult.v]) {
 		stepKey = std::to_string(peanoPoint);
@@ -92,13 +93,11 @@ void IndexAlgorithm::updateData(const std::string& performedStepKey, PointType p
 std::vector<long double> IndexAlgorithm::calculateMarks() {
 	std::vector<long double> marks(_taskHelper.getConstraintsCount() + 1);
 	for (std::size_t v = 0; v < marks.size(); v++) {
-		if (!_peanoPointsClassification[v].empty()) {
-			if (_minZs[v] > 0 || v == _taskHelper.getConstraintsCount()) {
-				marks[v] = _minZs[v];
-			}
-			else {
-				marks[v] = -_estimationLipschitzConstant[v] * _params.delta;
-			}
+		if (v == maxV) {
+			marks[v] = _minZs[v];
+			break;
+		} else {
+			marks[v] = -_estimationLipschitzConstant[v] * _params.delta;
 		}
 	}
 
