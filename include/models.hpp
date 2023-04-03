@@ -17,13 +17,6 @@ struct TrialPoint {
     TrialPoint& operator = (const TrialPoint& trialPoint);
 };
 
-struct Complexity {
-    long int iterationCount;
-
-    Complexity(long int iterationCount = constants::DEF_COMPLEXITY);
-    Complexity(const Complexity& complexity);
-};
-
 struct GlobalSearchAlgorithmParams {
     double rCoeff;
     double accuracy;

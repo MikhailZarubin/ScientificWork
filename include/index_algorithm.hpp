@@ -1,16 +1,20 @@
 #pragma once
 
 #include "base_algorithm.hpp"
+#include "complexity.hpp"
 #include "constants.hpp"
 #include "constrained_task_helper.hpp"
 #include "errors.hpp"
 #include "function.hpp"
+#include <iostream>
+#include <algorithm>
 #include <map>
 #include <set>
 #include <string>
 
 
 class IndexAlgorithm : public Algorithm {
+protected:
 	ConstrainedTaskHelper _taskHelper;
 	IndexAlgorithmParams _params;
 	Points _points;
@@ -22,14 +26,14 @@ class IndexAlgorithm : public Algorithm {
 	std::vector<long double> _estimationLipschitzConstant;
 	std::vector<PointType> _minZs;
 	std::size_t maxV;
-	bool _isNeededStop;
 
 	Point parsePoint(PointType peanoPoint);
 	PointType startIteration();
-	std::string performStep(PointType peanoPoint);
+	virtual std::string performStep(PointType peanoPoint);
 	void updateData(const std::string& performedStepKey, PointType performedStepPoint);
 	std::vector<long double> calculateMarks();
-	PointType calculateNextStepPeanoPoint(const std::vector<long double>& marks);
+	virtual std::pair<PointType, PointType> calculateNextStepInterval(const std::vector<long double>& marks);
+	PointType calculateNextStepPeanoPoint(std::pair<PointType, PointType> nextStepInterval);
 
 	void clearData();
 

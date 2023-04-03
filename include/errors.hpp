@@ -11,4 +11,5 @@ namespace errors {
     const static int CALCULATOR_INTERNAL_ERROR_ERR_CODE = 8;
     const static int INDEX_ALGORITHM_INTERNAL_ERROR_ERR_CODE = 9;
     const static int TASK_HELPER_INTERNAL_ERROR_ERR_CODE = 10;
+    const static int COMPLEXITY_INVALID_FUNC_NUMBER_ERROR_ERR_CODE = 11;
 }

@@ -143,6 +143,24 @@ PointType utils::sign(PointType arg) {
     return arg < 0.0 ? -1.0 : (arg > 0.0 ? 1.0 : 0.0);
 }
 
+long double utils::equal(long double arg1, long double arg2) {
+    return std::fabsl(arg1 - arg2) < std::numeric_limits<long double>::epsilon();
+}
+
+long double utils::improvementDegree(long double arg, long double degree) {
+    bool checkSqrt = utils::equal(degree, 1.0 / 2.0);
+    bool checkCbrt = utils::equal(degree, 1.0 / 3.0);
+    long double answer;
+    if (checkSqrt) {
+        answer = sqrtl(arg);
+    } else if (checkCbrt) {
+        answer = cbrtl(arg);
+    } else {
+        answer = powl(arg, degree);
+    }
+    return answer;
+}
+
 int n1, nexp, l, iq, iu[10], iv[10];
 void utils::mapd(double x, int m, double* y, int n, int key) {
     /* mapping y(x) : 1 - center, 2 - line, 3 - node */

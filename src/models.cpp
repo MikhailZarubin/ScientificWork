@@ -16,12 +16,6 @@ TrialPoint& TrialPoint::operator = (const TrialPoint& trialPoint) {
     return *this;
 }
 
-Complexity::Complexity(long int iterationCount) {
-    this->iterationCount = iterationCount;
-}
-
-Complexity::Complexity(const Complexity& complexity) : Complexity(complexity.iterationCount) {}
-
 GlobalSearchAlgorithmParams::GlobalSearchAlgorithmParams(double rCoeff, double accuracy) {
     if (rCoeff <= constants::MIN_R) {
         throw errors::INCORRECT_PARAM_ERR_CODE;

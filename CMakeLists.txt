@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.12)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -16,6 +16,5 @@ file(GLOB SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/GCGen/src/*.cpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/GCGen/src/*.h
                     ${CMAKE_CURRENT_SOURCE_DIR}/GCGen/src/*.hpp)
-
 
 add_executable(${PROJECT_NAME} ${SOURCE_EXE} ${SRC_FILES})

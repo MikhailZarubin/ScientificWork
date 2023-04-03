@@ -92,7 +92,7 @@ TrialPoint BidimensionalGlobalSearch::run() {
         }
 
         stop—ondition = ::convertPointToBidimensional(currentElemDesiredInterval.point) - ::convertPointToBidimensional(lastElemDesiredInterval.point) <= _params.accuracy;
-        _complexity.iterationCount++;
+        _complexity.incrementIteration();
     }
 
     return _globalMinimum;

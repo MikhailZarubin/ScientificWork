@@ -19,4 +19,6 @@ namespace utils {
     long double applyBinaryOperation(Operation operation, long double firstArg, long double secondArg);
     Point linearTransform(const Point nonLinearizedPoint, const Point& leftBorders, const Point& rightBorders);
     PointType sign(PointType arg);
+    long double equal(long double arg1, long double arg2);
+    long double improvementDegree(long double arg, long double degree);
 }
