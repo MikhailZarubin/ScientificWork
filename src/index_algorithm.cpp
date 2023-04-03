@@ -81,8 +81,8 @@ void IndexAlgorithm::updateData(const std::string& performedStepKey, PointType p
     for (auto peanoPoint : _peanoPointsClassification[performedStepResult.v]) {
         stepKey = std::to_string(peanoPoint);
         _estimationLipschitzConstant[performedStepResult.v] = std::max(_estimationLipschitzConstant[performedStepResult.v],
-            fabs(performedStepResult.z - _performedStepsMap[stepKey].z) /
-            powl(fabs(performedStepPeanoPoint - peanoPoint), 1.0 / _taskHelper.getTaskDimensionSize()));
+            fabsl(performedStepResult.z - _performedStepsMap[stepKey].z) /
+            utils::improvementDegree(fabsl(performedStepPeanoPoint - peanoPoint), 1.0 / _taskHelper.getTaskDimensionSize()));
     }
 
     if (_estimationLipschitzConstant[performedStepResult.v] <= 0.0 || _peanoPointsClassification[performedStepResult.v].empty()) {
