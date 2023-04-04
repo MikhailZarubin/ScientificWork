@@ -21,4 +21,15 @@ namespace utils {
     PointType sign(PointType arg);
     long double equal(long double arg1, long double arg2);
     long double improvementDegree(long double arg, long double degree);
+
+    template <class DataType>
+    std::optional<DataType> indexOf(std::vector<DataType> collection, DataType elem) {
+        auto index = std::distance(collection.begin(), std::find(collection.begin(), collection.end(), elem));
+        if (index < collection.size()) {
+            return std::optional<DataType>(index);
+        }
+        else {
+            return std::optional<DataType>();
+        }
+    }
 }

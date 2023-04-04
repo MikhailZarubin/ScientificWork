@@ -27,8 +27,6 @@ Borders ConstrainedTaskHelper::getTaskBorders() {
         }
         _generator->GetBounds(leftBorder, rightBorder);
         break;
-    default:
-        break;
     }
     return Borders(leftBorder, rightBorder);
 }
@@ -47,8 +45,6 @@ PointType ConstrainedTaskHelper::getTaskValue(Point point) {
             throw errors::TASK_HELPER_INTERNAL_ERROR_ERR_CODE;
         }
         answer = _generator->ComputeFunction(point);
-        break;
-    default:
         break;
     }
     return answer;
@@ -69,8 +65,6 @@ PointType ConstrainedTaskHelper::getConstraintValue(std::size_t constraintIndex,
         }
         answer = _generator->ComputeConstraint(constraintIndex, point);
         break;
-    default:
-        break;
     }
     return answer;
 }
@@ -90,8 +84,6 @@ std::size_t ConstrainedTaskHelper::getTaskDimensionSize() {
         }
         dimensionSize = _generator->GetDimension();
         break;
-    default:
-        break;
     }
     return dimensionSize;
 }
@@ -110,8 +102,6 @@ std::size_t ConstrainedTaskHelper::getConstraintsCount() {
             throw errors::TASK_HELPER_INTERNAL_ERROR_ERR_CODE;
         }
         constraintsCount = _generator->GetConstraintsNumber();
-        break;
-    default:
         break;
     }
     return constraintsCount;

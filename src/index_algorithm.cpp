@@ -4,12 +4,12 @@
 
 
 IndexAlgorithm::IndexAlgorithm(const Function& task, const std::vector<Function>& constraints, const IndexAlgorithmParams& params) :
-    _taskHelper(task, constraints), _params(params), _points(), _complexity(_taskHelper.getConstraintsCount() + 1), maxV(),
+    _taskHelper(task, constraints), _params(params), _points(), _complexity(_taskHelper.getConstraintsCount() + 1, 2), maxV(),
     _peanoPoints(), _peanoPointsClassification(), _performedStepsMap(),
     _estimationLipschitzConstant(_taskHelper.getConstraintsCount() + 1, -DBL_MAX), _minZs(_taskHelper.getConstraintsCount() + 1, DBL_MAX) {}
 
 IndexAlgorithm::IndexAlgorithm(IConstrainedOptProblem* generator, const IndexAlgorithmParams& params) :
-    _taskHelper(generator), _params(params), _points(), _complexity(_taskHelper.getConstraintsCount() + 1), maxV(),
+    _taskHelper(generator), _params(params), _points(), _complexity(_taskHelper.getConstraintsCount() + 1, 2), maxV(),
     _peanoPoints(), _peanoPointsClassification(), _performedStepsMap(),
     _estimationLipschitzConstant(_taskHelper.getConstraintsCount() + 1, -DBL_MAX), _minZs(_taskHelper.getConstraintsCount() + 1, DBL_MAX) {}
 
@@ -70,7 +70,7 @@ std::string IndexAlgorithm::performStep(PointType peanoPoint) {
     }
 
     maxV = std::max(maxV, v);
-    _performedStepsMap[stepKey] = IndexAlgorithmStepResult(v, z);
+    _performedStepsMap[stepKey] = IndexAlgorithmStepResult(peanoPoint, v, z);
     return stepKey;
 }
 
@@ -113,34 +113,16 @@ std::pair<PointType, PointType> IndexAlgorithm::calculateNextStepInterval(const 
     long double maxR = -DBL_MAX;
 
     PointType previousPoint, currentPoint;
-    IndexAlgorithmStepResult previousPointStepResult, currentPointStepResult;
     long double delta, R;
     auto previousPointIter = _peanoPoints.begin();
     for (auto currentPointIter = ++_peanoPoints.begin(); currentPointIter != _peanoPoints.end(); currentPointIter++) {
         previousPoint = *previousPointIter;
         currentPoint = *currentPointIter;
 
-        previousPointStepResult = _performedStepsMap[std::to_string(previousPoint)];
-        currentPointStepResult = _performedStepsMap[std::to_string(currentPoint)];
-
         delta = utils::improvementDegree(currentPoint - previousPoint, 1.0 / _taskHelper.getTaskDimensionSize());
 
-        if (previousPointStepResult.v == currentPointStepResult.v) {
-
-            R = delta + ((currentPointStepResult.z - previousPointStepResult.z) * (currentPointStepResult.z - previousPointStepResult.z)) /
-                (_params.rCoeff * _params.rCoeff * _estimationLipschitzConstant[currentPointStepResult.v] * _estimationLipschitzConstant[currentPointStepResult.v] * delta) -
-                2.0 * (currentPointStepResult.z + previousPointStepResult.z - 2.0 * marks[currentPointStepResult.v]) /
-                (_estimationLipschitzConstant[currentPointStepResult.v] * _params.rCoeff);
-        }
-        else if (currentPointStepResult.v > previousPointStepResult.v) {
-            R = 2.0 * delta - 4.0 * (currentPointStepResult.z - marks[currentPointStepResult.v]) /
-                (_estimationLipschitzConstant[currentPointStepResult.v] * _params.rCoeff);
-        }
-        else {
-            R = 2.0 * delta - 4.0 * (previousPointStepResult.z - marks[previousPointStepResult.v]) /
-                (_estimationLipschitzConstant[previousPointStepResult.v] * _params.rCoeff);
-        }
-
+        R = calculateInterval—haracteristic(delta, marks,
+            _performedStepsMap[std::to_string(previousPoint)], _performedStepsMap[std::to_string(currentPoint)]);
         if (R > maxR) {
             maxR = R;
             nextStepInterval = { previousPoint, currentPoint };
@@ -150,6 +132,32 @@ std::pair<PointType, PointType> IndexAlgorithm::calculateNextStepInterval(const 
     }
 
     return nextStepInterval;
+}
+
+long double IndexAlgorithm::calculateInterval—haracteristic(long double delta, const std::vector<long double>& marks,
+    IndexAlgorithmStepResult previousPointStepResult, IndexAlgorithmStepResult currentPointStepResult) {
+    long double intervalCharacteristic;
+    if (previousPointStepResult.v == currentPointStepResult.v) {
+        auto v = currentPointStepResult.v;
+        auto deltaZ = currentPointStepResult.z - previousPointStepResult.z;
+        auto squareLipschitzConstant = _estimationLipschitzConstant[v] * _estimationLipschitzConstant[v];
+        auto squareCoeff = _params.rCoeff * _params.rCoeff;
+
+        intervalCharacteristic = delta + (deltaZ * deltaZ) / (squareCoeff * squareLipschitzConstant * delta) -
+            2.0 * (currentPointStepResult.z + previousPointStepResult.z - 2.0 * marks[v]) /
+            (_estimationLipschitzConstant[v] * _params.rCoeff);
+    } else if (currentPointStepResult.v > previousPointStepResult.v) {
+        auto v = currentPointStepResult.v;
+        auto deltaZ = currentPointStepResult.z - marks[v];
+
+        intervalCharacteristic = 2.0 * delta - 4.0 * deltaZ / (_estimationLipschitzConstant[v] * _params.rCoeff);
+    } else {
+        auto v = previousPointStepResult.v;
+        auto deltaZ = previousPointStepResult.z - marks[v];
+
+        intervalCharacteristic = 2.0 * delta - 4.0 * deltaZ / (_estimationLipschitzConstant[v] * _params.rCoeff);
+    }
+    return intervalCharacteristic;
 }
 
 PointType IndexAlgorithm::calculateNextStepPeanoPoint(std::pair<PointType, PointType> nextStepInterval) {

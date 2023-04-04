@@ -33,7 +33,9 @@ protected:
 	void updateData(const std::string& performedStepKey, PointType performedStepPoint);
 	std::vector<long double> calculateMarks();
 	virtual std::pair<PointType, PointType> calculateNextStepInterval(const std::vector<long double>& marks);
-	PointType calculateNextStepPeanoPoint(std::pair<PointType, PointType> nextStepInterval);
+	virtual long double calculateInterval—haracteristic(long double delta, const std::vector<long double>& marks,
+		IndexAlgorithmStepResult previousPointStepResult, IndexAlgorithmStepResult currentPointStepResult);
+	virtual PointType calculateNextStepPeanoPoint(std::pair<PointType, PointType> nextStepInterval);
 
 	void clearData();
 

@@ -43,9 +43,10 @@ struct Borders {
 };
 
 struct IndexAlgorithmStepResult {
+    PointType point;
     std::size_t v;
     PointType z;
 
-    IndexAlgorithmStepResult(std::size_t v = 0, PointType z = 0);
+    IndexAlgorithmStepResult(PointType point = 0, std::size_t v = 0, PointType z = 0);
     IndexAlgorithmStepResult(const IndexAlgorithmStepResult& indexAlgorithmStepResult);
 };

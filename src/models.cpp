@@ -49,10 +49,11 @@ Borders::Borders(const Point& leftBorder, const Point& rightBorder) {
 
 Borders::Borders(const Borders& borders) : Borders(borders.leftBorder, borders.rightBorder) {}
 
-IndexAlgorithmStepResult::IndexAlgorithmStepResult(std::size_t v, PointType z) {
+IndexAlgorithmStepResult::IndexAlgorithmStepResult(PointType point, std::size_t v, PointType z) {
+    this->point = point;
     this->v = v;
     this->z = z;
 }
 
 IndexAlgorithmStepResult::IndexAlgorithmStepResult(const IndexAlgorithmStepResult& indexAlgorithmStepResult) :
-    IndexAlgorithmStepResult(indexAlgorithmStepResult.v, indexAlgorithmStepResult.z) {}
+    IndexAlgorithmStepResult(indexAlgorithmStepResult.point, indexAlgorithmStepResult.v, indexAlgorithmStepResult.z) {}
