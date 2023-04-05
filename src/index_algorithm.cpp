@@ -80,22 +80,22 @@ void IndexAlgorithm::updateData() {
     for (const auto& [key, pointSetModel] : _peanoPointsClassification) {
         if (PointSetModelHelper::isNeededReview(pointSetModel)) {
             PointType performedStepPeanoPoint = PointSetModelHelper::getNewPoint(pointSetModel);
-            IndexAlgorithmStepResult performedStepResult = _performedStepsMap[std::to_string(performedStepPeanoPoint)];
+            PointType performedStepResultZ = _performedStepsMap[std::to_string(performedStepPeanoPoint)].z;
 
             for (auto reviewedPoint : pointSetModel.reviewedPoints) {
                 reviewedPointKey = std::to_string(reviewedPoint);
-                _estimationLipschitzConstant[performedStepResult.v] = std::max(_estimationLipschitzConstant[performedStepResult.v],
-                    fabsl(performedStepResult.z - _performedStepsMap[reviewedPointKey].z) /
+                _estimationLipschitzConstant[key] = std::max(_estimationLipschitzConstant[key],
+                    fabsl(performedStepResultZ - _performedStepsMap[reviewedPointKey].z) /
                     utils::improvementDegree(fabsl(performedStepPeanoPoint - reviewedPoint), 1.0 / _taskHelper.getTaskDimensionSize()));
             }
 
-            if (_estimationLipschitzConstant[performedStepResult.v] <= 0.0 
-                || _peanoPointsClassification[performedStepResult.v].reviewedPoints.empty()) {
-                _estimationLipschitzConstant[performedStepResult.v] = 1.0;
+            if (_estimationLipschitzConstant[key] <= 0.0 
+                || _peanoPointsClassification[key].reviewedPoints.empty()) {
+                _estimationLipschitzConstant[key] = 1.0;
             }
-            _minZs[performedStepResult.v] = std::min(_minZs[performedStepResult.v], performedStepResult.z);
+            _minZs[key] = std::min(_minZs[key], performedStepResultZ);
 
-            PointSetModelHelper::newPointReviewed(&_peanoPointsClassification[performedStepResult.v]);
+            PointSetModelHelper::newPointReviewed(&_peanoPointsClassification[key]);
         }
     }
 }

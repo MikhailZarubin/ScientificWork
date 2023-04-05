@@ -33,6 +33,7 @@ std::string ModifiedIndexAlgorithm::performStep(PointType peanoPoint) {
     for (std::size_t i = 0; i < v; i++) {
         z = _taskHelper.getConstraintValue(_orderCheckingContraintsByPoint[stepKey][i], point);
         _complexity.incrementFunctionCalculation(_orderCheckingContraintsByPoint[stepKey][i]);
+        PointSetModelHelper::addNewPoint(&_peanoPointsClassification[_orderCheckingContraintsByPoint[stepKey][i]], peanoPoint);
         if (z > 0) {
             v = _orderCheckingContraintsByPoint[stepKey][i];
             break;
@@ -46,6 +47,7 @@ std::string ModifiedIndexAlgorithm::performStep(PointType peanoPoint) {
 
     maxV = std::max(maxV, v);
     _performedStepsMap[stepKey] = IndexAlgorithmStepResult(peanoPoint, v, z);
+    PointSetModelHelper::addNewPoint(&_peanoPointsClassification[v], peanoPoint);
     return stepKey;
 }
 
