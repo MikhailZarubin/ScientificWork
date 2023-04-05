@@ -7,7 +7,8 @@
 enum class ModificationMode {
     NONE,
     ADAPTIVE_ORDER_CHECKING,
-    ADAPTIVE_CALCULATE_INTERVAL_CHARACTERISTIC
+    ADAPTIVE_CALCULATE_INTERVAL_CHARACTERISTIC,
+    IMPROVEMENT_ADAPRIVE_ORDER_CHECKING
 };
 
 class ModifiedIndexAlgorithm : public IndexAlgorithm {
@@ -22,8 +23,8 @@ class ModifiedIndexAlgorithm : public IndexAlgorithm {
     PointType calculateNextStepPeanoPoint(std::pair<PointType, PointType> nextStepInterval) override;
 
     void init();
-    void reorderCheckingCostraints(std::size_t numberBrokenConstraint);
-    std::size_t getConstraintOrderNumber(PointType point, std::size_t constraintIndex);
+    void reorderCheckingCostraints(const std::string& startIntervalKey, const std::string& endIntervalKey);
+    std::size_t getConstraintOrderNumber(std::vector<std::size_t> constraintsOrder, std::size_t constraintIndex);
     
 public:
     ModifiedIndexAlgorithm() = delete;
