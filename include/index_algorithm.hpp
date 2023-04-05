@@ -6,6 +6,7 @@
 #include "constrained_task_helper.hpp"
 #include "errors.hpp"
 #include "function.hpp"
+#include "point_set_model_helper.hpp"
 #include <iostream>
 #include <algorithm>
 #include <map>
@@ -21,7 +22,7 @@ protected:
 	Complexity _complexity;
 
 	std::set<PointType> _peanoPoints;
-	std::map<std::size_t, std::set<PointType>> _peanoPointsClassification;
+	std::map<std::size_t, IndexAlgorithmPointSetModel> _peanoPointsClassification;
 	std::map<std::string, IndexAlgorithmStepResult> _performedStepsMap;
 	std::vector<long double> _estimationLipschitzConstant;
 	std::vector<PointType> _minZs;
@@ -30,7 +31,7 @@ protected:
 	Point parsePoint(PointType peanoPoint);
 	PointType startIteration();
 	virtual std::string performStep(PointType peanoPoint);
-	void updateData(const std::string& performedStepKey, PointType performedStepPoint);
+	void updateData();
 	std::vector<long double> calculateMarks();
 	virtual std::pair<PointType, PointType> calculateNextStepInterval(const std::vector<long double>& marks);
 	virtual long double calculateInterval—haracteristic(long double delta, const std::vector<long double>& marks,

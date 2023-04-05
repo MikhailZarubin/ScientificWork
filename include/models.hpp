@@ -2,7 +2,9 @@
 
 #include "constants.hpp"
 #include "errors.hpp"
+#include <optional>
 #include <vector>
+#include <set>
 
 typedef double PointType;
 typedef std::vector<PointType> Point;
@@ -49,4 +51,12 @@ struct IndexAlgorithmStepResult {
 
     IndexAlgorithmStepResult(PointType point = 0, std::size_t v = 0, PointType z = 0);
     IndexAlgorithmStepResult(const IndexAlgorithmStepResult& indexAlgorithmStepResult);
+};
+
+struct IndexAlgorithmPointSetModel {
+    std::set<PointType> reviewedPoints;
+    std::optional<PointType> newPoint;
+
+    IndexAlgorithmPointSetModel(std::set<PointType> reviewedPoints = {}, std::optional<PointType> newPoint = std::optional<PointType>());
+    IndexAlgorithmPointSetModel(const IndexAlgorithmPointSetModel& indexAlgorithmPointSetModel);
 };

@@ -39,10 +39,10 @@ PointType IndexAlgorithm::startIteration() {
     _peanoPoints.insert(constants::MAX_PEANO_POINT);
 
     std::string performedStepKey = performStep(constants::MIN_PEANO_POINT);
-    updateData(performedStepKey, constants::MIN_PEANO_POINT);
+    updateData();
 
     performedStepKey = performStep(constants::MAX_PEANO_POINT);
-    updateData(performedStepKey, constants::MAX_PEANO_POINT);
+    updateData();
 
     auto marks = calculateMarks();
     auto nextStepInterval = calculateNextStepInterval(marks);
@@ -71,26 +71,33 @@ std::string IndexAlgorithm::performStep(PointType peanoPoint) {
 
     maxV = std::max(maxV, v);
     _performedStepsMap[stepKey] = IndexAlgorithmStepResult(peanoPoint, v, z);
+    PointSetModelHelper::addNewPoint(&_peanoPointsClassification[v], peanoPoint);
     return stepKey;
 }
 
-void IndexAlgorithm::updateData(const std::string& performedStepKey, PointType performedStepPeanoPoint) {
-    IndexAlgorithmStepResult performedStepResult = _performedStepsMap[performedStepKey];
+void IndexAlgorithm::updateData() {
+    std::string reviewedPointKey;
+    for (const auto& [key, pointSetModel] : _peanoPointsClassification) {
+        if (PointSetModelHelper::isNeededReview(pointSetModel)) {
+            PointType performedStepPeanoPoint = PointSetModelHelper::getNewPoint(pointSetModel);
+            IndexAlgorithmStepResult performedStepResult = _performedStepsMap[std::to_string(performedStepPeanoPoint)];
 
-    std::string stepKey;
-    for (auto peanoPoint : _peanoPointsClassification[performedStepResult.v]) {
-        stepKey = std::to_string(peanoPoint);
-        _estimationLipschitzConstant[performedStepResult.v] = std::max(_estimationLipschitzConstant[performedStepResult.v],
-            fabsl(performedStepResult.z - _performedStepsMap[stepKey].z) /
-            utils::improvementDegree(fabsl(performedStepPeanoPoint - peanoPoint), 1.0 / _taskHelper.getTaskDimensionSize()));
+            for (auto reviewedPoint : pointSetModel.reviewedPoints) {
+                reviewedPointKey = std::to_string(reviewedPoint);
+                _estimationLipschitzConstant[performedStepResult.v] = std::max(_estimationLipschitzConstant[performedStepResult.v],
+                    fabsl(performedStepResult.z - _performedStepsMap[reviewedPointKey].z) /
+                    utils::improvementDegree(fabsl(performedStepPeanoPoint - reviewedPoint), 1.0 / _taskHelper.getTaskDimensionSize()));
+            }
+
+            if (_estimationLipschitzConstant[performedStepResult.v] <= 0.0 
+                || _peanoPointsClassification[performedStepResult.v].reviewedPoints.empty()) {
+                _estimationLipschitzConstant[performedStepResult.v] = 1.0;
+            }
+            _minZs[performedStepResult.v] = std::min(_minZs[performedStepResult.v], performedStepResult.z);
+
+            PointSetModelHelper::newPointReviewed(&_peanoPointsClassification[performedStepResult.v]);
+        }
     }
-
-    if (_estimationLipschitzConstant[performedStepResult.v] <= 0.0 || _peanoPointsClassification[performedStepResult.v].empty()) {
-        _estimationLipschitzConstant[performedStepResult.v] = 1.0;
-    }
-
-    _peanoPointsClassification[performedStepResult.v].insert(performedStepPeanoPoint);
-    _minZs[performedStepResult.v] = std::min(_minZs[performedStepResult.v], performedStepResult.z);
 }
 
 std::vector<long double> IndexAlgorithm::calculateMarks() {
@@ -185,7 +192,7 @@ TrialPoint IndexAlgorithm::run() {
     while (!isNeededStop) {
         _peanoPoints.insert(newStepPoint);
         performedStepKey = performStep(newStepPoint);
-        updateData(performedStepKey, newStepPoint);
+        updateData();
         marks = calculateMarks();
 
         nextStepInterval = calculateNextStepInterval(marks);

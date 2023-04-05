@@ -3,15 +3,13 @@
 #include "modified_index_algorithm.hpp"
 
 
-ModifiedIndexAlgorithm::ModifiedIndexAlgorithm(const Function& task, const std::vector<Function>& constraints, const IndexAlgorithmParams& params,
-    const ModificationMode& orderCheckingMode) : IndexAlgorithm(task, constraints, params), _modificationMode(orderCheckingMode),
-    _orderCheckingConstraintsNewPoint(_taskHelper.getConstraintsCount() + 1), _orderCheckingContraintsByPoint() {
+ModifiedIndexAlgorithm::ModifiedIndexAlgorithm(const Function& task, const std::vector<Function>& constraints, const IndexAlgorithmParams& params) : IndexAlgorithm(task, constraints, params),
+_orderCheckingConstraintsNewPoint(_taskHelper.getConstraintsCount() + 1), _orderCheckingContraintsByPoint() {
     init();
 }
 
-ModifiedIndexAlgorithm::ModifiedIndexAlgorithm(IConstrainedOptProblem* generator, const IndexAlgorithmParams& params,
-    const ModificationMode& orderCheckingMode) : IndexAlgorithm(generator, params), _modificationMode(orderCheckingMode),
-    _orderCheckingConstraintsNewPoint(_taskHelper.getConstraintsCount() + 1), _orderCheckingContraintsByPoint() {
+ModifiedIndexAlgorithm::ModifiedIndexAlgorithm(IConstrainedOptProblem* generator, const IndexAlgorithmParams& params) : IndexAlgorithm(generator, params),
+_orderCheckingConstraintsNewPoint(_taskHelper.getConstraintsCount() + 1), _orderCheckingContraintsByPoint() {
     init();
 }
 
@@ -61,15 +59,14 @@ std::pair<PointType, PointType> ModifiedIndexAlgorithm::calculateNextStepInterva
 long double ModifiedIndexAlgorithm::calculateInterval—haracteristic(long double delta, const std::vector<long double>& marks,
     IndexAlgorithmStepResult previousPointStepResult, IndexAlgorithmStepResult currentPointStepResult) {
     long double intervalCharacteristic;
-    if (_modificationMode < ModificationMode::ADAPTIVE_CALCULATE_INTERVAL_CHARACTERISTIC || previousPointStepResult.v == currentPointStepResult.v) {
+    if (previousPointStepResult.v == currentPointStepResult.v) {
         intervalCharacteristic = IndexAlgorithm::calculateInterval—haracteristic(delta, marks, previousPointStepResult, currentPointStepResult);
-    }
-    else {
-        auto p = getConstraintOrderNumber(_orderCheckingContraintsByPoint[std::to_string(previousPointStepResult.point)], previousPointStepResult.v);
-        auto q = getConstraintOrderNumber(_orderCheckingContraintsByPoint[std::to_string(currentPointStepResult.point)], previousPointStepResult.v);
+    } else {
+        auto p = getConstraintOrdinalNumber(_orderCheckingContraintsByPoint[std::to_string(previousPointStepResult.point)], previousPointStepResult.v);
+        auto q = getConstraintOrdinalNumber(_orderCheckingContraintsByPoint[std::to_string(currentPointStepResult.point)], previousPointStepResult.v);
 
-        auto u = getConstraintOrderNumber(_orderCheckingContraintsByPoint[std::to_string(previousPointStepResult.point)], currentPointStepResult.v);
-        auto s = getConstraintOrderNumber(_orderCheckingContraintsByPoint[std::to_string(currentPointStepResult.point)], currentPointStepResult.v);
+        auto u = getConstraintOrdinalNumber(_orderCheckingContraintsByPoint[std::to_string(previousPointStepResult.point)], currentPointStepResult.v);
+        auto s = getConstraintOrdinalNumber(_orderCheckingContraintsByPoint[std::to_string(currentPointStepResult.point)], currentPointStepResult.v);
 
         if (p < u && q < s) {
             auto v = currentPointStepResult.v;
@@ -91,46 +88,37 @@ long double ModifiedIndexAlgorithm::calculateInterval—haracteristic(long double 
 }
 
 void ModifiedIndexAlgorithm::reorderCheckingCostraints(const std::string& startIntervalKey, const std::string& endIntervalKey) {
+    auto p = getConstraintOrdinalNumber(_orderCheckingContraintsByPoint[startIntervalKey], _performedStepsMap[startIntervalKey].v);
+    auto q = getConstraintOrdinalNumber(_orderCheckingContraintsByPoint[endIntervalKey], _performedStepsMap[endIntervalKey].v);
 
-    if (_modificationMode >= ModificationMode::ADAPTIVE_ORDER_CHECKING) {
-        auto numberBrokenConstraint = _performedStepsMap[endIntervalKey].v;
-        if (numberBrokenConstraint < _taskHelper.getConstraintsCount()) {
-            std::rotate(_orderCheckingConstraintsNewPoint.begin(),
-                _orderCheckingConstraintsNewPoint.begin() + numberBrokenConstraint,
-                _orderCheckingConstraintsNewPoint.begin() + numberBrokenConstraint + 1);
-        }
+    auto functionIndex = _taskHelper.getConstraintsCount();
+    if (p == q && q < functionIndex || p < q && q == functionIndex) {
+        std::rotate(_orderCheckingConstraintsNewPoint.begin(),
+            _orderCheckingConstraintsNewPoint.begin() + p,
+            _orderCheckingConstraintsNewPoint.begin() + p + 1);
     }
+    else if (p == functionIndex && p > q) {
+        std::rotate(_orderCheckingConstraintsNewPoint.begin(),
+            _orderCheckingConstraintsNewPoint.begin() + q,
+            _orderCheckingConstraintsNewPoint.begin() + q + 1);
+    }
+    else if (p < q && q < functionIndex) {
+        std::rotate(_orderCheckingConstraintsNewPoint.begin(),
+            _orderCheckingConstraintsNewPoint.begin() + q,
+            _orderCheckingConstraintsNewPoint.begin() + q + 1);
 
-    if (_modificationMode == ModificationMode::IMPROVEMENT_ADAPRIVE_ORDER_CHECKING) {
-        auto startIntervalBrokenConstraintOrderNumber = getConstraintOrderNumber(_orderCheckingContraintsByPoint[startIntervalKey], _performedStepsMap[startIntervalKey].v);
-        auto endIntervalBrokenConstraintOrderNumber = getConstraintOrderNumber(_orderCheckingContraintsByPoint[endIntervalKey], _performedStepsMap[endIntervalKey].v);
+        std::rotate(_orderCheckingConstraintsNewPoint.begin(),
+            _orderCheckingConstraintsNewPoint.begin() + p,
+            _orderCheckingConstraintsNewPoint.begin() + p + 1);
+    }
+    else if (q < p && p < functionIndex) {
+        std::rotate(_orderCheckingConstraintsNewPoint.begin(),
+            _orderCheckingConstraintsNewPoint.begin() + p,
+            _orderCheckingConstraintsNewPoint.begin() + p + 1);
 
-        auto functionIndex = _taskHelper.getConstraintsCount();
-        if (startIntervalBrokenConstraintOrderNumber == endIntervalBrokenConstraintOrderNumber && endIntervalBrokenConstraintOrderNumber < functionIndex || startIntervalBrokenConstraintOrderNumber < endIntervalBrokenConstraintOrderNumber && endIntervalBrokenConstraintOrderNumber == functionIndex) { 
-            std::rotate(_orderCheckingConstraintsNewPoint.begin(),
-                _orderCheckingConstraintsNewPoint.begin() + startIntervalBrokenConstraintOrderNumber,
-                _orderCheckingConstraintsNewPoint.begin() + startIntervalBrokenConstraintOrderNumber + 1);
-        } else if (startIntervalBrokenConstraintOrderNumber == functionIndex && startIntervalBrokenConstraintOrderNumber > endIntervalBrokenConstraintOrderNumber) {
-            std::rotate(_orderCheckingConstraintsNewPoint.begin(),
-                _orderCheckingConstraintsNewPoint.begin() + endIntervalBrokenConstraintOrderNumber,
-                _orderCheckingConstraintsNewPoint.begin() + endIntervalBrokenConstraintOrderNumber + 1);
-        } else if (startIntervalBrokenConstraintOrderNumber < endIntervalBrokenConstraintOrderNumber && endIntervalBrokenConstraintOrderNumber < functionIndex) {
-            std::rotate(_orderCheckingConstraintsNewPoint.begin(),
-                _orderCheckingConstraintsNewPoint.begin() + endIntervalBrokenConstraintOrderNumber,
-                _orderCheckingConstraintsNewPoint.begin() + endIntervalBrokenConstraintOrderNumber + 1);
-
-            std::rotate(_orderCheckingConstraintsNewPoint.begin(),
-                _orderCheckingConstraintsNewPoint.begin() + startIntervalBrokenConstraintOrderNumber,
-                _orderCheckingConstraintsNewPoint.begin() + startIntervalBrokenConstraintOrderNumber + 1);
-        } else if (endIntervalBrokenConstraintOrderNumber < startIntervalBrokenConstraintOrderNumber && startIntervalBrokenConstraintOrderNumber < functionIndex) {
-            std::rotate(_orderCheckingConstraintsNewPoint.begin(),
-                _orderCheckingConstraintsNewPoint.begin() + startIntervalBrokenConstraintOrderNumber,
-                _orderCheckingConstraintsNewPoint.begin() + startIntervalBrokenConstraintOrderNumber + 1);
-
-            std::rotate(_orderCheckingConstraintsNewPoint.begin(),
-                _orderCheckingConstraintsNewPoint.begin() + endIntervalBrokenConstraintOrderNumber,
-                _orderCheckingConstraintsNewPoint.begin() + endIntervalBrokenConstraintOrderNumber + 1);
-        }
+        std::rotate(_orderCheckingConstraintsNewPoint.begin(),
+            _orderCheckingConstraintsNewPoint.begin() + q,
+            _orderCheckingConstraintsNewPoint.begin() + q + 1);
     }
 }
 
@@ -140,7 +128,7 @@ PointType ModifiedIndexAlgorithm::calculateNextStepPeanoPoint(std::pair<PointTyp
     return nextStepPeanoPoint;
 }
 
-std::size_t ModifiedIndexAlgorithm::getConstraintOrderNumber(std::vector<std::size_t> constraintsOrder, std::size_t constraintIndex) {
+std::size_t ModifiedIndexAlgorithm::getConstraintOrdinalNumber(std::vector<std::size_t> constraintsOrder, std::size_t constraintIndex) {
     auto constraintOrderNumber = utils::indexOf(constraintsOrder, constraintIndex);
     if (!constraintOrderNumber.has_value()) {
         throw errors::MODIF_INDEX_ALGORITHM_INTERNAL_ERROR_ERR_CODE;

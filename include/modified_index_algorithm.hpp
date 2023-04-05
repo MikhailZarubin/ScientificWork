@@ -4,15 +4,7 @@
 #include <numeric>
 
 
-enum class ModificationMode {
-    NONE,
-    ADAPTIVE_ORDER_CHECKING,
-    ADAPTIVE_CALCULATE_INTERVAL_CHARACTERISTIC,
-    IMPROVEMENT_ADAPRIVE_ORDER_CHECKING
-};
-
 class ModifiedIndexAlgorithm : public IndexAlgorithm {
-    ModificationMode _modificationMode;
     std::vector<std::size_t> _orderCheckingConstraintsNewPoint;
     std::map<string, std::vector<std::size_t>> _orderCheckingContraintsByPoint;
 
@@ -24,13 +16,11 @@ class ModifiedIndexAlgorithm : public IndexAlgorithm {
 
     void init();
     void reorderCheckingCostraints(const std::string& startIntervalKey, const std::string& endIntervalKey);
-    std::size_t getConstraintOrderNumber(std::vector<std::size_t> constraintsOrder, std::size_t constraintIndex);
+    std::size_t getConstraintOrdinalNumber(std::vector<std::size_t> constraintsOrder, std::size_t constraintIndex);
     
 public:
     ModifiedIndexAlgorithm() = delete;
-    ModifiedIndexAlgorithm(const Function& task, const std::vector<Function>& constraints, const IndexAlgorithmParams& params,
-        const ModificationMode& orderCheckingMode = ModificationMode::NONE);
-    ModifiedIndexAlgorithm(IConstrainedOptProblem* generator, const IndexAlgorithmParams& params,
-        const ModificationMode& orderCheckingMode = ModificationMode::NONE);
+    ModifiedIndexAlgorithm(const Function& task, const std::vector<Function>& constraints, const IndexAlgorithmParams& params);
+    ModifiedIndexAlgorithm(IConstrainedOptProblem* generator, const IndexAlgorithmParams& params);
 };
 

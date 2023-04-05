@@ -57,3 +57,11 @@ IndexAlgorithmStepResult::IndexAlgorithmStepResult(PointType point, std::size_t 
 
 IndexAlgorithmStepResult::IndexAlgorithmStepResult(const IndexAlgorithmStepResult& indexAlgorithmStepResult) :
     IndexAlgorithmStepResult(indexAlgorithmStepResult.point, indexAlgorithmStepResult.v, indexAlgorithmStepResult.z) {}
+
+IndexAlgorithmPointSetModel::IndexAlgorithmPointSetModel(std::set<PointType> reviewedPoints, std::optional<PointType> newPoint) {
+    this->reviewedPoints = reviewedPoints;
+    this->newPoint = newPoint;
+}
+
+IndexAlgorithmPointSetModel::IndexAlgorithmPointSetModel(const IndexAlgorithmPointSetModel& indexAlgorithmPointSetModel) :
+    IndexAlgorithmPointSetModel(indexAlgorithmPointSetModel.reviewedPoints, indexAlgorithmPointSetModel.newPoint) {}
