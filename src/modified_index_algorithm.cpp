@@ -14,8 +14,8 @@ _orderCheckingConstraintsNewPoint(_taskHelper.getConstraintsCount() + 1), _order
 }
 
 void ModifiedIndexAlgorithm::init() {
-    std::vector<std::size_t> orderCheckingContraintsMinPoint(_taskHelper.getConstraintsCount());
-    std::vector<std::size_t> orderCheckingContraintsMaxPoint(_taskHelper.getConstraintsCount());
+    std::vector<std::size_t> orderCheckingContraintsMinPoint(_taskHelper.getConstraintsCount() + 1);
+    std::vector<std::size_t> orderCheckingContraintsMaxPoint(_taskHelper.getConstraintsCount() + 1);
 
     std::iota(orderCheckingContraintsMinPoint.begin(), orderCheckingContraintsMinPoint.end(), 0);
     std::iota(orderCheckingContraintsMaxPoint.begin(), orderCheckingContraintsMaxPoint.end(), 0);
