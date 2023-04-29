@@ -28,10 +28,34 @@ Points deepEnumeration(Point truncatedStartPoint, Point finishPoint, PointType s
 	return points;
 }
 
-void writer::writePointsToFile(const std::string& fileName, Point startPoint, Point finishPoint, PointType step,
-	const std::function<PointType(Point)> getValue) {
+void writer::writePointsToFile(const std::string& fileName, Points points, const std::function<PointType(Point)>& getValue) {
 	std::ofstream outputFile(fileName);
 	outputFile.clear();
+
+	if (!points.empty()) {
+		outputFile << points[1].size() + 1 << '\n';
+	}
+
+	for (Point point : points) {
+		for (PointType value : point) {
+			outputFile << value << ' ';
+		}
+		outputFile << getValue(point) << '\n';
+	}
+
+	outputFile.close();
+}
+
+void writer::writePointIntervalToFile(const std::string& fileName, Point startPoint, Point finishPoint, PointType step,
+	const std::function<PointType(Point)>& getValue) {
+	if (startPoint.size() != finishPoint.size()) {
+		throw errors::FILE_WRITER_ERROR_ERR_CODE;
+	}
+
+	std::ofstream outputFile(fileName);
+	outputFile.clear();
+
+	outputFile << startPoint.size() + 1 << '\n';
 
 	Points allPoints = deepEnumeration(startPoint, finishPoint, step);
 	for (Point point : allPoints) {

@@ -14,4 +14,5 @@ namespace errors {
     const static int COMPLEXITY_INVALID_FUNC_NUMBER_ERROR_ERR_CODE = 11;
     const static int MODIF_INDEX_ALGORITHM_INTERNAL_ERROR_ERR_CODE = 12;
     const static int POINT_SET_MODEL_ERROR_ERR_CODE = 13;
+    const static int FILE_WRITER_ERROR_ERR_CODE = 14;
 }
