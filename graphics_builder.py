@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 
 if __name__ == '__main__':
@@ -43,7 +42,7 @@ if __name__ == '__main__':
     z = np.array(points[2], dtype=float)
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(x, y, z, cmap=cm.jet)
+    ax.scatter(x, y, z)
     plt.savefig('data/graphic_3D.png')
   else:
     print('Not supported visualization of a task with dimension is', dimension)
