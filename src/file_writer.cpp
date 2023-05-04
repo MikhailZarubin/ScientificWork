@@ -32,10 +32,6 @@ void writer::writePointsToFile(const std::string& fileName, Points points, const
 	std::ofstream outputFile(fileName);
 	outputFile.clear();
 
-	if (!points.empty()) {
-		outputFile << points[1].size() + 1 << '\n';
-	}
-
 	for (Point point : points) {
 		for (PointType value : point) {
 			outputFile << value << ' ';
