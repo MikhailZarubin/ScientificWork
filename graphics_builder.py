@@ -4,12 +4,26 @@ from matplotlib import cm
 
 functionPointsPath = 'data/function_points/'
 algorithmPointsPath = 'data/algorithm_points/'
+invalidPointsPath = 'data/invalid_points/'
 
 class Point3D:
   def __init__(self, x, y, z):
         self.x = x
         self.y = y
         self.z = z
+
+def unparse3DPointsFromFile(fileName):
+  pointsFile = open(fileName)
+  pointsInfo = pointsFile.read().split('\n')
+  points = []
+  
+  for point in pointsInfo:
+       coordinates = point.split(' ')
+       if coordinates.__len__() == 3:
+             point3D = Point3D(coordinates[0], coordinates[1], coordinates[2])
+             points.append(point3D)
+
+  return points
 
 def convertPoints3DtoArrays(points3D):
   x = []
@@ -52,61 +66,35 @@ def convertPoints3Dto2DArrays(points3D):
   return xgrid, ygrid, zgrid
 
 if __name__ == '__main__':
-  pointsfileName = 'points_2.txt'
-  dimension = -1
-  optimumPoint = []
+  pointsfileName = 'points_0.txt'
   functionPoints = []
   algorithmPoints = []
+  optimumPoint = []
+  expectedOptimum = []
+  invalidPoints = []
   try:
-    functionPointsFile = open(functionPointsPath + pointsfileName)
-    algorithmPointsFile = open(algorithmPointsPath + pointsfileName)
+    functionPoints = unparse3DPointsFromFile(functionPointsPath + pointsfileName)
+    algorithmPoints = unparse3DPointsFromFile(algorithmPointsPath + pointsfileName)
+    invalidPoints = unparse3DPointsFromFile(invalidPointsPath + pointsfileName)
 
-    functionPointsInfo = functionPointsFile.read().split('\n')
-    algorithmPointsInfo = algorithmPointsFile.read().split('\n')
-    
-    dimension = int(functionPointsInfo[0])
-    del functionPointsInfo[0]
+    expectedOptimum.append(algorithmPoints[algorithmPoints.__len__() - 1])
+    optimumPoint.append(algorithmPoints[algorithmPoints.__len__() - 2])
 
-    for functionPoint in functionPointsInfo:
-       coordinates = functionPoint.split(' ')
-       if coordinates.__len__() == dimension:
-          if dimension == 3:
-             point3D = Point3D(coordinates[0], coordinates[1], coordinates[2])
-             functionPoints.append(point3D)
-
-  
-    for algorithmPoint in algorithmPointsInfo:
-       coordinates = algorithmPoint.split(' ')
-       if coordinates.__len__() == dimension:
-          if dimension == 3:
-             point3D = Point3D(coordinates[0], coordinates[1], coordinates[2])
-             algorithmPoints.append(point3D)
-
-    optimumPoint.append(algorithmPoints[algorithmPoints.__len__() - 1])
-    algorithmPoints.remove(algorithmPoints[algorithmPoints.__len__() - 1])
-    
-    functionPointsFile.close()
-    algorithmPointsFile.close()
+    algorithmPoints.remove(expectedOptimum[0])
+    algorithmPoints.remove(optimumPoint[0])
   except FileNotFoundError:
-    print('Non existing file with name', functionPointsFile)
+    print('Non existing file with name', pointsfileName)
 
-if dimension == 3:
   xgrid, ygrid, zgrid = convertPoints3Dto2DArrays(functionPoints)
-  x, y, z = convertPoints3DtoArrays(algorithmPoints)
+  algX, algY, algZ = convertPoints3DtoArrays(algorithmPoints)
   optX, optY, optZ = convertPoints3DtoArrays(optimumPoint)
+  expectedOptX, expectedOptY, expectedOptZ = convertPoints3DtoArrays(expectedOptimum)
+  invalidX, invalidY, invalidZ = convertPoints3DtoArrays(invalidPoints)
 
-  ax = plt.axes(projection='3d')             
-  
-  ax.plot_surface(xgrid, ygrid, zgrid, cmap = cm.cool) 
-  #ax.scatter(x, y, z, c = 'red')
-  ax.scatter(optX, optY, optZ, c='green')
-
-  ax.set_title('Task of Global Optimization') 
-
-  ax.set_xlabel('X')
-  ax.set_ylabel('Y')
-  ax.set_zlabel('Z')
+  plt.contour(xgrid, ygrid, zgrid, cmap = cm.cool) 
+  plt.scatter(invalidX, invalidY, c = 'blue', alpha=0.3)
+  plt.scatter(algX, algY, c = 'red', s = 1)
+  plt.scatter(optX, optY, c = 'yellow', s = 50, alpha=0.5)
+  plt.scatter(expectedOptX, expectedOptY, c = 'green', s = 50, alpha=0.5)
 
   plt.show()
-else:
-  print('Not supported visualization of a task with dimension is', dimension)

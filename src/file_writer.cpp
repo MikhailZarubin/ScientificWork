@@ -47,7 +47,7 @@ void writer::writePointsToFile(const std::string& fileName, Points points, const
 }
 
 void writer::writePointIntervalToFile(const std::string& fileName, Point startPoint, Point finishPoint, PointType step,
-	const std::function<PointType(Point)>& getValue) {
+	const std::function<PointType(Point)>& getValue, const std::function<bool(Point)>& condition) {
 	if (startPoint.size() != finishPoint.size()) {
 		throw errors::FILE_WRITER_ERROR_ERR_CODE;
 	}
@@ -55,14 +55,14 @@ void writer::writePointIntervalToFile(const std::string& fileName, Point startPo
 	std::ofstream outputFile(fileName);
 	outputFile.clear();
 
-	outputFile << startPoint.size() + 1 << '\n';
-
 	Points allPoints = deepEnumeration(startPoint, finishPoint, step);
 	for (Point point : allPoints) {
-		for (PointType value : point) {
-			outputFile << value << ' ';
+		if (condition(point)) {
+			for (PointType value : point) {
+				outputFile << value << ' ';
+			}
+			outputFile << getValue(point) << '\n';
 		}
-		outputFile << getValue(point) << '\n';
 	}
 
 	outputFile.close();
