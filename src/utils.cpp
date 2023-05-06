@@ -140,7 +140,10 @@ Point utils::linearTransform(const Point nonLinearizedPoint, const Point& leftBo
 }
 
 PointType utils::sign(PointType arg) {
-    return arg < 0.0 ? -1.0 : (arg > 0.0 ? 1.0 : 0.0);
+    if (fabsl(arg) <= std::numeric_limits<PointType>::epsilon()) {
+        return 0.0;
+    }
+    return arg < 0.0 ? -1.0 : 1.0;
 }
 
 long double utils::equal(long double arg1, long double arg2) {

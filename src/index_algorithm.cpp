@@ -38,6 +38,9 @@ PointType IndexAlgorithm::startIteration() {
     _peanoPoints.insert(constants::MIN_PEANO_POINT);
     _peanoPoints.insert(constants::MAX_PEANO_POINT);
 
+    _points.push_back(parsePoint(constants::MIN_PEANO_POINT));
+    _points.push_back(parsePoint(constants::MAX_PEANO_POINT));
+
     std::string performedStepKey = performStep(constants::MIN_PEANO_POINT);
     updateData();
 
@@ -89,8 +92,7 @@ void IndexAlgorithm::updateData() {
                     utils::improvementDegree(fabsl(performedStepPeanoPoint - reviewedPoint), 1.0 / _taskHelper.getTaskDimensionSize()));
             }
 
-            if (_estimationLipschitzConstant[key] <= 0.0 
-                || _peanoPointsClassification[key].reviewedPoints.empty()) {
+            if (_estimationLipschitzConstant[key] < std::numeric_limits<PointType>::epsilon()) {
                 _estimationLipschitzConstant[key] = 1.0;
             }
             _minZs[key] = std::min(_minZs[key], performedStepResultZ);
@@ -184,6 +186,8 @@ PointType IndexAlgorithm::calculateNextStepPeanoPoint(std::pair<PointType, Point
 TrialPoint IndexAlgorithm::run() {
     clearData();
 
+    std::optional<Point> optimalPoint;
+    std::optional<PointType> optimalValue;
     std::string performedStepKey;
     std::vector<long double> marks;
     std::pair<PointType, PointType> nextStepInterval;
@@ -192,6 +196,14 @@ TrialPoint IndexAlgorithm::run() {
     while (!isNeededStop) {
         _peanoPoints.insert(newStepPoint);
         performedStepKey = performStep(newStepPoint);
+
+        if (!optimalValue.has_value() || 
+            _performedStepsMap[performedStepKey].v == _taskHelper.getConstraintsCount() &&
+            _performedStepsMap[performedStepKey].z < optimalValue.value()) {
+            optimalPoint = parsePoint(_performedStepsMap[performedStepKey].point);
+            optimalValue = _performedStepsMap[performedStepKey].z;
+        }
+
         updateData();
         marks = calculateMarks();
 
@@ -203,11 +215,7 @@ TrialPoint IndexAlgorithm::run() {
         isNeededStop = utils::improvementDegree(nextStepInterval.second - nextStepInterval.first, 1.0 / _taskHelper.getTaskDimensionSize()) <= _params.accuracy;
     }
 
-    auto arguments = parsePoint(newStepPoint);
-    _points.push_back(arguments);
-    auto value = _taskHelper.getTaskValue(arguments);
-
-    return TrialPoint(arguments, value);
+    return TrialPoint(optimalPoint.value(), optimalValue.value());
 }
 
 void IndexAlgorithm::clearData() {
