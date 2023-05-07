@@ -15,4 +15,6 @@ namespace errors {
     const static int MODIF_INDEX_ALGORITHM_INTERNAL_ERROR_ERR_CODE = 12;
     const static int POINT_SET_MODEL_ERROR_ERR_CODE = 13;
     const static int FILE_WRITER_ERROR_ERR_CODE = 14;
+    const static int INCORRECT_ARGS_COUNT_ERR_CODE = 15;
+    const static int INCORRECT_ARGS_VALUE_ERR_CODE = 16;
 }

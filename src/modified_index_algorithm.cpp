@@ -3,12 +3,14 @@
 #include "modified_index_algorithm.hpp"
 
 
-ModifiedIndexAlgorithm::ModifiedIndexAlgorithm(const Function& task, const std::vector<Function>& constraints, const IndexAlgorithmParams& params) : IndexAlgorithm(task, constraints, params),
+ModifiedIndexAlgorithm::ModifiedIndexAlgorithm(const Function& task, const std::vector<Function>& constraints,
+    const IndexAlgorithmParams& algParams, const ScanParams& scanParams) : IndexAlgorithm(task, constraints, algParams, scanParams),
 _orderCheckingConstraintsNewPoint(_taskHelper.getConstraintsCount() + 1), _orderCheckingContraintsByPoint() {
     init();
 }
 
-ModifiedIndexAlgorithm::ModifiedIndexAlgorithm(IConstrainedOptProblem* generator, const IndexAlgorithmParams& params) : IndexAlgorithm(generator, params),
+ModifiedIndexAlgorithm::ModifiedIndexAlgorithm(IConstrainedOptProblem* generator,
+    const IndexAlgorithmParams& algParams, const ScanParams& scanParams) : IndexAlgorithm(generator, algParams, scanParams),
 _orderCheckingConstraintsNewPoint(_taskHelper.getConstraintsCount() + 1), _orderCheckingContraintsByPoint() {
     init();
 }
@@ -73,13 +75,13 @@ long double ModifiedIndexAlgorithm::calculateInterval—haracteristic(long double 
             auto v = currentPointStepResult.v;
             auto deltaZ = currentPointStepResult.z - marks[v];
 
-            intervalCharacteristic = 2.0 * delta - 4.0 * deltaZ / (_estimationLipschitzConstant[v] * _params.rCoeff);
+            intervalCharacteristic = 2.0 * delta - 4.0 * deltaZ / (_estimationLipschitzConstant[v] * _algParams.rCoeff);
         }
         else if (p > u && q > s) {
             auto v = previousPointStepResult.v;
             auto deltaZ = previousPointStepResult.z - marks[v];
 
-            intervalCharacteristic = 2.0 * delta - 4.0 * deltaZ / (_estimationLipschitzConstant[v] * _params.rCoeff);
+            intervalCharacteristic = 2.0 * delta - 4.0 * deltaZ / (_estimationLipschitzConstant[v] * _algParams.rCoeff);
         }
         else {
             intervalCharacteristic = IndexAlgorithm::calculateInterval—haracteristic(delta, marks, previousPointStepResult, currentPointStepResult);

@@ -36,6 +36,14 @@ struct IndexAlgorithmParams {
     IndexAlgorithmParams(const IndexAlgorithmParams& params);
 };
 
+struct ScanParams {
+    int density;
+    int key;
+
+    ScanParams(int density, int key);
+    ScanParams(const ScanParams& params);
+};
+
 struct Borders {
     Point leftBorder;
     Point rightBorder;

@@ -20,7 +20,9 @@ class ModifiedIndexAlgorithm : public IndexAlgorithm {
     
 public:
     ModifiedIndexAlgorithm() = delete;
-    ModifiedIndexAlgorithm(const Function& task, const std::vector<Function>& constraints, const IndexAlgorithmParams& params);
-    ModifiedIndexAlgorithm(IConstrainedOptProblem* generator, const IndexAlgorithmParams& params);
+    ModifiedIndexAlgorithm(const Function& task, const std::vector<Function>& constraints,
+        const IndexAlgorithmParams& algParams, const ScanParams& scanParams);
+    ModifiedIndexAlgorithm(IConstrainedOptProblem* generator,
+        const IndexAlgorithmParams& algParams, const ScanParams& scanParams);
 };
 

@@ -3,13 +3,17 @@
 #include "index_algorithm.hpp"
 
 
-IndexAlgorithm::IndexAlgorithm(const Function& task, const std::vector<Function>& constraints, const IndexAlgorithmParams& params) :
-    _taskHelper(task, constraints), _params(params), _points(), _complexity(_taskHelper.getConstraintsCount() + 1, 2), maxV(),
+IndexAlgorithm::IndexAlgorithm(const Function& task, const std::vector<Function>& constraints, 
+    const IndexAlgorithmParams& algParams, const ScanParams& scanParams) :
+    _taskHelper(task, constraints), _algParams(algParams), _scanParams(scanParams),
+    _points(), _complexity(_taskHelper.getConstraintsCount() + 1, 2), maxV(),
     _peanoPoints(), _peanoPointsClassification(), _performedStepsMap(),
     _estimationLipschitzConstant(_taskHelper.getConstraintsCount() + 1, -DBL_MAX), _minZs(_taskHelper.getConstraintsCount() + 1, DBL_MAX) {}
 
-IndexAlgorithm::IndexAlgorithm(IConstrainedOptProblem* generator, const IndexAlgorithmParams& params) :
-    _taskHelper(generator), _params(params), _points(), _complexity(_taskHelper.getConstraintsCount() + 1, 2), maxV(),
+IndexAlgorithm::IndexAlgorithm(IConstrainedOptProblem* generator, 
+    const IndexAlgorithmParams& algParams, const ScanParams& scanParams) :
+    _taskHelper(generator), _algParams(algParams), _scanParams(scanParams),
+    _points(), _complexity(_taskHelper.getConstraintsCount() + 1, 2), maxV(),
     _peanoPoints(), _peanoPointsClassification(), _performedStepsMap(),
     _estimationLipschitzConstant(_taskHelper.getConstraintsCount() + 1, -DBL_MAX), _minZs(_taskHelper.getConstraintsCount() + 1, DBL_MAX) {}
 
@@ -20,7 +24,7 @@ Point IndexAlgorithm::parsePoint(PointType peanoPoint) {
         }
 
         double* y = new double[_taskHelper.getTaskDimensionSize()];
-        utils::mapd(peanoPoint, constants::DEFAULT_MAPD_M, y, static_cast<int>(_taskHelper.getTaskDimensionSize()), constants::DEFAULT_MAPD_KEY);
+        utils::mapd(peanoPoint, _scanParams.density, y, static_cast<int>(_taskHelper.getTaskDimensionSize()), _scanParams.key);
 
         std::vector<PointType> nonLinearizedPoint(y, y + _taskHelper.getTaskDimensionSize());
         auto linearArg = utils::linearTransform(nonLinearizedPoint, _taskHelper.getTaskBorders().leftBorder, _taskHelper.getTaskBorders().rightBorder);
@@ -110,7 +114,7 @@ std::vector<long double> IndexAlgorithm::calculateMarks() {
             break;
         }
         else {
-            marks[v] = -_estimationLipschitzConstant[v] * _params.delta;
+            marks[v] = -_estimationLipschitzConstant[v] * _algParams.delta;
         }
     }
 
@@ -150,21 +154,21 @@ long double IndexAlgorithm::calculateIntervalÑharacteristic(long double delta, c
         auto v = currentPointStepResult.v;
         auto deltaZ = currentPointStepResult.z - previousPointStepResult.z;
         auto squareLipschitzConstant = _estimationLipschitzConstant[v] * _estimationLipschitzConstant[v];
-        auto squareCoeff = _params.rCoeff * _params.rCoeff;
+        auto squareCoeff = _algParams.rCoeff * _algParams.rCoeff;
 
         intervalCharacteristic = delta + (deltaZ * deltaZ) / (squareCoeff * squareLipschitzConstant * delta) -
             2.0 * (currentPointStepResult.z + previousPointStepResult.z - 2.0 * marks[v]) /
-            (_estimationLipschitzConstant[v] * _params.rCoeff);
+            (_estimationLipschitzConstant[v] * _algParams.rCoeff);
     } else if (currentPointStepResult.v > previousPointStepResult.v) {
         auto v = currentPointStepResult.v;
         auto deltaZ = currentPointStepResult.z - marks[v];
 
-        intervalCharacteristic = 2.0 * delta - 4.0 * deltaZ / (_estimationLipschitzConstant[v] * _params.rCoeff);
+        intervalCharacteristic = 2.0 * delta - 4.0 * deltaZ / (_estimationLipschitzConstant[v] * _algParams.rCoeff);
     } else {
         auto v = previousPointStepResult.v;
         auto deltaZ = previousPointStepResult.z - marks[v];
 
-        intervalCharacteristic = 2.0 * delta - 4.0 * deltaZ / (_estimationLipschitzConstant[v] * _params.rCoeff);
+        intervalCharacteristic = 2.0 * delta - 4.0 * deltaZ / (_estimationLipschitzConstant[v] * _algParams.rCoeff);
     }
     return intervalCharacteristic;
 }
@@ -178,7 +182,7 @@ PointType IndexAlgorithm::calculateNextStepPeanoPoint(std::pair<PointType, Point
     else {
         return (nextStepInterval.first + nextStepInterval.second) / 2.0 -
             utils::sign(_performedStepsMap[endIntervalPointKey].z - _performedStepsMap[startIntervalPointKey].z) *
-            (1.0 / (2.0 * _params.rCoeff)) * utils::improvementDegree(fabsl(_performedStepsMap[endIntervalPointKey].z - _performedStepsMap[startIntervalPointKey].z) /
+            (1.0 / (2.0 * _algParams.rCoeff)) * utils::improvementDegree(fabsl(_performedStepsMap[endIntervalPointKey].z - _performedStepsMap[startIntervalPointKey].z) /
                 _estimationLipschitzConstant[_performedStepsMap[startIntervalPointKey].v], _taskHelper.getTaskDimensionSize());
     }
 }
@@ -212,7 +216,7 @@ TrialPoint IndexAlgorithm::run() {
 
         _points.push_back(parsePoint(newStepPoint));
         _complexity.incrementIteration();
-        isNeededStop = utils::improvementDegree(nextStepInterval.second - nextStepInterval.first, 1.0 / _taskHelper.getTaskDimensionSize()) <= _params.accuracy;
+        isNeededStop = utils::improvementDegree(nextStepInterval.second - nextStepInterval.first, 1.0 / _taskHelper.getTaskDimensionSize()) <= _algParams.accuracy;
     }
 
     return TrialPoint(optimalPoint.value(), optimalValue.value());

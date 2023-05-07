@@ -39,6 +39,13 @@ IndexAlgorithmParams::IndexAlgorithmParams(double rCoeff, double accuracy, doubl
 
 IndexAlgorithmParams::IndexAlgorithmParams(const IndexAlgorithmParams& params) : IndexAlgorithmParams(params.rCoeff, params.accuracy, params.delta) {}
 
+ScanParams::ScanParams(int density, int key) {
+    this->density = density;
+    this->key = key;
+}
+
+ScanParams::ScanParams(const ScanParams& params) : ScanParams(params.density, params.key) {}
+
 Borders::Borders(const Point& leftBorder, const Point& rightBorder) {
     if (rightBorder < leftBorder) {
         throw errors::INCORRECT_BORDERS_ERR_CODE;

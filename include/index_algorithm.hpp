@@ -17,7 +17,8 @@
 class IndexAlgorithm : public Algorithm {
 protected:
 	ConstrainedTaskHelper _taskHelper;
-	IndexAlgorithmParams _params;
+	IndexAlgorithmParams _algParams;
+	ScanParams _scanParams;
 	Points _points;
 	Complexity _complexity;
 
@@ -42,8 +43,10 @@ protected:
 
 public:
 	IndexAlgorithm() = delete;
-	IndexAlgorithm(const Function& task, const std::vector<Function>& constraints, const IndexAlgorithmParams& params);
-	IndexAlgorithm(IConstrainedOptProblem* generator, const IndexAlgorithmParams& params);
+	IndexAlgorithm(const Function& task, const std::vector<Function>& constraints, 
+		const IndexAlgorithmParams& algParams, const ScanParams& scanParams);
+	IndexAlgorithm(IConstrainedOptProblem* generator, 
+		const IndexAlgorithmParams& params, const ScanParams& scanParams);
 	Points getPoints();
 	Complexity getComplexity();
 	TrialPoint run();

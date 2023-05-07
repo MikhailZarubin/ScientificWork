@@ -3,7 +3,7 @@
 #include "utils.hpp"
 
 
-long double universalPow(long double base, long double deg, long double err) {
+long double universalPow(long double base, long double deg) {
     if (deg < 0.0) {
         base = 1.0 / base;
         deg = -deg;
@@ -11,12 +11,12 @@ long double universalPow(long double base, long double deg, long double err) {
 
     long double checkedCubRoot = deg / (1. / 3.);
     int counter = 0;
-    while (checkedCubRoot > 1.0 - err) {
+    while (fabsl(checkedCubRoot - 1.0) < std::numeric_limits<long double>::epsilon()) {
         checkedCubRoot -= 1.0;
         counter++;
     }
 
-    if (fabsl(checkedCubRoot) <= err && counter % 3) {
+    if (fabsl(checkedCubRoot) <= std::numeric_limits<long double>::epsilon() && counter % 3) {
         return powl(cbrtl(base), counter);
     }
 
@@ -101,7 +101,7 @@ long double utils::applyBinaryOperation(Operation operation, long double firstAr
         resultOperation = secondArg / firstArg;
         break;
     case Operation::POW:
-        resultOperation = universalPow(secondArg, firstArg, constants::DEFAULT_ERROR);
+        resultOperation = universalPow(secondArg, firstArg);
         break;
     default:
         break;
@@ -162,6 +162,19 @@ long double utils::improvementDegree(long double arg, long double degree) {
         answer = powl(arg, degree);
     }
     return answer;
+}
+
+PointType utils::getMaxCoordinateDifference(Point point1, Point point2) {
+    if (point1.size() != point2.size()) {
+        throw errors::INCORRECT_POINT_SIZE_ERR_CODE;
+    }
+
+    std::size_t dimension = point1.size();
+    long double maxDifference = -DBL_MAX;
+    for (int coordinate = 0; coordinate < dimension; coordinate++) {
+        maxDifference = std::max(fabsl(point1[coordinate] - point2[coordinate]), maxDifference);
+    }
+    return maxDifference;
 }
 
 int n1, nexp, l, iq, iu[10], iv[10];
