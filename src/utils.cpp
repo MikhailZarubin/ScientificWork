@@ -11,7 +11,7 @@ long double universalPow(long double base, long double deg) {
 
     long double checkedCubRoot = deg / (1. / 3.);
     int counter = 0;
-    while (fabsl(checkedCubRoot - 1.0) < std::numeric_limits<long double>::epsilon()) {
+    while (checkedCubRoot > 1.0 - std::numeric_limits<long double>::epsilon()) {
         checkedCubRoot -= 1.0;
         counter++;
     }
