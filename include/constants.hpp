@@ -5,17 +5,36 @@
 
 namespace constants {
 /*
-* Configuration contract constants
+* Configuration contract: Required Keys
 */
-    const static int REQUIRED_ARGS_COUNT = 2;
-    const static std::string INDEX_ALG_KEY = "IA";
-    const static std::string MODIFIED_INDEX_ALG_KEY = "MIA";
-    const static std::string ALL_TASK_KEY = "ALL";
-    const static long double DEFAULT_RELIABILITY = 3;
-    const static long double DEFAULT_ACCURACY = 0.01;
-    const static long double DEFAULT_EPSILON_RESERVED = 0.001;
-    const static int DEFAULT_MAPD_M = 10;
-    const static int DEFAULT_MAPD_KEY = 1;
+    const static std::string KEY_ALG_TYPE = "ALG_TYPE";
+
+/*
+* Configuration contract: Optional Keys
+*/
+    const static std::string KEY_TASK_NUMBER = "TASK_NUM";
+    const static std::string KEY_TASK_RELIABILITY = "TASK_R";
+    const static std::string KEY_TASK_ACCURACY = "TASK_ACC";
+    const static std::string KEY_TASK_EPSILON_RESERVED = "TASK_EPS";
+    const static std::string KEY_SCAN_DENSITY = "SCAN_DEN";
+    const static std::string KEY_SCAN_KEY = "SCAN_KEY";
+    const static std::string KEY_IS_PRINT = "IS_PRINT";
+
+/*
+* Configuration contract: Defined Values
+*/
+    const static std::string DEFINE_INDEX_ALG = "IA";
+    const static std::string DEFINE_MODIFIED_INDEX_ALG = "MIA";
+
+/*
+* Configuration contract: Default Values
+*/
+    const static double DEFAULT_TASK_RELIABILITY = 3;
+    const static double DEFAULT_TASK_ACCURACY = 0.01;
+    const static double DEFAULT_TASK_EPSILON_RESERVED = 0;
+    const static int DEFAULT_SCAN_DENSITY = 10;
+    const static int DEFAULT_SCAN_KEY = 1;
+    const static bool DEFAULT_IS_PRINT = false;
 
 /*
 * Data constants

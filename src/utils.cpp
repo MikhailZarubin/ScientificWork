@@ -177,6 +177,21 @@ PointType utils::getMaxCoordinateDifference(Point point1, Point point2) {
     return maxDifference;
 }
 
+std::vector<std::string> utils::split(const std::string& inputStr, const std::string& delimiter) {
+    std::size_t posStart = 0, posEnd, delimiterLength = delimiter.length();
+    std::string token;
+    std::vector<std::string> res;
+
+    while ((posEnd = inputStr.find(delimiter, posStart)) != std::string::npos) {
+        token = inputStr.substr(posStart, posEnd - posStart);
+        posStart = posEnd + delimiterLength;
+        res.push_back(token);
+    }
+
+    res.push_back(inputStr.substr(posStart));
+    return res;
+}
+
 int n1, nexp, l, iq, iu[10], iv[10];
 void utils::mapd(double x, int m, double* y, int n, int key) {
     /* mapping y(x) : 1 - center, 2 - line, 3 - node */

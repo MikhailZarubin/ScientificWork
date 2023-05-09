@@ -22,6 +22,7 @@ namespace utils {
     long double equal(long double arg1, long double arg2);
     long double improvementDegree(long double arg, long double degree);
     PointType getMaxCoordinateDifference(Point point1, Point point2);
+    std::vector<std::string> split(const std::string& inputStr, const std::string& delimiter);
 
     template <class DataType>
     std::optional<DataType> indexOf(std::vector<DataType> collection, DataType elem) {
@@ -32,5 +33,10 @@ namespace utils {
         else {
             return std::optional<DataType>();
         }
+    }
+
+    template <class KeyType, class ValueType>
+    bool contains(const std::map<KeyType, ValueType>& inputMap, KeyType key) {
+        return inputMap.find(key) != inputMap.end();
     }
 }

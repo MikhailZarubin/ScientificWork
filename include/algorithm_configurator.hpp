@@ -12,16 +12,18 @@
 #include <map>
 
 /*
-* CONFIGURATION CONTRACT
-* Required Arguments:
-* argv[1] - Type of algorithm used to solve the task (IA or MIA).
-* argv[2] - Number of the task to be solved (ALL or number from 0 to 99).
-* Optional Arguments:
-* argc[3] - Algorithm parameter: reliability parameter (double number greater than one). By default is constants::DEFAULT_RELIABILITY.
-* argc[4] - Algorithm parameter: accuracy. By default is constants::DEFAULT_ACCURACY.
-* argc[5] - Algorithm parameter: delta (epsilon reserved). By default is constants::DEFAULT_EPSILON_RESERVED.
-* argc[6] - Scan parameter: density of the scan construction. By default is constants::DEFAULT_MAPD_M = 10.
-* argc[7] - Scan parameter: key of the scan construction. By default is constants::DEFAULT_MAPD_KEY = 10.
+* Configuration Contract:
+* Input Format: {key}:{value}
+* Required Keys:
+* {ALG_TYPE}:{Type of algorithm used to solve the task (IA or MIA). Data type: string}
+* Optional Keys:
+* {TASK_NUM}:{Number of the task to be solved (number from 0 to 99). Data type: int. By default will be solved all tasks}
+* {TASK_R}:{Task parameter: reliability parameter (number greater than one). Data type: double. By default is constants::DEFAULT_TASK_RELIABILITY}
+* {TASK_ACC}:{Task parameter: accuracy. Data type: double. By default is constants::DEFAULT_TASK_ACCURACY}
+* {TASK_EPS}:{Task parameter: delta (epsilon reserved). Data type: double. By default is constants::DEFAULT_TASK_EPSILON_RESERVED}
+* {SCAN_DEN}:{Scan parameter: density of the scan construction. Data type: int. By default is constants::DEFAULT_SCAN_DENSITY = 10}
+* {SCAN_KEY}:{Scan parameter: key of the scan construction. Data type: int. By default is constants::DEFAULT_SCAN_KEY = 10}
+* {IS_PRINT}:{Whether to print function values to a file. Data type: bool. By default is constants::DEFAULT_IS_PRINT}
 */
 
 
