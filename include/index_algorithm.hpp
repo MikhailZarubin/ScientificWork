@@ -22,6 +22,9 @@ protected:
 	Points _points;
 	Complexity _complexity;
 
+	std::optional<Point> _optimalPoint;
+	std::optional<PointType> _optimalValue;
+
 	std::set<PointType> _peanoPoints;
 	std::map<std::size_t, IndexAlgorithmPointSetModel> _peanoPointsClassification;
 	std::map<std::string, IndexAlgorithmStepResult> _performedStepsMap;
@@ -39,6 +42,8 @@ protected:
 		IndexAlgorithmStepResult previousPointStepResult, IndexAlgorithmStepResult currentPointStepResult);
 	virtual PointType calculateNextStepPeanoPoint(std::pair<PointType, PointType> nextStepInterval);
 
+	void updateOptimalPoint(Point potentialOptimalPoint, PointType potentialOptimalValue,
+		std::optional<bool> isValid = std::optional<bool>());
 	void clearData();
 
 public:

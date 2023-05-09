@@ -6,6 +6,7 @@
 IndexAlgorithm::IndexAlgorithm(const Function& task, const std::vector<Function>& constraints, 
     const IndexAlgorithmParams& algParams, const ScanParams& scanParams) :
     _taskHelper(task, constraints), _algParams(algParams), _scanParams(scanParams),
+    _optimalPoint(), _optimalValue(),
     _points(), _complexity(_taskHelper.getConstraintsCount() + 1, 2), maxV(),
     _peanoPoints(), _peanoPointsClassification(), _performedStepsMap(),
     _estimationLipschitzConstant(_taskHelper.getConstraintsCount() + 1, -DBL_MAX), _minZs(_taskHelper.getConstraintsCount() + 1, DBL_MAX) {}
@@ -13,6 +14,7 @@ IndexAlgorithm::IndexAlgorithm(const Function& task, const std::vector<Function>
 IndexAlgorithm::IndexAlgorithm(IConstrainedOptProblem* generator, 
     const IndexAlgorithmParams& algParams, const ScanParams& scanParams) :
     _taskHelper(generator), _algParams(algParams), _scanParams(scanParams),
+    _optimalPoint(), _optimalValue(),
     _points(), _complexity(_taskHelper.getConstraintsCount() + 1, 2), maxV(),
     _peanoPoints(), _peanoPointsClassification(), _performedStepsMap(),
     _estimationLipschitzConstant(_taskHelper.getConstraintsCount() + 1, -DBL_MAX), _minZs(_taskHelper.getConstraintsCount() + 1, DBL_MAX) {}
@@ -42,13 +44,20 @@ PointType IndexAlgorithm::startIteration() {
     _peanoPoints.insert(constants::MIN_PEANO_POINT);
     _peanoPoints.insert(constants::MAX_PEANO_POINT);
 
-    _points.push_back(parsePoint(constants::MIN_PEANO_POINT));
-    _points.push_back(parsePoint(constants::MAX_PEANO_POINT));
+    Point startIntervalPoint = parsePoint(constants::MIN_PEANO_POINT);
+    Point endIntervalPoint = parsePoint(constants::MAX_PEANO_POINT);
+
+    _points.push_back(startIntervalPoint);
+    _points.push_back(endIntervalPoint);
 
     std::string performedStepKey = performStep(constants::MIN_PEANO_POINT);
+    updateOptimalPoint(startIntervalPoint, _performedStepsMap[performedStepKey].z,
+        _performedStepsMap[performedStepKey].v == _taskHelper.getConstraintsCount());
     updateData();
 
     performedStepKey = performStep(constants::MAX_PEANO_POINT);
+    updateOptimalPoint(endIntervalPoint, _performedStepsMap[performedStepKey].z,
+        _performedStepsMap[performedStepKey].v == _taskHelper.getConstraintsCount());
     updateData();
 
     auto marks = calculateMarks();
@@ -190,8 +199,7 @@ PointType IndexAlgorithm::calculateNextStepPeanoPoint(std::pair<PointType, Point
 TrialPoint IndexAlgorithm::run() {
     clearData();
 
-    std::optional<Point> optimalPoint;
-    std::optional<PointType> optimalValue;
+    Point newPoint;
     std::string performedStepKey;
     std::vector<long double> marks;
     std::pair<PointType, PointType> nextStepInterval;
@@ -200,26 +208,41 @@ TrialPoint IndexAlgorithm::run() {
     while (!isNeededStop) {
         _peanoPoints.insert(newStepPoint);
         performedStepKey = performStep(newStepPoint);
-
-        if (!optimalValue.has_value() || 
-            _performedStepsMap[performedStepKey].v == _taskHelper.getConstraintsCount() &&
-            _performedStepsMap[performedStepKey].z < optimalValue.value()) {
-            optimalPoint = parsePoint(_performedStepsMap[performedStepKey].point);
-            optimalValue = _performedStepsMap[performedStepKey].z;
-        }
-
+        
+        updateOptimalPoint(newPoint, _performedStepsMap[performedStepKey].z,
+            _performedStepsMap[performedStepKey].v == _taskHelper.getConstraintsCount());
         updateData();
         marks = calculateMarks();
 
         nextStepInterval = calculateNextStepInterval(marks);
         newStepPoint = calculateNextStepPeanoPoint(nextStepInterval);
 
-        _points.push_back(parsePoint(newStepPoint));
+        newPoint = parsePoint(newStepPoint);
+        _points.push_back(newPoint);
         _complexity.incrementIteration();
         isNeededStop = utils::improvementDegree(nextStepInterval.second - nextStepInterval.first, 1.0 / _taskHelper.getTaskDimensionSize()) <= _algParams.accuracy;
     }
+    updateOptimalPoint(newPoint, _taskHelper.getTaskValue(newPoint));
 
-    return TrialPoint(optimalPoint.value(), optimalValue.value());
+    return TrialPoint(_optimalPoint.value(), _optimalValue.value());
+}
+
+void IndexAlgorithm::updateOptimalPoint(Point potentialOptimalPoint, PointType potentialOptimalValue,
+    std::optional<bool> isValid) {
+    if (!isValid.has_value()) {
+        isValid = true;
+        for (int i = 0; i < _taskHelper.getConstraintsCount(); i++) {
+            if (_taskHelper.getConstraintValue(i, potentialOptimalPoint) > 0) {
+                isValid = false;
+                break;
+            }
+        }
+    }
+
+    if (isValid && (!_optimalValue.has_value() || potentialOptimalValue < _optimalValue)) {
+        _optimalPoint = potentialOptimalPoint;
+        _optimalValue = potentialOptimalValue;
+    }
 }
 
 void IndexAlgorithm::clearData() {
