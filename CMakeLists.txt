@@ -8,7 +8,7 @@ project(${PROJECT_NAME})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/GCGen/src/)
 
-set(SOURCE_EXE main.cpp)
+set(SOURCE_EXE ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 file(GLOB SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp
 	            ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
 	            ${CMAKE_CURRENT_SOURCE_DIR}/GCGen/sample_src/Grishagin/*.hpp
