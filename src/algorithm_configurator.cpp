@@ -112,8 +112,11 @@ std::string AlgorithmConfigurator::getPointDescription(Point point, PointType va
 
 std::string AlgorithmConfigurator::getCalculationCountDescription(std::vector<long> calculationCounts) {
     std::string calculationCount;
-    for (long count : calculationCounts) {
-        calculationCount += std::to_string(count) + ", ";
+    for (int i = 0; i < calculationCounts.size(); i++) {
+        calculationCount += std::to_string(calculationCounts[i]);
+        if (i != calculationCounts.size() - 1) {
+            calculationCount += ", ";
+        }
     }
     return calculationCount;
 }
