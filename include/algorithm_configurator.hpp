@@ -24,7 +24,8 @@
 * {TASK_EPS}:{Task parameter: delta (epsilon reserved). Data type: double. By default is constants::DEFAULT_TASK_EPSILON_RESERVED}
 * {SCAN_DEN}:{Scan parameter: density of the scan construction. Data type: int. By default is constants::DEFAULT_SCAN_DENSITY = 10}
 * {SCAN_KEY}:{Scan parameter: key of the scan construction. Data type: int. By default is constants::DEFAULT_SCAN_KEY = 10}
-* {PRINT_LEVEL}:{Whether to print points to a file. 0 - do not print anything, 1 - print only trial points, 2 - print trial points and functions points. Data type: int. By default is constants::DEFAULT_PRINT_LEVEL}
+* {PRINT_LEVEL}:{Whether to print points to a file. 0 - do not print anything, 1 - print only trial points, 2 - print trial points and functions points.
+* Data type: int. By default is constants::DEFAULT_PRINT_LEVEL}
 */
 
 
