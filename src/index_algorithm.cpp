@@ -199,11 +199,11 @@ PointType IndexAlgorithm::calculateNextStepPeanoPoint(std::pair<PointType, Point
 TrialPoint IndexAlgorithm::run() {
     clearData();
 
-    Point newPoint;
     std::string performedStepKey;
     std::vector<long double> marks;
     std::pair<PointType, PointType> nextStepInterval;
     auto newStepPoint = startIteration();
+    Point newPoint = parsePoint(newStepPoint);
     bool isNeededStop = false;
     while (!isNeededStop) {
         _peanoPoints.insert(newStepPoint);
