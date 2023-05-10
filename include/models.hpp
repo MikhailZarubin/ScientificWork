@@ -31,8 +31,9 @@ struct IndexAlgorithmParams {
     double rCoeff;
     double accuracy;
     double delta;
+    int iterationLimit;
 
-    IndexAlgorithmParams(double rCoeff, double accuracy, double delta);
+    IndexAlgorithmParams(double rCoeff, double accuracy, double delta, int iterationLimit);
     IndexAlgorithmParams(const IndexAlgorithmParams& params);
 };
 

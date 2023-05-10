@@ -19,6 +19,7 @@ namespace constants {
     const static std::string KEY_SCAN_DENSITY = "SCAN_DEN";
     const static std::string KEY_SCAN_KEY = "SCAN_KEY";
     const static std::string KEY_PRINT_LEVEL = "PRINT_LEVEL";
+    const static std::string KEY_ITERATION_LIMIT = "ITER_LIMIT";
 
     /*
     * Configuration contract: Defined Values
@@ -40,6 +41,7 @@ namespace constants {
     const static int DEFAULT_SCAN_DENSITY = 10;
     const static int DEFAULT_SCAN_KEY = 1;
     const static PrintLevel DEFAULT_PRINT_LEVEL = PrintLevel::PRINT_ONLY_TRIAL_POINT;
+    const static int DEFAULT_ITERATION_LIMIT = 5000;
 
     /*
     * Data constants

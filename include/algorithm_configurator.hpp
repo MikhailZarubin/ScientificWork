@@ -26,6 +26,7 @@
 * {SCAN_KEY}:{Scan parameter: key of the scan construction. Data type: int. By default is constants::DEFAULT_SCAN_KEY = 10}
 * {PRINT_LEVEL}:{Whether to print points to a file. 0 - do not print anything, 1 - print only trial points, 2 - print trial points and functions points.
 * Data type: int. By default is constants::DEFAULT_PRINT_LEVEL}
+* {ITER_LIMIT}:{Limit of iterations of the algorithm to solve the task. Data type: int. By default is constants::ITERATION_LIMIT}
 */
 
 

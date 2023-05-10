@@ -27,7 +27,7 @@ GlobalSearchAlgorithmParams::GlobalSearchAlgorithmParams(double rCoeff, double a
 
 GlobalSearchAlgorithmParams::GlobalSearchAlgorithmParams(const GlobalSearchAlgorithmParams& params) : GlobalSearchAlgorithmParams(params.rCoeff, params.accuracy) {}
 
-IndexAlgorithmParams::IndexAlgorithmParams(double rCoeff, double accuracy, double delta) {
+IndexAlgorithmParams::IndexAlgorithmParams(double rCoeff, double accuracy, double delta, int iterationLimit) {
     if (rCoeff <= constants::MIN_R) {
         throw errors::INCORRECT_PARAM_ERR_CODE;
     }
@@ -35,9 +35,10 @@ IndexAlgorithmParams::IndexAlgorithmParams(double rCoeff, double accuracy, doubl
     this->rCoeff = rCoeff;
     this->accuracy = accuracy;
     this->delta = delta;
+    this->iterationLimit = iterationLimit;
 }
 
-IndexAlgorithmParams::IndexAlgorithmParams(const IndexAlgorithmParams& params) : IndexAlgorithmParams(params.rCoeff, params.accuracy, params.delta) {}
+IndexAlgorithmParams::IndexAlgorithmParams(const IndexAlgorithmParams& params) : IndexAlgorithmParams(params.rCoeff, params.accuracy, params.delta, params.iterationLimit) {}
 
 ScanParams::ScanParams(int density, int key) {
     this->density = density;

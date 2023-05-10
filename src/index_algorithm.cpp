@@ -205,7 +205,7 @@ TrialPoint IndexAlgorithm::run() {
     auto newStepPoint = startIteration();
     Point newPoint = parsePoint(newStepPoint);
     bool isNeededStop = false;
-    while (!isNeededStop) {
+    while (!isNeededStop && _complexity.getIterationCount() < _algParams.iterationLimit) {
         _peanoPoints.insert(newStepPoint);
         performedStepKey = performStep(newStepPoint);
         

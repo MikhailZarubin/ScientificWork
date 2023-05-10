@@ -31,6 +31,8 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
         std::atoi(configurationMap[constants::KEY_SCAN_DENSITY].c_str()) : constants::DEFAULT_SCAN_DENSITY;
     int keyScan = utils::contains(configurationMap, constants::KEY_SCAN_KEY) ?
         std::atoi(configurationMap[constants::KEY_SCAN_KEY].c_str()) : constants::DEFAULT_SCAN_KEY;
+    int iterationLimit = utils::contains(configurationMap, constants::KEY_ITERATION_LIMIT) ?
+        std::atoi(configurationMap[constants::KEY_ITERATION_LIMIT].c_str()) : constants::DEFAULT_ITERATION_LIMIT;
 
     if (utils::contains(configurationMap, constants::KEY_PRINT_LEVEL) && 
         (std::atoi(configurationMap[constants::KEY_PRINT_LEVEL].c_str()) < static_cast<int>(constants::PrintLevel::PRINT_NOT_ANYTHING) ||
@@ -42,7 +44,7 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
             static_cast<constants::PrintLevel>(std::atoi(configurationMap[constants::KEY_PRINT_LEVEL].c_str())) : constants::DEFAULT_PRINT_LEVEL;
     }
 
-    IndexAlgorithmParams algParams(reliability, accuracy, epsilonReserved);
+    IndexAlgorithmParams algParams(reliability, accuracy, epsilonReserved, iterationLimit);
     ScanParams scanParams(densityScan, keyScan);
     int startTaskNumber, endTaskNumber;
     if (utils::contains(configurationMap, constants::KEY_TASK_NUMBER)) {

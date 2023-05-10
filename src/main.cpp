@@ -1,7 +1,6 @@
 ﻿#include "algorithm_configurator.hpp"
-#include "constants.hpp"
-#include "file_helper.hpp"
 #include <iostream>
+#include <fstream>
 
 
 int main(int argc, char* argv[]) {
