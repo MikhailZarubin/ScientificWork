@@ -223,6 +223,7 @@ TrialPoint IndexAlgorithm::run() {
         isNeededStop = utils::improvementDegree(nextStepInterval.second - nextStepInterval.first, 1.0 / _taskHelper.getTaskDimensionSize()) <= _algParams.accuracy;
     }
     updateOptimalPoint(newPoint, _taskHelper.getTaskValue(newPoint));
+    _points.push_back(_optimalPoint.value());
 
     return TrialPoint(_optimalPoint.value(), _optimalValue.value());
 }

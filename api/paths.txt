@@ -1,0 +1,3 @@
+../data/algorithm_points/
+../data/function_points/
+../data/invalid_points/

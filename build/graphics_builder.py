@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-functionPointsPath = 'data/function_points/'
-algorithmPointsPath = 'data/algorithm_points/'
-invalidPointsPath = 'data/invalid_points/'
+functionPointsPath = '../data/function_points/'
+algorithmPointsPath = '../data/algorithm_points/'
+invalidPointsPath = '../data/invalid_points/'
 
 class Point3D:
   def __init__(self, x, y, z):
@@ -66,7 +66,7 @@ def convertPoints3Dto2DArrays(points3D):
   return xgrid, ygrid, zgrid
 
 if __name__ == '__main__':
-  pointsfileName = 'points_0.txt'
+  pointsfileName = 'points_55.txt'
   functionPoints = []
   algorithmPoints = []
   optimumPoint = []

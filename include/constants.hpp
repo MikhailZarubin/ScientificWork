@@ -4,52 +4,57 @@
 
 
 namespace constants {
-/*
-* Configuration contract: Required Keys
-*/
+    /*
+    * Configuration contract: Required Keys
+    */
     const static std::string KEY_ALG_TYPE = "ALG_TYPE";
 
-/*
-* Configuration contract: Optional Keys
-*/
+    /*
+    * Configuration contract: Optional Keys
+    */
     const static std::string KEY_TASK_NUMBER = "TASK_NUM";
     const static std::string KEY_TASK_RELIABILITY = "TASK_R";
     const static std::string KEY_TASK_ACCURACY = "TASK_ACC";
     const static std::string KEY_TASK_EPSILON_RESERVED = "TASK_EPS";
     const static std::string KEY_SCAN_DENSITY = "SCAN_DEN";
     const static std::string KEY_SCAN_KEY = "SCAN_KEY";
-    const static std::string KEY_IS_PRINT = "IS_PRINT";
+    const static std::string KEY_PRINT_LEVEL = "PRINT_LEVEL";
 
-/*
-* Configuration contract: Defined Values
-*/
+    /*
+    * Configuration contract: Defined Values
+    */
     const static std::string DEFINE_INDEX_ALG = "IA";
     const static std::string DEFINE_MODIFIED_INDEX_ALG = "MIA";
+    enum class PrintLevel {
+        PRINT_NOT_ANYTHING = 0,
+        PRINT_ONLY_TRIAL_POINT = 1,
+        PRINT_ALL_POINTS = 2
+    };
 
-/*
-* Configuration contract: Default Values
-*/
+    /*
+    * Configuration contract: Default Values
+    */
     const static double DEFAULT_TASK_RELIABILITY = 3;
     const static double DEFAULT_TASK_ACCURACY = 0.01;
     const static double DEFAULT_TASK_EPSILON_RESERVED = 0;
     const static int DEFAULT_SCAN_DENSITY = 10;
     const static int DEFAULT_SCAN_KEY = 1;
-    const static bool DEFAULT_IS_PRINT = false;
+    const static PrintLevel DEFAULT_PRINT_LEVEL = PrintLevel::PRINT_ONLY_TRIAL_POINT;
 
-/*
-* Data constants
-*/
-    const static std::string algorithmPointsPath = "../data/algorithm_points/";
-    const static std::string functionPointsPath = "../data/function_points/";
-    const static std::string invalidPointsPath = "../data/invalid_points/";
-    const static std::string pointFileName = "points_";
-    const static std::string pointFileExtension = ".txt";
+    /*
+    * Data constants
+    */
+    const static std::string API_DIR = "../api/";
+    const static std::string NAME_CONTRACT_FILE = "name_contract.txt";
+    const static std::string PATHS_FILE = "paths.txt";
 
-/*
-* Internal constants
-*/
+    /*
+    * Internal constants
+    */
     const static int MIN_R = 1;
     const static int BIDIMENSIONAL_POINT_SIZE = 1;
     const static long double MIN_PEANO_POINT = 0.0;
     const static long double MAX_PEANO_POINT = 1.0;
+    const static int PATHS_COUNT = 3;
+    const static long double STEP_PRINT_POINTS = 0.001;
 }

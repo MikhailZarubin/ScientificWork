@@ -1,6 +1,6 @@
 #pragma once
 
-#include "file_writer.hpp"
+#include "file_helper.hpp"
 
 
 Points deepEnumeration(Point truncatedStartPoint, Point finishPoint, PointType step) {
@@ -26,6 +26,26 @@ Points deepEnumeration(Point truncatedStartPoint, Point finishPoint, PointType s
 		}
 	}
 	return points;
+}
+
+std::vector<std::string> parser::parseDirectories(const std::string& pathsFilePath, const std::string& pathsFileName) {
+	std::ifstream pathsFile(pathsFilePath + pathsFileName);
+	std::string path;
+	std::vector<std::string> paths;
+
+	while (std::getline(pathsFile, path)) {
+		paths.push_back(path);
+	}
+	return paths;
+}
+
+std::string parser::parseFileName(const std::string& nameContractFilePath, const std::string& nameContractFileName, int taskNumber) {
+	std::ifstream nameContractFile(nameContractFilePath + nameContractFileName);
+	std::string nameContract;
+
+	std::getline(nameContractFile, nameContract);
+	std::vector<std::string> partsName = utils::split(nameContract, "{}");
+	return partsName[0] + std::to_string(taskNumber) + partsName[1];
 }
 
 void writer::writePointsToFile(const std::string& fileName, Points points, const std::function<PointType(Point)>& getValue) {
