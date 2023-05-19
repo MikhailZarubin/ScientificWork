@@ -1,16 +1,35 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
+import sys
 
-functionPointsPath = '../data/function_points/'
-algorithmPointsPath = '../data/algorithm_points/'
-invalidPointsPath = '../data/invalid_points/'
+apiPath = '../api/'
+pathsFileName = 'paths.txt'
+nameContractFileName = 'name_contract.txt'
 
 class Point3D:
   def __init__(self, x, y, z):
         self.x = x
         self.y = y
         self.z = z
+
+
+def configurePointsFileName(numberPointsFile):
+  nameContractFile = open(apiPath + nameContractFileName)
+  nameContract = nameContractFile.read().split('{}')
+    
+  pointsfileName = nameContract[0] + numberPointsFile + nameContract[1]
+
+  return pointsfileName
+
+def configurePaths():
+  paths = []
+
+  pathsFile = open(apiPath + pathsFileName)
+  paths = pathsFile.read().split('\n')
+
+  return paths
+
 
 def unparse3DPointsFromFile(fileName):
   pointsFile = open(fileName)
@@ -44,38 +63,45 @@ def convertPoints3DtoArrays(points3D):
 def convertPoints3Dto2DArrays(points3D):
   x = []
   y = []
-  yDict = {}
+  z = []
+
+  yPositionDictionary = {}
 
   for point3D in points3D:
-    if point3D.y not in yDict:
-       yDict[point3D.y] = []
-    yDict[point3D.y].append(point3D.z)
     if point3D.x not in x:
       x.append(point3D.x)
     if point3D.y not in y:
-       y.append(point3D.y)
+      y.append(point3D.y)
+      yPositionDictionary[point3D.y] = y.__len__() - 1
+      z.append([])
+    z[yPositionDictionary[point3D.y]].append(point3D.z)
 
   x = np.array(x, dtype=float)
   y = np.array(y, dtype=float)
-  xgrid, ygrid = np.meshgrid(x, y)
+  x, y = np.meshgrid(x, y)
+  z = np.array(z, dtype=float)
+  
+  return x, y, z
 
-  zgrid = ygrid.copy()
-  for i in range(0, yDict.values().__len__()):
-     zgrid[i] = np.array(list(yDict.values())[i], dtype=float)
-
-  return xgrid, ygrid, zgrid
 
 if __name__ == '__main__':
-  pointsfileName = 'points_55.txt'
+  if sys.argv.__len__() < 1:
+     print('Task number not recivied. Please pass the number of the task for which you want to build a graphic.')
+     exit()
+  
   functionPoints = []
   algorithmPoints = []
   optimumPoint = []
   expectedOptimum = []
   invalidPoints = []
+
   try:
-    functionPoints = unparse3DPointsFromFile(functionPointsPath + pointsfileName)
-    algorithmPoints = unparse3DPointsFromFile(algorithmPointsPath + pointsfileName)
-    invalidPoints = unparse3DPointsFromFile(invalidPointsPath + pointsfileName)
+    pointsfileName = configurePointsFileName('23')
+    paths = configurePaths()
+
+    algorithmPoints = unparse3DPointsFromFile(paths[0] + pointsfileName)
+    functionPoints = unparse3DPointsFromFile(paths[1] + pointsfileName)
+    invalidPoints = unparse3DPointsFromFile(paths[2] + pointsfileName)
 
     expectedOptimum.append(algorithmPoints[algorithmPoints.__len__() - 1])
     optimumPoint.append(algorithmPoints[algorithmPoints.__len__() - 2])
@@ -84,6 +110,10 @@ if __name__ == '__main__':
     algorithmPoints.remove(optimumPoint[0])
   except FileNotFoundError:
     print('Non existing file with name', pointsfileName)
+    exit()
+  except IndexError:
+    print('Api changed! The program cannot work')
+    exit()
 
   xgrid, ygrid, zgrid = convertPoints3Dto2DArrays(functionPoints)
   algX, algY, algZ = convertPoints3DtoArrays(algorithmPoints)
