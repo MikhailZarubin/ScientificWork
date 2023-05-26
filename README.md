@@ -9,20 +9,20 @@ cd ScientificWork
 git submodule update --recursive
 ```
 
-# Build
+## Build
 ```
 cd build
 cmake ..
 cmake --build . --config Release
 ```
 
-# Launch of Middleware
+## Launch of Middleware
 ```
 cd build/Release
 global_optimization.exe [arguments]
 ```
 
-# Launch of GUI
+## Launch of GUI
 ```
 cd build
 graphics_builder.exe [arguments]
