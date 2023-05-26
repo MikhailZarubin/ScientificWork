@@ -2,7 +2,7 @@
 The program part of the scientific work on the topic of Global optimization.
 There are implementation of algorithms for calculating the minimum of multidimensional functions and GUI for demonstration of their work.
 
-# Install
+## Install
 ```
 git clone https://github.com/MikhailZarubin/ScientificWork
 cd ScientificWork
