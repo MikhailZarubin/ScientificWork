@@ -85,8 +85,8 @@ def convertPoints3Dto2DArrays(points3D):
 
 
 if __name__ == '__main__':
-  if sys.argv.__len__() < 1:
-     print('Task number not recivied. Please pass the number of the task for which you want to build a graphic.')
+  if sys.argv.__len__() != 2:
+     print('Task number received. Please pass only argument with the number of the task for which you want to build a graphic.')
      exit()
   
   functionPoints = []
@@ -96,7 +96,7 @@ if __name__ == '__main__':
   invalidPoints = []
 
   try:
-    pointsfileName = configurePointsFileName('23')
+    pointsfileName = configurePointsFileName(sys.argv[1])
     paths = configurePaths()
 
     algorithmPoints = unparse3DPointsFromFile(paths[0] + pointsfileName)
