@@ -86,7 +86,7 @@ def convertPoints3Dto2DArrays(points3D):
 
 if __name__ == '__main__':
   if sys.argv.__len__() != 2:
-     print('Task number received. Please pass only argument with the number of the task for which you want to build a graphic.')
+     print('Task number not recivied. Please pass only argument with the number of the task for which you want to build a graphic.')
      exit()
   
   functionPoints = []
