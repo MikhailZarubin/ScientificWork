@@ -25,7 +25,7 @@ global_optimization.exe [arguments]
 ## Launch of GUI
 ```
 cd <project's folder>/GUI
-graphics_builder.py [arguments]
+python graphics_builder.py [arguments]
 ```
 
 Additional information about the required and supported arguments is located in [Configuration Guide](https://github.com/MikhailZarubin/ScientificWork/tree/dev/docs/Configuration_Guide.md).
