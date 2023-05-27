@@ -6,11 +6,12 @@ There are implementation of algorithms for calculating the minimum of multidimen
 ```
 git clone https://github.com/MikhailZarubin/ScientificWork
 cd ScientificWork
-git submodule update --recursive
+git submodule update --init --recursive
 ```
 
 ## Build
 ```
+mkdir build
 cd build
 cmake ..
 cmake --build . --config Release
@@ -18,13 +19,13 @@ cmake --build . --config Release
 
 ## Launch of Middleware
 ```
-cd build/Release
+cd Release
 global_optimization.exe [arguments]
 ```
 
 ## Launch of GUI
 ```
-cd build
+cd GUI
 graphics_builder.py [arguments]
 ```
 
