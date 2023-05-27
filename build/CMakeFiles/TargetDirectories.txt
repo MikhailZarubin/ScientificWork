@@ -1,3 +1,0 @@
-D:/Programming/test/ScientificWork/build/CMakeFiles/global_optimization.dir
-D:/Programming/test/ScientificWork/build/CMakeFiles/ALL_BUILD.dir
-D:/Programming/test/ScientificWork/build/CMakeFiles/ZERO_CHECK.dir
