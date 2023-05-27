@@ -11,21 +11,20 @@ git submodule update --init --recursive
 
 ## Build
 ```
-mkdir build
-cd build
+mkdir build && cd build
 cmake ..
 cmake --build . --config Release
 ```
 
 ## Launch of Middleware
 ```
-cd Release
+cd <project's folder>/Release
 global_optimization.exe [arguments]
 ```
 
 ## Launch of GUI
 ```
-cd GUI
+cd <project's folder>/GUI
 graphics_builder.py [arguments]
 ```
 
