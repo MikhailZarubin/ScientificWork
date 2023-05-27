@@ -31,7 +31,7 @@ Before launching a GUI application for a task with a number `N`, it is necessary
 
 ## Command Line Input Example
 ```
-graphics_builder.py 5
+python graphics_builder.py 5
 ```
 
 # Defined Configuration Constants
