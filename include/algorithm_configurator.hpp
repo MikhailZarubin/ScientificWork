@@ -19,12 +19,12 @@
 * {ALG_TYPE}:{Type of algorithm used to solve the task (IA or MIA). Data type: string}
 * Optional Keys:
 * {TASK_NUM}:{Number of the task to be solved (number from 0 to 99). Data type: int. By default will be solved all tasks}
-* {TASK_R}:{Task parameter: reliability parameter (number greater than one). Data type: double. By default is constants::DEFAULT_TASK_RELIABILITY}
+* {TASK_R}:{Task parameter: reliability (number greater than 1). Data type: double. By default is constants::DEFAULT_TASK_RELIABILITY}
 * {TASK_ACC}:{Task parameter: accuracy. Data type: double. By default is constants::DEFAULT_TASK_ACCURACY}
 * {TASK_EPS}:{Task parameter: delta (epsilon reserved). Data type: double. By default is constants::DEFAULT_TASK_EPSILON_RESERVED}
-* {SCAN_DEN}:{Scan parameter: density of the scan construction. Data type: int. By default is constants::DEFAULT_SCAN_DENSITY = 10}
-* {SCAN_KEY}:{Scan parameter: key of the scan construction. Data type: int. By default is constants::DEFAULT_SCAN_KEY = 10}
-* {PRINT_LEVEL}:{Whether to print points to a file. 0 - do not print anything, 1 - print only trial points, 2 - print trial points and functions points.
+* {SCAN_DEN}:{Scan parameter: density of the scan construction. Data type: int. By default is constants::DEFAULT_SCAN_DENSITY}
+* {SCAN_KEY}:{Scan parameter: key of the scan construction. Data type: int. By default is constants::DEFAULT_SCAN_KEY}
+* {PRINT_LEVEL}:{Whether to print points to the file. 0 - do not print anything, 1 - print only trial points, 2 - print trial points and functions points.
 * Data type: int. By default is constants::DEFAULT_PRINT_LEVEL}
 * {ITER_LIMIT}:{Limit of iterations of the algorithm to solve the task. Data type: int. By default is constants::ITERATION_LIMIT}
 */
