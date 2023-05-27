@@ -6,7 +6,7 @@ The configuration of middleware is performed via command-line arguments, which m
 ## Required Keys:
 | Key        | Value           | Description |
 | ---------- |---------------- | ----------- |
-| `ALG_TYPE` | String constanst: `IA` or `MIA` | Type of algorithm used to solve the task. Input the `IA` to run the Index Algorithm and `MIA` to run the Index Algorithm with Adaptive Constraint Checking Order |
+| `ALG_TYPE` | String constanst: `IA` or `MIA` | Type of algorithm used to solve the task.<br />Input the `IA` to run the Index Algorithm and `MIA` to run the Index Algorithm with Adaptive Constraint Checking Order. |
 
 ## Optional Keys:
 | Key        | Value           | Description |
