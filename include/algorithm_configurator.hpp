@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../GCGen/sample_src/Grishagin/GrishaginConstrainedProblemFamily.hpp"
+#include "global_search_algorithm.hpp"
 #include "file_helper.hpp"
 #include "modified_index_algorithm.hpp"
 #include <functional>
@@ -11,7 +12,7 @@
 * Configuration Contract:
 * Input Format: {key}:{value}
 * Required Keys:
-* {ALG_TYPE}:{Type of algorithm used to solve the task (IA or MIA). Data type: string}
+* {ALG_TYPE}:{Type of algorithm used to solve the task (GS, IA or MIA). Data type: string}
 * Optional Keys:
 * {TASK_NUM}:{Number of the task to be solved (number from 0 to 99). Data type: int. By default will be solved all tasks}
 * {TASK_R}:{Task parameter: reliability (number greater than 1). Data type: double. By default is constants::DEFAULT_TASK_RELIABILITY}
@@ -37,7 +38,8 @@ class AlgorithmConfigurator {
     std::string _invalidPointsDir;
 
     Algorithm* createAlgorithm(const std::string& algType,
-        const TemplateTask& templateTask, const IndexAlgorithmParams& algParams, const ScanParams& scanParams);
+        const TemplateTask& templateTask, const GlobalSearchAlgorithmParams& globalSearchAlgParams,
+        const IndexAlgorithmParams& indexAlgParams, const ScanParams& scanParams);
 
     std::string getPointDescription(Point point, PointType value);
     std::string getCalculationCountDescription(std::vector<long> calculationCounts);
