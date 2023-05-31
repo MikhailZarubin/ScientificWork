@@ -42,9 +42,9 @@ TrialPoint BidimensionalGlobalSearch::run() {
     clearData();
     startIteration();
 
-    bool stop—ondition = false;
+    bool stopCondition = false;
     PointType maxDiff = PointType();
-    while (!stop—ondition) {
+    while (!stopCondition) {
         for (auto iter = ++_checkedPoints.begin(); iter != _checkedPoints.end(); iter++) {
             TrialPoint currentElem = *(iter--);
             TrialPoint lastELem = *(iter++);
@@ -91,7 +91,7 @@ TrialPoint BidimensionalGlobalSearch::run() {
             _globalMinimum = { newCoordinate, newValue };
         }
 
-        stop—ondition = ::convertPointToBidimensional(currentElemDesiredInterval.point) - ::convertPointToBidimensional(lastElemDesiredInterval.point) <= _params.accuracy;
+        stopCondition = ::convertPointToBidimensional(currentElemDesiredInterval.point) - ::convertPointToBidimensional(lastElemDesiredInterval.point) <= _params.accuracy;
         _complexity.incrementFunctionCalculation();
         _complexity.incrementIteration();
     }
