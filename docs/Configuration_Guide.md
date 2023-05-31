@@ -19,10 +19,11 @@ The configuration of middleware is performed via command-line arguments, which m
 | `SCAN_KEY`| Integer number greater than 1.<br />Data type: `int` | Scan parameter: key of the scan construction.<br />By default is [DEFAULT_SCAN_KEY](#defined-configuration-constants) |
 | `PRINT_LEVEL`| Integer number from 0 to 2.<br />Data type: `int` | Whether to print points to the file.<br />0 - do not print anything, 1 - print only trial points, 2 - print trial points and functions points.<br />By default is [DEFAULT_PRINT_LEVEL](#defined-configuration-constants) |
 | `ITER_LIMIT`| Integer number greater than 1.<br />Data type: `int` | Limit of iterations of the algorithm to solve the task.<br />By default is [ITERATION_LIMIT](#defined-configuration-constants) |
+| `CUSTOM_TASK`| File name with specified extension (only `.txt` is supported).<br />Data type: `string` | File name which contains task described according to [pattern](#custom-task-pattern).<br />By default is non defained. If defined then `TASK_NUM` flag is ignored. |
 
 ## Command Line Input Example
 ```
-global_optimization.exe ALG_TYPE:IA TASK_NUM:5 TASK_EPS:0.001
+global_optimization.exe ALG_TYPE:IA TASK_NUM:5 TASK_EPS:0.001 CUSTOM_TASK:sphere.txt
 ```
 
 # Configuration of GUI
@@ -44,3 +45,28 @@ python graphics_builder.py 5
 | `DEFAULT_SCAN_KEY`              | 1      |
 | `DEFAULT_PRINT_LEVEL`           | 1      |
 | `ITERATION_LIMIT`               | 5000   |
+
+## Custom Task Pattern
+Variable set should consist only lower case Latin letters.<br />
+Mathematical operations should consist only upper case Latin letters.<br />
+Symbols of mathematical operations (for example multiplication) should not be missed.<br />
+```
+<variable set> <count of constraints>
+<left task border> <right task border>
+<function expression>
+<constraint 1>
+<constraint 2>
+...
+<optimum point> <optimum value>
+```
+
+## Custom Task Example
+```
+xy 3
+0,-1 4,3
+-1.5*x^2*EXP(1-x^2-20.25*(x-y)^2)-((0.5*(x-1)*(y-1))^4)*EXP(2-(0.5*(x-1)^4)-(y-1)^4)
+0.01*(x-2.2)^2+(y-1.2)^2-2.25
+100*(1-((x-2)^2)/1.44-(0.5*y)^2)
+10*(y-1.5-1.5*SIN(6.283*(x-1.75)))
+0.943359,0.939453 -1.489757
+```
