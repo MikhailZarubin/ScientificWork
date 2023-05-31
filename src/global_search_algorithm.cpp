@@ -16,14 +16,14 @@ namespace {
 }
 
 
-BidimensionalGlobalSearch::BidimensionalGlobalSearch(const Function& task, const GlobalSearchAlgorithmParams& params) :
+BidimensionalGlobalSearch::BidimensionalGlobalSearch(const TemplateTask& task, const GlobalSearchAlgorithmParams& params) :
     _task(task), _params(params), _globalMinimum(), _points(), _complexity(), _checkedPoints(::comparisonPoints) {}
 
 void BidimensionalGlobalSearch::startIteration() {
-    Point leftBorder = _task.getLeftBorder();
-    Point rightBorder = _task.getRightBorder();
-    PointType valueFuncLeftBorder = _task.getValue(leftBorder);
-    PointType valueFuncRightBorder = _task.getValue(rightBorder);
+    Point leftBorder = _task.getTaskBorders().leftBorder;
+    Point rightBorder = _task.getTaskBorders().rightBorder;
+    PointType valueFuncLeftBorder = _task.getTaskValue(leftBorder);
+    PointType valueFuncRightBorder = _task.getTaskValue(rightBorder);
 
     if (valueFuncLeftBorder <= valueFuncRightBorder) {
         _globalMinimum = TrialPoint(leftBorder, valueFuncLeftBorder);
@@ -82,7 +82,7 @@ TrialPoint BidimensionalGlobalSearch::run() {
         Point newCoordinate = Point{ 0.5 * (
             ::convertPointToBidimensional(currentElemDesiredInterval.point) + ::convertPointToBidimensional(lastElemDesiredInterval.point)
             + ((1.0 / m) * (currentElemDesiredInterval.value - lastElemDesiredInterval.value))) };
-        PointType newValue = _task.getValue(newCoordinate);
+        PointType newValue = _task.getTaskValue(newCoordinate);
 
         _checkedPoints.insert({ newCoordinate, newValue });
         _points.push_back(newCoordinate);
@@ -104,6 +104,10 @@ Points BidimensionalGlobalSearch::getPoints() {
 
 Complexity BidimensionalGlobalSearch::getComplexity() {
     return _complexity;
+}
+
+TemplateTask BidimensionalGlobalSearch::getTask() {
+    return _task;
 }
 
 void BidimensionalGlobalSearch::clearData() {

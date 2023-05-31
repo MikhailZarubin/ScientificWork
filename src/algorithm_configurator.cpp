@@ -4,7 +4,7 @@
 
 
 AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::function<void(const std::string&)> logger) :
-    _grishaginTaskGenerator(), _algorithmsMap(), _logger(logger) {
+    _constrainedProblemFamily(nullptr), _algorithmsMap(), _logger(logger) {
     std::map<std::string, std::string> configurationMap;
     std::vector<std::string> splitingStr;
     for (int i = 1; i < argc; i++) {
@@ -20,6 +20,7 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
         _logger("CONFIGURATION COMPLETED WITH ERROR.\nMISSING IS ALGORITHM TYPE IN ARGUMENTS\n");
         throw errors::INCORRECT_ARGS_COUNT_ERR_CODE;
     }
+    std::string algType = configurationMap[constants::KEY_ALG_TYPE];
 
     double reliability = utils::contains(configurationMap, constants::KEY_TASK_RELIABILITY) ?
         std::atof(configurationMap[constants::KEY_TASK_RELIABILITY].c_str()) : constants::DEFAULT_TASK_RELIABILITY;
@@ -46,28 +47,32 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
 
     IndexAlgorithmParams algParams(reliability, accuracy, epsilonReserved, iterationLimit);
     ScanParams scanParams(densityScan, keyScan);
-    int startTaskNumber, endTaskNumber;
-    if (utils::contains(configurationMap, constants::KEY_TASK_NUMBER)) {
-        startTaskNumber = std::atoi(configurationMap[constants::KEY_TASK_NUMBER].c_str());
-        endTaskNumber = startTaskNumber + 1;
-    } else {
-        startTaskNumber = 0;
-        endTaskNumber = _grishaginTaskGenerator.GetFamilySize();
+    if (utils::contains(configurationMap, constants::KEY_CUSTOM_TASK)) {
+        _algorithmsMap[constants::CUSTOM_TASK_NUMBER] = createAlgorithm(algType,
+            parser::parseCustomTask(constants::API_DIR, constants::CONFIG_PATH_FILE,
+                configurationMap[constants::KEY_CUSTOM_TASK]), algParams, scanParams);
     }
+    else {
+        _constrainedProblemFamily = new TGrishaginConstrainedProblemFamily();
+        int startTaskNumber, endTaskNumber;
+        if (utils::contains(configurationMap, constants::KEY_TASK_NUMBER)) {
+            startTaskNumber = std::atoi(configurationMap[constants::KEY_TASK_NUMBER].c_str());
+            endTaskNumber = startTaskNumber + 1;
+        }
+        else {
+            startTaskNumber = 0;
+            endTaskNumber = _constrainedProblemFamily->GetFamilySize();
+        }
 
-    for (int i = startTaskNumber; i < endTaskNumber; i++) {
-        if (configurationMap[constants::KEY_ALG_TYPE] == constants::DEFINE_INDEX_ALG) {
-            _algorithmsMap[i] = new IndexAlgorithm(_grishaginTaskGenerator[i], algParams, scanParams);
-        } else if (configurationMap[constants::KEY_ALG_TYPE] == constants::DEFINE_MODIFIED_INDEX_ALG) {
-            _algorithmsMap[i] = new ModifiedIndexAlgorithm(_grishaginTaskGenerator[i], algParams, scanParams);
-        } else {
-            _logger("CONFIGURATION COMPLETED WITH ERROR.\nUNSUPPORTED TASK TYPE: " + configurationMap[constants::KEY_ALG_TYPE] + "\n");
-            throw errors::INCORRECT_ARGS_VALUE_ERR_CODE;
+        for (int i = startTaskNumber; i < endTaskNumber; i++) {
+            _algorithmsMap[i] = createAlgorithm(algType, TemplateTask(_constrainedProblemFamily->operator[](i),
+                TrialPoint(_constrainedProblemFamily->operator[](i)->GetOptimumPoint(), _constrainedProblemFamily->operator[](i)->GetOptimumValue())),
+                algParams, scanParams);
         }
     }
 
-    std::vector<std::string> paths = parser::parseDirectories(constants::API_DIR, constants::PATHS_FILE);
-    if (paths.size() != constants::PATHS_COUNT) {
+    std::vector<std::string> paths = parser::parseDirectories(constants::API_DIR, constants::DATA_PATHS_FILE);
+    if (paths.size() != constants::DATA_PATHS_COUNT) {
         _logger("API FILES CHANGED! CONFIGURATION CANNOT BE COMPLETED.\n");
         throw errors::API_CHANGED_ERR_CODE;
     }
@@ -78,19 +83,34 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
     _logger("CONFIGURATION SUCCESSFULLY COMPLETED.\n");
 }
 
+
+Algorithm* AlgorithmConfigurator::createAlgorithm(const std::string& algType,
+    const TemplateTask& templateTask, const IndexAlgorithmParams& algParams, const ScanParams& scanParams) {
+    if (algType == constants::DEFINE_INDEX_ALG) {
+        return new IndexAlgorithm(templateTask, algParams, scanParams);
+    }
+    else if (algType == constants::DEFINE_MODIFIED_INDEX_ALG) {
+        return new ModifiedIndexAlgorithm(templateTask, algParams, scanParams);
+    }
+    else {
+        _logger("CONFIGURATION COMPLETED WITH ERROR.\nUNSUPPORTED TASK TYPE: " + algType + "\n");
+        throw errors::INCORRECT_ARGS_VALUE_ERR_CODE;
+    }
+}
+
 void AlgorithmConfigurator::run() {
     PointType maxDeviation = -DBL_MAX;
     for (const auto& [taskNumber, algorithm]: _algorithmsMap) {
         _logger("CALCULATION OPTIMUM TASK <" + std::to_string(taskNumber) + "> SUCCESSFULLY STARTED.\n");
         auto result = algorithm->run();
-        maxDeviation = std::max(maxDeviation, utils::getMaxCoordinateDifference(result.point, _grishaginTaskGenerator[taskNumber]->GetOptimumPoint()));
+        maxDeviation = std::max(maxDeviation, utils::getMaxCoordinateDifference(result.point, _algorithmsMap[taskNumber]->getTask().getOptimumPoint()));
         _logger("FOUND OPTIMUM: " + 
             getPointDescription(result.point, result.value) + "\n");
         _logger("EXPECTED OPTIMUM: " +
-            getPointDescription(_grishaginTaskGenerator[taskNumber]->GetOptimumPoint(),
-                _grishaginTaskGenerator[taskNumber]->GetOptimumValue()) + "\n");
+            getPointDescription(_algorithmsMap[taskNumber]->getTask().getOptimumPoint(),
+                _algorithmsMap[taskNumber]->getTask().getOptimumValue()) + "\n");
         _logger("MAX DEVIATION: " + 
-            std::to_string(utils::getMaxCoordinateDifference(result.point, _grishaginTaskGenerator[taskNumber]->GetOptimumPoint())) + "\n");
+            std::to_string(utils::getMaxCoordinateDifference(result.point, _algorithmsMap[taskNumber]->getTask().getOptimumPoint())) + "\n");
         _logger("ITERATION COUNT: " + std::to_string(algorithm-> getComplexity().getIterationCount()) + "\n");
         _logger("CALCULATION COUNT: " + 
             getCalculationCountDescription(algorithm->getComplexity().getFunctionsCalculationCount()) + "\n");
@@ -122,20 +142,19 @@ std::string AlgorithmConfigurator::getCalculationCountDescription(std::vector<lo
 }
 
 void AlgorithmConfigurator::printPointsToFile(int taskNumber, Points points) {
-    Point leftBorder, rightBorder;
+    Borders borders = _algorithmsMap[taskNumber]->getTask().getTaskBorders();
     std::string pointsFileName = parser::parseFileName(constants::API_DIR, constants::NAME_CONTRACT_FILE, taskNumber);
     switch (_printLevel) {
     case constants::PrintLevel::PRINT_ALL_POINTS:
-        _grishaginTaskGenerator[taskNumber]->GetBounds(leftBorder, rightBorder);
-        writer::writePointIntervalToFile(_functionPointsDir + pointsFileName, leftBorder, rightBorder,
-            constants::STEP_PRINT_POINTS, [&](Point point) { return _grishaginTaskGenerator[taskNumber]->ComputeFunction(point); },
+        writer::writePointIntervalToFile(_functionPointsDir + pointsFileName, borders.leftBorder, borders.rightBorder,
+            constants::STEP_PRINT_POINTS, [&](Point point) { return _algorithmsMap[taskNumber]->getTask().getTaskValue(point); },
             [&](Point point) { return true; });
-        writer::writePointIntervalToFile(_invalidPointsDir + pointsFileName, leftBorder, rightBorder,
-            constants::STEP_PRINT_POINTS, [&](Point point) { return _grishaginTaskGenerator[taskNumber]->ComputeFunction(point); },
+        writer::writePointIntervalToFile(_invalidPointsDir + pointsFileName, borders.leftBorder, borders.rightBorder,
+            constants::STEP_PRINT_POINTS, [&](Point point) { return _algorithmsMap[taskNumber]->getTask().getTaskValue(point); },
             [&](Point point) {
                 bool isValid = true;
-                for (int i = 0; i < _grishaginTaskGenerator[taskNumber]->GetConstraintsNumber(); i++) {
-                    if (_grishaginTaskGenerator[taskNumber]->ComputeConstraint(i, point) > 0) {
+                for (int i = 0; i < _algorithmsMap[taskNumber]->getTask().getConstraintsCount(); i++) {
+                    if (_algorithmsMap[taskNumber]->getTask().getConstraintValue(i, point) > 0) {
                         isValid = false;
                         break;
                     }
@@ -143,11 +162,21 @@ void AlgorithmConfigurator::printPointsToFile(int taskNumber, Points points) {
                 return !isValid;
             });
     case constants::PrintLevel::PRINT_ONLY_TRIAL_POINT:
-        points.push_back(_grishaginTaskGenerator[taskNumber]->GetOptimumPoint());
+        points.push_back(_algorithmsMap[taskNumber]->getTask().getOptimumPoint());
         writer::writePointsToFile(_algorithmPointsDir + pointsFileName,
-            points, [&](Point point) { return _grishaginTaskGenerator[taskNumber]->ComputeFunction(point); });
+            points, [&](Point point) { return _algorithmsMap[taskNumber]->getTask().getTaskValue(point); });
         break;
     default:
         break;
+    }
+}
+
+
+AlgorithmConfigurator::~AlgorithmConfigurator() {
+    if (_constrainedProblemFamily != nullptr) {
+        delete _constrainedProblemFamily;
+    }
+    for (auto& [_, algorithm] : _algorithmsMap) {
+        delete algorithm;
     }
 }

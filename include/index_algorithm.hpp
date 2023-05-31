@@ -1,9 +1,7 @@
 #pragma once
 
 #include "base_algorithm.hpp"
-#include "complexity.hpp"
 #include "constants.hpp"
-#include "constrained_task_helper.hpp"
 #include "errors.hpp"
 #include "function.hpp"
 #include "point_set_model_helper.hpp"
@@ -16,7 +14,7 @@
 
 class IndexAlgorithm : public Algorithm {
 protected:
-	ConstrainedTaskHelper _taskHelper;
+	TemplateTask _task;
 	IndexAlgorithmParams _algParams;
 	ScanParams _scanParams;
 	Points _points;
@@ -48,12 +46,10 @@ protected:
 
 public:
 	IndexAlgorithm() = delete;
-	IndexAlgorithm(const Function& task, const std::vector<Function>& constraints, 
-		const IndexAlgorithmParams& algParams, const ScanParams& scanParams);
-	IndexAlgorithm(IConstrainedOptProblem* generator, 
-		const IndexAlgorithmParams& params, const ScanParams& scanParams);
+	IndexAlgorithm(const TemplateTask& task, const IndexAlgorithmParams& algParams, const ScanParams& scanParams);
 	Points getPoints();
 	Complexity getComplexity();
+	TemplateTask getTask();
 	TrialPoint run();
 };
 
