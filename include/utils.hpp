@@ -12,17 +12,16 @@
 
 
 namespace utils {
-    void mapd(double x, int m, double* y, int n, int key);
     bool isCorrectExpression(const OperationsHelper& operationsHelper, const std::string& infixExpr);
     std::string infixToPostfix(const std::string& infixExpr);
     long double applyUnaryOperation(Operation operation, long double arg);
     long double applyBinaryOperation(Operation operation, long double firstArg, long double secondArg);
-    Point linearTransform(const Point nonLinearizedPoint, const Point& leftBorders, const Point& rightBorders);
     PointType sign(PointType arg);
     long double equal(long double arg1, long double arg2);
     long double improvementDegree(long double arg, long double degree);
     PointType getMaxCoordinateDifference(Point point1, Point point2);
     std::vector<std::string> split(const std::string& inputStr, const std::string& delimiter);
+    Point getPointFromMapping(std::size_t dimensionSize, Borders borders, ScanParams scanParams, PointType mappedPoint);
 
     template <class DataType>
     std::optional<DataType> indexOf(std::vector<DataType> collection, DataType elem) {

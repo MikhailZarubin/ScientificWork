@@ -1,23 +1,33 @@
 #pragma once
 
 #include "base_algorithm.hpp"
+#include "utils.hpp"
 #include <set>
 
-class BidimensionalGlobalSearch : public Algorithm {
-	TemplateTask _task;
-	GlobalSearchAlgorithmParams _params;
 
-	TrialPoint _globalMinimum;
-	std::set<TrialPoint, bool(*) (const TrialPoint&, const TrialPoint&)> _checkedPoints;
+class GlobalSearchAlgorithm : public Algorithm {
+	TemplateTask _task;
+	GlobalSearchAlgorithmParams _algParams;
+	ScanParams _scanParams;
+
+	TrialPoint _optimumPoint;
+	std::set<PointType> _checkedPoints;
+	std::map<std::string, PointType> _cachedFunctionValues;
+	long double _maxAbsoluteFirstDifference;
+	long double _algCoefficient;
+
 	Complexity _complexity;
 	Points _points;
 
 	void startIteration();
+	void updateAlgCoefficient(std::set<PointType>::iterator iterNewPoint);
+	std::pair<PointType, PointType> calculateNextStepInterval();
+	PointType calculateNextStepPoint(std::pair<PointType, PointType> nextStepInterval);
 	void clearData();
 
 public:
-	BidimensionalGlobalSearch() = delete;
-	BidimensionalGlobalSearch(const TemplateTask& task, const GlobalSearchAlgorithmParams& params);
+	GlobalSearchAlgorithm() = delete;
+	GlobalSearchAlgorithm(const TemplateTask& task, const GlobalSearchAlgorithmParams& algParams, const ScanParams& scanParams);
 	Points getPoints();
 	Complexity getComplexity();
 	TemplateTask getTask();

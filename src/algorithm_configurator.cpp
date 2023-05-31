@@ -95,7 +95,7 @@ Algorithm* AlgorithmConfigurator::createAlgorithm(const std::string& algType,
         return new ModifiedIndexAlgorithm(templateTask, indexAlgParams, scanParams);
     }
     else if (algType == constants::DEFINE_GLOBAL_SEARCH_ALG) {
-        return new BidimensionalGlobalSearch(templateTask, globalSearchAlgParams);
+        return new GlobalSearchAlgorithm(templateTask, globalSearchAlgParams, scanParams);
     }
     else {
         _logger("CONFIGURATION COMPLETED WITH ERROR.\nUNSUPPORTED TASK TYPE: " + algType + "\n");

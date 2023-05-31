@@ -12,13 +12,15 @@ ModifiedIndexAlgorithm::ModifiedIndexAlgorithm(const TemplateTask& task, const I
     std::iota(orderCheckingContraintsMinPoint.begin(), orderCheckingContraintsMinPoint.end(), 0);
     std::iota(orderCheckingContraintsMaxPoint.begin(), orderCheckingContraintsMaxPoint.end(), 0);
 
-    _orderCheckingContraintsByPoint[std::to_string(constants::MIN_PEANO_POINT)] = orderCheckingContraintsMinPoint;
-    _orderCheckingContraintsByPoint[std::to_string(constants::MAX_PEANO_POINT)] = orderCheckingContraintsMaxPoint;
+    _orderCheckingContraintsByPoint[std::to_string(_task.getTaskDimensionSize() > 1 ?
+        constants::MIN_PEANO_POINT : _task.getTaskBorders().leftBorder[0])] = orderCheckingContraintsMinPoint;
+    _orderCheckingContraintsByPoint[std::to_string(_task.getTaskDimensionSize() > 1 ?
+        constants::MAX_PEANO_POINT : _task.getTaskBorders().rightBorder[0])] = orderCheckingContraintsMaxPoint;
 }
 
-std::string ModifiedIndexAlgorithm::performStep(PointType peanoPoint) {
-    Point point = parsePoint(peanoPoint);
-    std::string stepKey = std::to_string(peanoPoint);
+std::string ModifiedIndexAlgorithm::performStep(PointType mappedPoint) {
+    Point point = utils::getPointFromMapping(_task.getTaskDimensionSize(), _task.getTaskBorders(), _scanParams, mappedPoint);
+    std::string stepKey = std::to_string(mappedPoint);
 
     std::size_t v = _task.getConstraintsCount();
     PointType z = -1;
@@ -37,8 +39,8 @@ std::string ModifiedIndexAlgorithm::performStep(PointType peanoPoint) {
     }
 
     maxV = std::max(maxV, v);
-    _performedStepsMap[stepKey] = IndexAlgorithmStepResult(peanoPoint, v, z);
-    PointSetModelHelper::addNewPoint(&_peanoPointsClassification[v], peanoPoint);
+    _performedStepsMap[stepKey] = IndexAlgorithmStepResult(mappedPoint, v, z);
+    PointSetModelHelper::addNewPoint(&_mappedPointsClassification[v], mappedPoint);
     return stepKey;
 }
 
@@ -115,10 +117,10 @@ void ModifiedIndexAlgorithm::reorderCheckingCostraints(const std::string& startI
     }
 }
 
-PointType ModifiedIndexAlgorithm::calculateNextStepPeanoPoint(std::pair<PointType, PointType> nextStepInterval) {
-    auto nextStepPeanoPoint = IndexAlgorithm::calculateNextStepPeanoPoint(nextStepInterval);
-    _orderCheckingContraintsByPoint[std::to_string(nextStepPeanoPoint)] = _orderCheckingConstraintsNewPoint;
-    return nextStepPeanoPoint;
+PointType ModifiedIndexAlgorithm::calculateNextStepMappedPoint(std::pair<PointType, PointType> nextStepInterval) {
+    auto nextStepMappedPoint = IndexAlgorithm::calculateNextStepMappedPoint(nextStepInterval);
+    _orderCheckingContraintsByPoint[std::to_string(nextStepMappedPoint)] = _orderCheckingConstraintsNewPoint;
+    return nextStepMappedPoint;
 }
 
 std::size_t ModifiedIndexAlgorithm::getConstraintOrdinalNumber(std::vector<std::size_t> constraintsOrder, std::size_t constraintIndex) {

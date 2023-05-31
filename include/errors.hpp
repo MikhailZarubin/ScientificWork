@@ -18,4 +18,5 @@ namespace errors {
     const static int INCORRECT_ARGS_COUNT_ERR_CODE = 15;
     const static int INCORRECT_ARGS_VALUE_ERR_CODE = 16;
     const static int API_CHANGED_ERR_CODE = 17;
+    const static int MAPPED_POINT_ERROR_ERR_CODE = 18;
 }
