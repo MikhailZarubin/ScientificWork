@@ -153,12 +153,10 @@ void AlgorithmConfigurator::printPointsToFile(int taskNumber, Points points) {
             constants::STEP_PRINT_POINTS, [&](Point point) { return _algorithmsMap[taskNumber]->getTask().getTaskValue(point); },
             [&](Point point) {
                 bool isValid = true;
-                if (_algorithmsMap[taskNumber]->getTask().isConstrainedTask()) {
-                    for (int i = 0; i < _algorithmsMap[taskNumber]->getTask().getConstraintsCount(); i++) {
-                        if (_algorithmsMap[taskNumber]->getTask().getConstraintValue(i, point) > 0) {
-                            isValid = false;
-                            break;
-                        }
+                for (int i = 0; i < _algorithmsMap[taskNumber]->getTask().getConstraintsCount(); i++) {
+                    if (_algorithmsMap[taskNumber]->getTask().getConstraintValue(i, point) > 0) {
+                        isValid = false;
+                        break;
                     }
                 }
                 return !isValid;

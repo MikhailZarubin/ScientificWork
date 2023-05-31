@@ -24,5 +24,4 @@ public:
     std::size_t getConstraintsCount();
     Point getOptimumPoint();
     PointType getOptimumValue();
-    bool isConstrainedTask();
 };

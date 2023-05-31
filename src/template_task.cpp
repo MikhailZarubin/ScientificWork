@@ -4,7 +4,7 @@
 
 
 TemplateTask::TemplateTask(const Function& function, const std::vector<Function>& constraints, const TrialPoint& optimumPoint) :
-    _function(function), _constraints(constraints), _constrainedOptProblem(nullptr), _optimumPoint(optimumPoint) {}
+    _function(function), _constraints(constraints), _constrainedOptProblem(), _optimumPoint(optimumPoint) {}
 
 TemplateTask::TemplateTask(IConstrainedOptProblem* constrainedOptProblem, const TrialPoint& optimumPoint) :
     _function(), _constraints(), _constrainedOptProblem(constrainedOptProblem), _optimumPoint(optimumPoint) {}
@@ -92,6 +92,3 @@ PointType TemplateTask::getOptimumValue() {
     return _optimumPoint.value;
 }
 
-bool TemplateTask::isConstrainedTask() {
-    return _constrainedOptProblem.has_value() || _constraints.has_value() && _constraints.value().size() > 0;
-}
