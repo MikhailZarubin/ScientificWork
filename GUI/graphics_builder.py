@@ -115,16 +115,20 @@ if __name__ == '__main__':
     print('Api changed! The program cannot work')
     exit()
 
-  xgrid, ygrid, zgrid = convertPoints3Dto2DArrays(functionPoints)
-  algX, algY, algZ = convertPoints3DtoArrays(algorithmPoints)
-  optX, optY, optZ = convertPoints3DtoArrays(optimumPoint)
-  expectedOptX, expectedOptY, expectedOptZ = convertPoints3DtoArrays(expectedOptimum)
-  invalidX, invalidY, invalidZ = convertPoints3DtoArrays(invalidPoints)
+  try:
+    xgrid, ygrid, zgrid = convertPoints3Dto2DArrays(functionPoints)
+    algX, algY, algZ = convertPoints3DtoArrays(algorithmPoints)
+    optX, optY, optZ = convertPoints3DtoArrays(optimumPoint)
+    expectedOptX, expectedOptY, expectedOptZ = convertPoints3DtoArrays(expectedOptimum)
+    invalidX, invalidY, invalidZ = convertPoints3DtoArrays(invalidPoints)
 
-  plt.contour(xgrid, ygrid, zgrid, cmap = cm.cool) 
-  plt.scatter(invalidX, invalidY, c = 'blue', alpha=0.3)
-  plt.scatter(algX, algY, c = 'red', s = 1)
-  plt.scatter(optX, optY, c = 'yellow', s = 50, alpha=0.5)
-  plt.scatter(expectedOptX, expectedOptY, c = 'green', s = 50, alpha=0.5)
+    plt.contour(xgrid, ygrid, zgrid, cmap = cm.cool) 
+    plt.scatter(invalidX, invalidY, c = 'blue', alpha=0.3)
+    plt.scatter(algX, algY, c = 'red', s = 1)
+    plt.scatter(optX, optY, c = 'yellow', s = 50, alpha=0.5)
+    plt.scatter(expectedOptX, expectedOptY, c = 'green', s = 50, alpha=0.5)
 
-  plt.show()
+    plt.show()
+  except IndexError:
+    print('Coordinate out of range. Please verify that you input the number of the three-dimensional task.')
+    exit()

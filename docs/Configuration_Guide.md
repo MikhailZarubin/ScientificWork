@@ -28,7 +28,8 @@ global_optimization.exe ALG_TYPE:IA TASK_NUM:5 TASK_EPS:0.001 CUSTOM_TASK:sphere
 
 # Configuration of GUI
 The configuration of GUI is performed via command-line argument, which is an integer number from 0 to 99. This argument is required.<br />
-Before launching a GUI application for a task with a number `N`, it is necessary to configure and run the middleware for solving this task (pass the `N` value by `TASK_NUM` key). <br />Moreover, if the launch is performed for the first time, it is also necessary to pass the `2` value by the `PRINT_LEVEL` key so that the middleware was generated information for plotting functions.
+Before launching a GUI application for a task with a number `N`, it is necessary to configure and run the middleware for solving this task (pass the `N` value by `TASK_NUM` key). <br />Moreover, if the launch is performed for the first time, it is also necessary to pass the `2` value by the `PRINT_LEVEL` key so that the middleware was generated information for plotting functions.<br />
+Supported only three-dimensional functions.<br />
 
 ## Command Line Input Example
 ```
