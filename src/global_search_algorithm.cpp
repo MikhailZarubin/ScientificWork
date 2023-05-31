@@ -6,7 +6,7 @@
 GlobalSearchAlgorithm::GlobalSearchAlgorithm(const TemplateTask& task, const GlobalSearchAlgorithmParams& algParams, const ScanParams& scanParams) :
     _task(task), _algParams(algParams), _scanParams(scanParams),
     _optimumPoint(), _cachedFunctionValues(), _maxAbsoluteFirstDifference(-DBL_MAX), _algCoefficient(),
-    _points(), _complexity(), _checkedPoints() {}
+    _points(), _complexity(), _checkedMappedPoints() {}
 
 void GlobalSearchAlgorithm::startIteration() {
     Point leftBorder = _task.getTaskDimensionSize() > 1 ?
@@ -32,8 +32,8 @@ void GlobalSearchAlgorithm::startIteration() {
     _cachedFunctionValues[std::to_string(leftMappedPoint)] = valueLeftBorder;
     _cachedFunctionValues[std::to_string(rightMappedPoint)] = valueRightBorder;
 
-    _checkedPoints.insert(leftMappedPoint);
-    _checkedPoints.insert(rightMappedPoint);
+    _checkedMappedPoints.insert(leftMappedPoint);
+    _checkedMappedPoints.insert(rightMappedPoint);
 
     _points.push_back(leftBorder);
     _points.push_back(rightBorder);
@@ -41,10 +41,10 @@ void GlobalSearchAlgorithm::startIteration() {
 
 void GlobalSearchAlgorithm::updateAlgCoefficient(std::set<PointType>::iterator iterNewPoint) {
     std::set<PointType>::iterator start = iterNewPoint, next, end = iterNewPoint;
-    if (iterNewPoint != _checkedPoints.begin()) {
+    if (iterNewPoint != _checkedMappedPoints.begin()) {
         start = std::prev(iterNewPoint);
     }
-    if (std::next(iterNewPoint) != _checkedPoints.end()) {
+    if (std::next(iterNewPoint) != _checkedMappedPoints.end()) {
         end = std::next(iterNewPoint);
     }
 
@@ -70,8 +70,8 @@ std::pair<PointType, PointType> GlobalSearchAlgorithm::calculateNextStepInterval
     PointType currentIntervalCharacteristic;
     
     PointType previousPoint, currentPoint;
-    auto previousPointIter = _checkedPoints.begin();
-    for (auto currentPointIter = ++_checkedPoints.begin(); currentPointIter != _checkedPoints.end(); currentPointIter++) {
+    auto previousPointIter = _checkedMappedPoints.begin();
+    for (auto currentPointIter = ++_checkedMappedPoints.begin(); currentPointIter != _checkedMappedPoints.end(); currentPointIter++) {
         previousPoint = *previousPointIter;
         currentPoint = *currentPointIter;
 
@@ -102,7 +102,7 @@ TrialPoint GlobalSearchAlgorithm::run() {
     startIteration();
 
     bool stopCondition = false;
-    std::set<PointType>::iterator iterNewPoint = _checkedPoints.begin();
+    std::set<PointType>::iterator iterNewPoint = _checkedMappedPoints.begin();
     std::pair<PointType, PointType> nextStepInterval;
     PointType nextStepMappedPoint;
     Point nextStepPoint;
@@ -114,7 +114,7 @@ TrialPoint GlobalSearchAlgorithm::run() {
         nextStepPoint = utils::getPointFromMapping(_task.getTaskDimensionSize(), _task.getTaskBorders(), _scanParams, nextStepMappedPoint);
         _cachedFunctionValues[std::to_string(nextStepMappedPoint)] = _task.getTaskValue(nextStepPoint);
 
-        iterNewPoint = _checkedPoints.insert(nextStepMappedPoint).first;
+        iterNewPoint = _checkedMappedPoints.insert(nextStepMappedPoint).first;
         _points.push_back(nextStepPoint);
 
         if (_cachedFunctionValues[std::to_string(nextStepMappedPoint)] < _optimumPoint.value) {
@@ -144,6 +144,6 @@ TemplateTask GlobalSearchAlgorithm::getTask() {
 
 void GlobalSearchAlgorithm::clearData() {
     _complexity = Complexity();
-    _checkedPoints.clear();
+    _checkedMappedPoints.clear();
     _points.clear();
 }

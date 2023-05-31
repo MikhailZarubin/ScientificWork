@@ -11,7 +11,7 @@ class GlobalSearchAlgorithm : public Algorithm {
 	ScanParams _scanParams;
 
 	TrialPoint _optimumPoint;
-	std::set<PointType> _checkedPoints;
+	std::set<PointType> _checkedMappedPoints;
 	std::map<std::string, PointType> _cachedFunctionValues;
 	long double _maxAbsoluteFirstDifference;
 	long double _algCoefficient;
