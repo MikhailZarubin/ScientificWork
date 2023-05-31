@@ -6,20 +6,20 @@ The configuration of middleware is performed via command-line arguments, which m
 ## Required Keys:
 | Key       | Value                           | Description                                                                                                       |
 |---------- |-------------------------------- |------------------------------------------------------------------------------------------------------------------ |
-| `ALG_TYPE`| String constanst: `GS`, `IA` or `MIA` | Type of algorithm used to solve the task.<br />Input the `GS` to run the Global Search Algorithm, input the `IA` to run the Index Algorithm and input the `MIA` to run the Index Algorithm with Adaptive Constraint Checking Order.<br />Global Search Algorithm support only bidimensional tasks.|
+| `ALG_TYPE`| String constanst: `GSA`, `IA` or `MIA` | Type of algorithm used to solve the task.<br />Input the `GSA` to run the Global Search Algorithm, input the `IA` to run the Index Algorithm and input the `MIA` to run the Index Algorithm with Adaptive Constraint Checking Order.|
 
 ## Optional Keys:
 | Key       | Value                                 | Description                                                                                                  |
 |---------- |-------------------------------------- |------------------------------------------------------------------------------------------------------------- |
-| `TASK_NUM`| Integer number from 0 to 99.<br />Data type: `int` | Number of the task to be solved.<br />By default will be solved all tasks |
-| `TASK_R`  | Fractional number greater than 1.<br />Data type: `double` | Task parameter: reliability.<br />By default is [DEFAULT_TASK_RELIABILITY](#defined-configuration-constants) |
-| `TASK_ACC`| Fractional number greater than 0.<br />Data type: `double` | Task parameter: accuracy.<br />By default is [DEFAULT_TASK_ACCURACY](#defined-configuration-constants) |
-| `TASK_EPS`| Fractional number greater than 0.<br />Data type: `double` | Task parameter: delta (epsilon reserved).<br />By default is [DEFAULT_TASK_EPSILON_RESERVED](#defined-configuration-constants) |
-| `SCAN_DEN`| Integer number greater than 0.<br />Data type: `int` | Scan parameter: density of the scan construction.<br />By default is [DEFAULT_SCAN_DENSITY](#defined-configuration-constants) |
-| `SCAN_KEY`| Integer number greater than 1.<br />Data type: `int` | Scan parameter: key of the scan construction.<br />By default is [DEFAULT_SCAN_KEY](#defined-configuration-constants) |
-| `PRINT_LEVEL`| Integer number from 0 to 2.<br />Data type: `int` | Whether to print points to the file.<br />0 - do not print anything, 1 - print only trial points, 2 - print trial points and functions points.<br />By default is [DEFAULT_PRINT_LEVEL](#defined-configuration-constants) |
-| `ITER_LIMIT`| Integer number greater than 1.<br />Data type: `int` | Limit of iterations of the algorithm to solve the task.<br />By default is [ITERATION_LIMIT](#defined-configuration-constants) |
-| `CUSTOM_TASK`| File name with specified extension (only `.txt` is supported).<br />Data type: `string` | File name which contains task described according to [pattern](#custom-task-pattern).<br />By default is non defained. If defined then `TASK_NUM` flag is ignored. |
+| `TASK_NUM`| Integer number from 0 to 99.<br />Data type: `int` | Number of the task to be solved.<br />By default will be solved all tasks. |
+| `TASK_R`  | Fractional number greater than 1.<br />Data type: `double` | Task parameter: reliability.<br />By default is [DEFAULT_TASK_RELIABILITY](#defined-configuration-constants). |
+| `TASK_ACC`| Fractional number greater than 0.<br />Data type: `double` | Task parameter: accuracy.<br />By default is [DEFAULT_TASK_ACCURACY](#defined-configuration-constants). |
+| `TASK_EPS`| Fractional number greater than 0.<br />Data type: `double` | Task parameter: delta (epsilon reserved).<br />By default is [DEFAULT_TASK_EPSILON_RESERVED](#defined-configuration-constants). |
+| `SCAN_DEN`| Integer number greater than 0.<br />Data type: `int` | Scan parameter: density of the scan construction.<br />By default is [DEFAULT_SCAN_DENSITY](#defined-configuration-constants). |
+| `SCAN_KEY`| Integer number greater from 1 to 3.<br />Data type: `int` | Scan parameter: key of the scan construction.<br />By default is [DEFAULT_SCAN_KEY](#defined-configuration-constants). |
+| `PRINT_LEVEL`| Integer number from 0 to 2.<br />Data type: `int` | Whether to print points to the file.<br />0 - do not print anything, 1 - print only trial points, 2 - print trial points and functions points.<br />By default is [DEFAULT_PRINT_LEVEL](#defined-configuration-constants). |
+| `ITER_LIMIT`| Integer number greater than 1.<br />Data type: `int` | Limit of iterations of the algorithm to solve the task.<br />By default is [ITERATION_LIMIT](#defined-configuration-constants). |
+| `CUSTOM_TASK`| File name with specified extension (only `.txt` is supported).<br />Data type: `string` | File name which contains task described according to [pattern](#custom-task-pattern).<br />By default is not defined. If defined then `TASK_NUM` key is ignored. |
 
 ## Command Line Input Example
 ```

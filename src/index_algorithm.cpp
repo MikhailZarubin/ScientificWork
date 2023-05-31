@@ -7,58 +7,44 @@ IndexAlgorithm::IndexAlgorithm(const TemplateTask& task, const IndexAlgorithmPar
     _task(task), _algParams(algParams), _scanParams(scanParams),
     _optimalPoint(), _optimalValue(),
     _points(), _complexity(_task.getConstraintsCount() + 1, 2), maxV(),
-    _peanoPoints(), _peanoPointsClassification(), _performedStepsMap(),
+    _mappedPoints(), _mappedPointsClassification(), _performedStepsMap(),
     _estimationLipschitzConstant(_task.getConstraintsCount() + 1, -DBL_MAX), _minZs(_task.getConstraintsCount() + 1, DBL_MAX) {}
 
-Point IndexAlgorithm::parsePoint(PointType peanoPoint) {
-    if (_task.getTaskDimensionSize() > 1) {
-        if (peanoPoint < constants::MIN_PEANO_POINT || peanoPoint > constants::MAX_PEANO_POINT) {
-            throw errors::INDEX_ALGORITHM_INTERNAL_ERROR_ERR_CODE;
-        }
-
-        double* y = new double[_task.getTaskDimensionSize()];
-        utils::mapd(peanoPoint, _scanParams.density, y, static_cast<int>(_task.getTaskDimensionSize()), _scanParams.key);
-
-        std::vector<PointType> nonLinearizedPoint(y, y + _task.getTaskDimensionSize());
-        auto linearArg = utils::linearTransform(nonLinearizedPoint, _task.getTaskBorders().leftBorder, _task.getTaskBorders().rightBorder);
-
-        delete[] y;
-
-        return linearArg;
-    }
-    else {
-        return { peanoPoint };
-    }
-}
-
 PointType IndexAlgorithm::startIteration() {
-    _peanoPoints.insert(constants::MIN_PEANO_POINT);
-    _peanoPoints.insert(constants::MAX_PEANO_POINT);
+    Point leftIntervalPoint = _task.getTaskDimensionSize() > 1 ?
+        utils::getPointFromMapping(_task.getTaskDimensionSize(), _task.getTaskBorders(), _scanParams, constants::MIN_PEANO_POINT) : _task.getTaskBorders().leftBorder;
+    Point rigthIntervalPoint = _task.getTaskDimensionSize() > 1 ?
+        utils::getPointFromMapping(_task.getTaskDimensionSize(), _task.getTaskBorders(), _scanParams, constants::MAX_PEANO_POINT) : _task.getTaskBorders().rightBorder;
 
-    Point startIntervalPoint = parsePoint(constants::MIN_PEANO_POINT);
-    Point endIntervalPoint = parsePoint(constants::MAX_PEANO_POINT);
+    PointType leftMappedPoint = _task.getTaskDimensionSize() > 1 ?
+        constants::MIN_PEANO_POINT : _task.getTaskBorders().leftBorder[0];
+    PointType rightMappedPoint = _task.getTaskDimensionSize() > 1 ?
+        constants::MAX_PEANO_POINT : _task.getTaskBorders().rightBorder[0];
 
-    _points.push_back(startIntervalPoint);
-    _points.push_back(endIntervalPoint);
+    _mappedPoints.insert(leftMappedPoint);
+    _mappedPoints.insert(rightMappedPoint);
 
-    std::string performedStepKey = performStep(constants::MIN_PEANO_POINT);
-    updateOptimalPoint(startIntervalPoint, _performedStepsMap[performedStepKey].z,
+    _points.push_back(leftIntervalPoint);
+    _points.push_back(rigthIntervalPoint);
+
+    std::string performedStepKey = performStep(leftMappedPoint);
+    updateOptimalPoint(leftIntervalPoint, _performedStepsMap[performedStepKey].z,
         _performedStepsMap[performedStepKey].v == _task.getConstraintsCount());
     updateData();
 
-    performedStepKey = performStep(constants::MAX_PEANO_POINT);
-    updateOptimalPoint(endIntervalPoint, _performedStepsMap[performedStepKey].z,
+    performedStepKey = performStep(rightMappedPoint);
+    updateOptimalPoint(rigthIntervalPoint, _performedStepsMap[performedStepKey].z,
         _performedStepsMap[performedStepKey].v == _task.getConstraintsCount());
     updateData();
 
     auto marks = calculateMarks();
     auto nextStepInterval = calculateNextStepInterval(marks);
-    return calculateNextStepPeanoPoint(nextStepInterval);
+    return calculateNextStepMappedPoint(nextStepInterval);
 }
 
-std::string IndexAlgorithm::performStep(PointType peanoPoint) {
-    Point point = parsePoint(peanoPoint);
-    std::string stepKey = std::to_string(peanoPoint);
+std::string IndexAlgorithm::performStep(PointType mappedPoint) {
+    Point point = utils::getPointFromMapping(_task.getTaskDimensionSize(), _task.getTaskBorders(), _scanParams, mappedPoint);
+    std::string stepKey = std::to_string(mappedPoint);
 
     std::size_t v = _task.getConstraintsCount();
     PointType z = -1;
@@ -77,23 +63,23 @@ std::string IndexAlgorithm::performStep(PointType peanoPoint) {
     }
 
     maxV = std::max(maxV, v);
-    _performedStepsMap[stepKey] = IndexAlgorithmStepResult(peanoPoint, v, z);
-    PointSetModelHelper::addNewPoint(&_peanoPointsClassification[v], peanoPoint);
+    _performedStepsMap[stepKey] = IndexAlgorithmStepResult(mappedPoint, v, z);
+    PointSetModelHelper::addNewPoint(&_mappedPointsClassification[v], mappedPoint);
     return stepKey;
 }
 
 void IndexAlgorithm::updateData() {
     std::string reviewedPointKey;
-    for (const auto& [key, pointSetModel] : _peanoPointsClassification) {
+    for (const auto& [key, pointSetModel] : _mappedPointsClassification) {
         if (PointSetModelHelper::isNeededReview(pointSetModel)) {
-            PointType performedStepPeanoPoint = PointSetModelHelper::getNewPoint(pointSetModel);
-            PointType performedStepResultZ = _performedStepsMap[std::to_string(performedStepPeanoPoint)].z;
+            PointType performedStepMappedPoint = PointSetModelHelper::getNewPoint(pointSetModel);
+            PointType performedStepResultZ = _performedStepsMap[std::to_string(performedStepMappedPoint)].z;
 
             for (auto reviewedPoint : pointSetModel.reviewedPoints) {
                 reviewedPointKey = std::to_string(reviewedPoint);
                 _estimationLipschitzConstant[key] = std::max(_estimationLipschitzConstant[key],
                     fabsl(performedStepResultZ - _performedStepsMap[reviewedPointKey].z) /
-                    utils::improvementDegree(fabsl(performedStepPeanoPoint - reviewedPoint), 1.0 / _task.getTaskDimensionSize()));
+                    utils::improvementDegree(fabsl(performedStepMappedPoint - reviewedPoint), 1.0 / _task.getTaskDimensionSize()));
             }
 
             if (_estimationLipschitzConstant[key] < std::numeric_limits<PointType>::epsilon()) {
@@ -101,7 +87,7 @@ void IndexAlgorithm::updateData() {
             }
             _minZs[key] = std::min(_minZs[key], performedStepResultZ);
 
-            PointSetModelHelper::newPointReviewed(&_peanoPointsClassification[key]);
+            PointSetModelHelper::newPointReviewed(&_mappedPointsClassification[key]);
         }
     }
 }
@@ -127,14 +113,14 @@ std::pair<PointType, PointType> IndexAlgorithm::calculateNextStepInterval(const 
 
     PointType previousPoint, currentPoint;
     long double delta, R;
-    auto previousPointIter = _peanoPoints.begin();
-    for (auto currentPointIter = ++_peanoPoints.begin(); currentPointIter != _peanoPoints.end(); currentPointIter++) {
+    auto previousPointIter = _mappedPoints.begin();
+    for (auto currentPointIter = ++_mappedPoints.begin(); currentPointIter != _mappedPoints.end(); currentPointIter++) {
         previousPoint = *previousPointIter;
         currentPoint = *currentPointIter;
 
         delta = utils::improvementDegree(currentPoint - previousPoint, 1.0 / _task.getTaskDimensionSize());
 
-        R = calculateInterval—haracteristic(delta, marks,
+        R = calculateIntervalCharacteristic(delta, marks,
             _performedStepsMap[std::to_string(previousPoint)], _performedStepsMap[std::to_string(currentPoint)]);
         if (R > maxR) {
             maxR = R;
@@ -147,7 +133,7 @@ std::pair<PointType, PointType> IndexAlgorithm::calculateNextStepInterval(const 
     return nextStepInterval;
 }
 
-long double IndexAlgorithm::calculateInterval—haracteristic(long double delta, const std::vector<long double>& marks,
+long double IndexAlgorithm::calculateIntervalCharacteristic(long double delta, const std::vector<long double>& marks,
     IndexAlgorithmStepResult previousPointStepResult, IndexAlgorithmStepResult currentPointStepResult) {
     long double intervalCharacteristic;
     if (previousPointStepResult.v == currentPointStepResult.v) {
@@ -173,7 +159,7 @@ long double IndexAlgorithm::calculateInterval—haracteristic(long double delta, c
     return intervalCharacteristic;
 }
 
-PointType IndexAlgorithm::calculateNextStepPeanoPoint(std::pair<PointType, PointType> nextStepInterval) {
+PointType IndexAlgorithm::calculateNextStepMappedPoint(std::pair<PointType, PointType> nextStepInterval) {
     std::string startIntervalPointKey = std::to_string(nextStepInterval.first);
     std::string endIntervalPointKey = std::to_string(nextStepInterval.second);
     if (_performedStepsMap[startIntervalPointKey].v != _performedStepsMap[endIntervalPointKey].v) {
@@ -193,27 +179,27 @@ TrialPoint IndexAlgorithm::run() {
     std::string performedStepKey;
     std::vector<long double> marks;
     std::pair<PointType, PointType> nextStepInterval;
-    auto newStepPoint = startIteration();
-    Point newPoint = parsePoint(newStepPoint);
+    auto newStepMappedPoint = startIteration();
+    Point newStepPoint = utils::getPointFromMapping(_task.getTaskDimensionSize(), _task.getTaskBorders(), _scanParams, newStepMappedPoint);
     bool isNeededStop = false;
     while (!isNeededStop && _complexity.getIterationCount() < _algParams.iterationLimit) {
-        _peanoPoints.insert(newStepPoint);
-        performedStepKey = performStep(newStepPoint);
+        _mappedPoints.insert(newStepMappedPoint);
+        performedStepKey = performStep(newStepMappedPoint);
         
-        updateOptimalPoint(newPoint, _performedStepsMap[performedStepKey].z,
+        updateOptimalPoint(newStepPoint, _performedStepsMap[performedStepKey].z,
             _performedStepsMap[performedStepKey].v == _task.getConstraintsCount());
         updateData();
         marks = calculateMarks();
 
         nextStepInterval = calculateNextStepInterval(marks);
-        newStepPoint = calculateNextStepPeanoPoint(nextStepInterval);
+        newStepMappedPoint = calculateNextStepMappedPoint(nextStepInterval);
 
-        newPoint = parsePoint(newStepPoint);
-        _points.push_back(newPoint);
+        newStepPoint = utils::getPointFromMapping(_task.getTaskDimensionSize(), _task.getTaskBorders(), _scanParams, newStepMappedPoint);
+        _points.push_back(newStepPoint);
         _complexity.incrementIteration();
         isNeededStop = utils::improvementDegree(nextStepInterval.second - nextStepInterval.first, 1.0 / _task.getTaskDimensionSize()) <= _algParams.accuracy;
     }
-    updateOptimalPoint(newPoint, _task.getTaskValue(newPoint));
+    updateOptimalPoint(newStepPoint, _task.getTaskValue(newStepPoint));
     _points.push_back(_optimalPoint.value());
 
     return TrialPoint(_optimalPoint.value(), _optimalValue.value());
@@ -240,8 +226,8 @@ void IndexAlgorithm::updateOptimalPoint(Point potentialOptimalPoint, PointType p
 void IndexAlgorithm::clearData() {
     _points.clear();
     _complexity = Complexity(_task.getConstraintsCount() + 1, 2);
-    _peanoPoints.clear();
-    _peanoPointsClassification.clear();
+    _mappedPoints.clear();
+    _mappedPointsClassification.clear();
     _performedStepsMap.clear();
     _estimationLipschitzConstant = std::vector<long double>(_task.getConstraintsCount() + 1, -DBL_MAX);
     _minZs = std::vector<PointType>(_task.getConstraintsCount() + 1, DBL_MAX);

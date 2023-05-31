@@ -25,7 +25,7 @@ namespace constants {
     /*
     * Configuration contract: Defined Values
     */
-    const static std::string DEFINE_GLOBAL_SEARCH_ALG = "GS";
+    const static std::string DEFINE_GLOBAL_SEARCH_ALG = "GSA";
     const static std::string DEFINE_INDEX_ALG = "IA";
     const static std::string DEFINE_MODIFIED_INDEX_ALG = "MIA";
     enum class PrintLevel {

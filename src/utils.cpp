@@ -130,15 +130,6 @@ long double utils::applyUnaryOperation(Operation operation, long double arg) {
     return resultOperation;
 }
 
-Point utils::linearTransform(const Point nonLinearizedPoint, const Point& leftBorders, const Point& rightBorders) {
-    Point linearizedPoint(nonLinearizedPoint.size());
-    for (std::vector<long double>::size_type i = 0; i < linearizedPoint.size(); i++) {
-        linearizedPoint[i] = leftBorders[i] + 
-            (nonLinearizedPoint[i] + 0.5) * (rightBorders[i] - leftBorders[i]);
-    }
-    return linearizedPoint;
-}
-
 PointType utils::sign(PointType arg) {
     if (fabsl(arg) <= std::numeric_limits<PointType>::epsilon()) {
         return 0.0;
@@ -192,8 +183,17 @@ std::vector<std::string> utils::split(const std::string& inputStr, const std::st
     return res;
 }
 
+Point linearTransform(const Point nonLinearizedPoint, const Point& leftBorders, const Point& rightBorders) {
+    Point linearizedPoint(nonLinearizedPoint.size());
+    for (std::vector<long double>::size_type i = 0; i < linearizedPoint.size(); i++) {
+        linearizedPoint[i] = leftBorders[i] +
+            (nonLinearizedPoint[i] + 0.5) * (rightBorders[i] - leftBorders[i]);
+    }
+    return linearizedPoint;
+}
+
 int n1, nexp, l, iq, iu[10], iv[10];
-void utils::mapd(double x, int m, double* y, int n, int key) {
+void mapd(double x, int m, double* y, int n, int key) {
     /* mapping y(x) : 1 - center, 2 - line, 3 - node */
 
     double d, mne, dd, dr;
@@ -204,12 +204,12 @@ void utils::mapd(double x, int m, double* y, int n, int key) {
 
     p = 0.0;
     n1 = n - 1;
-    for (nexp = 1, i = 0; i < n; nexp *= 2, i++);   /* nexp=2**n */
+    for (nexp = 1, i = 0; i < n; nexp *= 2, i++); 
     d = x;
     r = 0.5;
     it = 0;
     dr = nexp;
-    for (mne = 1, i = 0; i < m; mne *= dr, i++);    /* mne=dr**m  */
+    for (mne = 1, i = 0; i < m; mne *= dr, i++);
     for (i = 0; i < n; i++) {
         iw[i] = 1; y[i] = 0.0;
     }
@@ -223,12 +223,8 @@ void utils::mapd(double x, int m, double* y, int n, int key) {
             dd = mne - dr;
             dr = d * dd;
             dd = dr - fmod(dr, 1.0);
-            //заменил эту строчку на следующую
-                // dr=dd+d*mne/nexp;
             dr = dd + (dd - 1) / (nexp - 1.0);
             dd = dr - fmod(dr, 1.0);
-            //заменил эту строчку на следующую
-                // d=dd*(1./(mne-1.0));
             d = dd * (1. / mne);
         }
     for (j = 0; j < m; j++) {
@@ -279,10 +275,8 @@ void utils::mapd(double x, int m, double* y, int n, int key) {
         }
     }
 }
-void node(int is)
-{
-    /* calculate iu=u[s], iv=v[s], l=l[s] by is=s */
 
+void node(int is) {
     int n, i, j, k1, k2, iff;
 
     n = n1 + 1;
@@ -322,5 +316,26 @@ void node(int is)
         }
         iv[l] = iv[l] * iq;
         iv[n1] = -iv[n1];
+    }
+}
+
+Point utils::getPointFromMapping(std::size_t dimensionSize, Borders borders, ScanParams scanParams, PointType mappedPoint) {
+    if (dimensionSize > 1) {
+        if (mappedPoint < constants::MIN_PEANO_POINT || mappedPoint > constants::MAX_PEANO_POINT) {
+            throw errors::MAPPED_POINT_ERROR_ERR_CODE;
+        }
+
+        double* y = new double[dimensionSize];
+        mapd(mappedPoint, scanParams.density, y, static_cast<int>(dimensionSize), scanParams.key);
+
+        std::vector<PointType> nonLinearizedPoint(y, y + dimensionSize);
+        auto linearArg = linearTransform(nonLinearizedPoint, borders.leftBorder, borders.rightBorder);
+
+        delete[] y;
+
+        return linearArg;
+    }
+    else {
+        return { mappedPoint };
     }
 }

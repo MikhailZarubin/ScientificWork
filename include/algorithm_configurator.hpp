@@ -12,7 +12,7 @@
 * Configuration Contract:
 * Input Format: {key}:{value}
 * Required Keys:
-* {ALG_TYPE}:{Type of algorithm used to solve the task (GS, IA or MIA). Data type: string}
+* {ALG_TYPE}:{Type of algorithm used to solve the task (GSA, IA or MIA). Data type: string}
 * Optional Keys:
 * {TASK_NUM}:{Number of the task to be solved (number from 0 to 99). Data type: int. By default will be solved all tasks}
 * {TASK_R}:{Task parameter: reliability (number greater than 1). Data type: double. By default is constants::DEFAULT_TASK_RELIABILITY}

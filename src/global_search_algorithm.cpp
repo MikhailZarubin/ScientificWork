@@ -2,118 +2,148 @@
 
 #include "global_search_algorithm.hpp"
 
-namespace {
-    PointType convertPointToBidimensional(Point point) {
-        if (point.size() != constants::BIDIMENSIONAL_POINT_SIZE) {
-            throw errors::INCORRECT_POINT_SIZE_ERR_CODE;
-        }
-        return point[constants::BIDIMENSIONAL_POINT_SIZE - 1];
+
+GlobalSearchAlgorithm::GlobalSearchAlgorithm(const TemplateTask& task, const GlobalSearchAlgorithmParams& algParams, const ScanParams& scanParams) :
+    _task(task), _algParams(algParams), _scanParams(scanParams),
+    _optimumPoint(), _cachedFunctionValues(), _maxAbsoluteFirstDifference(-DBL_MAX), _algCoefficient(),
+    _points(), _complexity(), _checkedMappedPoints() {}
+
+void GlobalSearchAlgorithm::startIteration() {
+    Point leftBorder = _task.getTaskDimensionSize() > 1 ?
+        utils::getPointFromMapping(_task.getTaskDimensionSize(), _task.getTaskBorders(), _scanParams, constants::MIN_PEANO_POINT) : _task.getTaskBorders().leftBorder;
+    Point rightBorder = _task.getTaskDimensionSize() > 1 ?
+        utils::getPointFromMapping(_task.getTaskDimensionSize(), _task.getTaskBorders(), _scanParams, constants::MAX_PEANO_POINT) : _task.getTaskBorders().rightBorder;
+
+    PointType leftMappedPoint = _task.getTaskDimensionSize() > 1 ?
+        constants::MIN_PEANO_POINT : _task.getTaskBorders().leftBorder[0];
+    PointType rightMappedPoint = _task.getTaskDimensionSize() > 1 ?
+        constants::MAX_PEANO_POINT : _task.getTaskBorders().rightBorder[0];
+
+    PointType valueLeftBorder = _task.getTaskValue(leftBorder);
+    PointType valueRightBorder = _task.getTaskValue(rightBorder);
+
+    if (valueLeftBorder <= valueRightBorder) {
+        _optimumPoint = TrialPoint(leftBorder, valueLeftBorder);
+    }
+    else {
+        _optimumPoint = TrialPoint(rightBorder, valueRightBorder);
     }
 
-    bool comparisonPoints(const TrialPoint& firstPoint, const TrialPoint& secondPoint) {
-        return convertPointToBidimensional(firstPoint.point) < convertPointToBidimensional(secondPoint.point);
-    }
-}
+    _cachedFunctionValues[std::to_string(leftMappedPoint)] = valueLeftBorder;
+    _cachedFunctionValues[std::to_string(rightMappedPoint)] = valueRightBorder;
 
-
-BidimensionalGlobalSearch::BidimensionalGlobalSearch(const TemplateTask& task, const GlobalSearchAlgorithmParams& params) :
-    _task(task), _params(params), _globalMinimum(), _points(), _complexity(), _checkedPoints(::comparisonPoints) {}
-
-void BidimensionalGlobalSearch::startIteration() {
-    Point leftBorder = _task.getTaskBorders().leftBorder;
-    Point rightBorder = _task.getTaskBorders().rightBorder;
-    PointType valueFuncLeftBorder = _task.getTaskValue(leftBorder);
-    PointType valueFuncRightBorder = _task.getTaskValue(rightBorder);
-
-    if (valueFuncLeftBorder <= valueFuncRightBorder) {
-        _globalMinimum = TrialPoint(leftBorder, valueFuncLeftBorder);
-    } else {
-        _globalMinimum = TrialPoint(rightBorder, valueFuncRightBorder);
-    }
-
-    _checkedPoints.insert({ leftBorder, valueFuncLeftBorder });
-    _checkedPoints.insert({ rightBorder, valueFuncRightBorder });
+    _checkedMappedPoints.insert(leftMappedPoint);
+    _checkedMappedPoints.insert(rightMappedPoint);
 
     _points.push_back(leftBorder);
     _points.push_back(rightBorder);
 }
 
-TrialPoint BidimensionalGlobalSearch::run() {
+void GlobalSearchAlgorithm::updateAlgCoefficient(std::set<PointType>::iterator iterNewPoint) {
+    std::set<PointType>::iterator start = iterNewPoint, next, end = iterNewPoint;
+    if (iterNewPoint != _checkedMappedPoints.begin()) {
+        start = std::prev(iterNewPoint);
+    }
+    if (std::next(iterNewPoint) != _checkedMappedPoints.end()) {
+        end = std::next(iterNewPoint);
+    }
+
+    while (start != end) {
+        next = std::next(start);
+        _maxAbsoluteFirstDifference = std::max(_maxAbsoluteFirstDifference,
+            fabsl(_cachedFunctionValues[std::to_string(*next)] - _cachedFunctionValues[std::to_string(*start)]) / (*next - *start));
+        start = std::next(start);
+    }
+
+    if (utils::equal(_maxAbsoluteFirstDifference, 0.0)) {
+        _algCoefficient = 1.0;
+    }
+    else {
+        _algCoefficient = _algParams.rCoeff * _maxAbsoluteFirstDifference;
+    }
+}
+
+std::pair<PointType, PointType> GlobalSearchAlgorithm::calculateNextStepInterval() {
+    std::pair<PointType, PointType> nextStepInterval;
+
+    PointType maxIntervalCharacteristic = -DBL_MAX;
+    PointType currentIntervalCharacteristic;
+    
+    PointType previousPoint, currentPoint;
+    auto previousPointIter = _checkedMappedPoints.begin();
+    for (auto currentPointIter = ++_checkedMappedPoints.begin(); currentPointIter != _checkedMappedPoints.end(); currentPointIter++) {
+        previousPoint = *previousPointIter;
+        currentPoint = *currentPointIter;
+
+        PointType pointInterval = currentPoint - previousPoint;
+        PointType valueInterval = _cachedFunctionValues[std::to_string(currentPoint)] - _cachedFunctionValues[std::to_string(previousPoint)];
+
+        currentIntervalCharacteristic = _algCoefficient * pointInterval +
+            (valueInterval * valueInterval) / (_algCoefficient * pointInterval) -
+            2.0 * (_cachedFunctionValues[std::to_string(currentPoint)] + _cachedFunctionValues[std::to_string(previousPoint)]);
+
+        if (currentIntervalCharacteristic > maxIntervalCharacteristic) {
+            maxIntervalCharacteristic = currentIntervalCharacteristic;
+            nextStepInterval = { previousPoint, currentPoint };
+        }
+
+        previousPointIter = currentPointIter;
+    }
+    return nextStepInterval;
+}
+
+PointType GlobalSearchAlgorithm::calculateNextStepPoint(std::pair<PointType, PointType> nextStepInterval) {
+    return 0.5 * (nextStepInterval.second + nextStepInterval.first) +
+        0.5 * (_cachedFunctionValues[std::to_string(nextStepInterval.second)] - _cachedFunctionValues[std::to_string(nextStepInterval.first)]) / _algCoefficient;
+}
+
+TrialPoint GlobalSearchAlgorithm::run() {
     clearData();
     startIteration();
 
     bool stopCondition = false;
-    PointType maxDiff = PointType();
+    std::set<PointType>::iterator iterNewPoint = _checkedMappedPoints.begin();
+    std::pair<PointType, PointType> nextStepInterval;
+    PointType nextStepMappedPoint;
+    Point nextStepPoint;
     while (!stopCondition) {
-        for (auto iter = ++_checkedPoints.begin(); iter != _checkedPoints.end(); iter++) {
-            TrialPoint currentElem = *(iter--);
-            TrialPoint lastELem = *(iter++);
+        updateAlgCoefficient(iterNewPoint);
 
-            PointType diff = abs((currentElem.value - lastELem.value)
-                / (::convertPointToBidimensional(currentElem.point) - ::convertPointToBidimensional(lastELem.point)));
-            maxDiff = std::max(maxDiff, diff);
+        nextStepInterval = calculateNextStepInterval();
+        nextStepMappedPoint = calculateNextStepPoint(nextStepInterval);
+        nextStepPoint = utils::getPointFromMapping(_task.getTaskDimensionSize(), _task.getTaskBorders(), _scanParams, nextStepMappedPoint);
+        _cachedFunctionValues[std::to_string(nextStepMappedPoint)] = _task.getTaskValue(nextStepPoint);
+
+        iterNewPoint = _checkedMappedPoints.insert(nextStepMappedPoint).first;
+        _points.push_back(nextStepPoint);
+
+        if (_cachedFunctionValues[std::to_string(nextStepMappedPoint)] < _optimumPoint.value) {
+            _optimumPoint = { nextStepPoint, _cachedFunctionValues[std::to_string(nextStepMappedPoint)] };
         }
 
-        auto m = _params.rCoeff * maxDiff;
-
-        if (maxDiff == 0.0) {
-            m = 1.0;
-        }
-
-        PointType maxR = PointType();
-        auto desiredInterval = ++_checkedPoints.begin();
-        for (auto iter = ++_checkedPoints.begin(); iter != _checkedPoints.end(); iter++) {
-            TrialPoint currentElem = *(iter--);
-            TrialPoint lastElem = *(iter++);
-
-            PointType pointInterval = ::convertPointToBidimensional(currentElem.point) - ::convertPointToBidimensional(lastElem.point);
-            PointType valueInterval = currentElem.value - lastElem.value;
-            auto R = m * pointInterval + (valueInterval * valueInterval) / (m * pointInterval) - 2.0 * (currentElem.value + lastElem.value);
-
-            if (iter == ++_checkedPoints.begin() || R > maxR) {
-                maxR = R;
-                desiredInterval = iter;
-            }
-        }
-
-        TrialPoint currentElemDesiredInterval = *(desiredInterval--);
-        TrialPoint lastElemDesiredInterval = *(desiredInterval++);
-
-        Point newCoordinate = Point{ 0.5 * (
-            ::convertPointToBidimensional(currentElemDesiredInterval.point) + ::convertPointToBidimensional(lastElemDesiredInterval.point)
-            + ((1.0 / m) * (currentElemDesiredInterval.value - lastElemDesiredInterval.value))) };
-        PointType newValue = _task.getTaskValue(newCoordinate);
-
-        _checkedPoints.insert({ newCoordinate, newValue });
-        _points.push_back(newCoordinate);
-
-        if (newValue < _globalMinimum.value) {
-            _globalMinimum = { newCoordinate, newValue };
-        }
-
-        stopCondition = ::convertPointToBidimensional(currentElemDesiredInterval.point) - ::convertPointToBidimensional(lastElemDesiredInterval.point) <= _params.accuracy;
+        stopCondition = utils::improvementDegree(nextStepInterval.second - nextStepInterval.first, 1.0 / _task.getTaskDimensionSize()) <= _algParams.accuracy;
         _complexity.incrementFunctionCalculation();
         _complexity.incrementIteration();
     }
-    _points.push_back(_globalMinimum.point);
+    _points.push_back(_optimumPoint.point);
 
-    return _globalMinimum;
+    return _optimumPoint;
 }
 
-Points BidimensionalGlobalSearch::getPoints() {
+Points GlobalSearchAlgorithm::getPoints() {
     return _points;
 }
 
-Complexity BidimensionalGlobalSearch::getComplexity() {
+Complexity GlobalSearchAlgorithm::getComplexity() {
     return _complexity;
 }
 
-TemplateTask BidimensionalGlobalSearch::getTask() {
+TemplateTask GlobalSearchAlgorithm::getTask() {
     return _task;
 }
 
-void BidimensionalGlobalSearch::clearData() {
+void GlobalSearchAlgorithm::clearData() {
     _complexity = Complexity();
-    _checkedPoints.clear();
+    _checkedMappedPoints.clear();
     _points.clear();
 }
