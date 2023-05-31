@@ -48,6 +48,55 @@ std::string parser::parseFileName(const std::string& nameContractFilePath, const
 	return partsName[0] + std::to_string(taskNumber) + partsName[1];
 }
 
+TemplateTask parser::parseCustomTask(const std::string& customTaskFilePath, const std::string& customTaskFileName) {
+	std::ifstream customTaskFile(customTaskFilePath + customTaskFilePath);
+
+	std::string generalParams;
+	std::getline(customTaskFile, generalParams);
+	std::vector<std::string> splittedGeneralParams = utils::split(generalParams, " ");
+
+	std::string variableSet = splittedGeneralParams[0];
+	int constrantsCount = std::atoi(splittedGeneralParams[1].c_str());
+
+	std::string bordersParams;
+	std::getline(customTaskFile, bordersParams);
+	std::vector<std::string> splittedBorders = utils::split(bordersParams, " ");
+
+	Points borders;
+	for (int i = 0; i < splittedBorders.size(); i++) {
+		borders.push_back({});
+		std::vector<std::string> border = utils::split(splittedBorders[i], ",");
+		for (int j = 0; j < border.size(); j++) {
+			borders[i].push_back(std::atof(border[j].c_str()));
+		}
+	}
+
+	std::string expression;
+	std::getline(customTaskFile, expression);
+	Function function(expression, variableSet, Borders(borders[0], borders[1]));
+
+	std::string expressionConstraint;
+	std::vector<Function> constraints;
+	for (int i = 0; i < constrantsCount; i++) {
+		expressionConstraint.clear();
+		std::getline(customTaskFile, expressionConstraint);
+		constraints.push_back(Function(expressionConstraint, variableSet, Borders(borders[0], borders[1])));
+	}
+
+	std::string optimalTrialPoint;
+	std::getline(customTaskFile, optimalTrialPoint);
+	std::vector<std::string> splittedOptimalTrialPoint = utils::split(optimalTrialPoint, " ");
+
+	Point optimalPoint;
+	std::vector<std::string> splittedOptimalPoint = utils::split(splittedOptimalTrialPoint[0], ",");
+	for (int i = 0; i < splittedOptimalPoint.size(); i++) {
+		optimalPoint.push_back(std::atof(splittedOptimalPoint[i].c_str()));
+	}
+	PointType optimalValue = std::atof(splittedOptimalTrialPoint[1].c_str());
+
+	return TemplateTask(function, constraints, TrialPoint(optimalPoint, optimalValue));
+}
+
 void writer::writePointsToFile(const std::string& fileName, Points points, const std::function<PointType(Point)>& getValue) {
 	std::ofstream outputFile(fileName);
 	outputFile.clear();

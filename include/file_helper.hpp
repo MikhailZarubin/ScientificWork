@@ -1,7 +1,6 @@
 #pragma once
 
-#include "errors.hpp"
-#include "models.hpp"
+#include "template_task.hpp"
 #include "utils.hpp"
 #include <functional>
 #include <fstream>
@@ -11,6 +10,7 @@
 namespace parser {
     std::vector<std::string> parseDirectories(const std::string& pathsFilePath, const std::string& pathsFileName);
     std::string parseFileName(const std::string& nameContractFilePath, const std::string& nameContractFileName, int taskNumber);
+    TemplateTask parseCustomTask(const std::string& customTaskFilePath, const std::string& customTaskFileName);
 }
 
 namespace writer {

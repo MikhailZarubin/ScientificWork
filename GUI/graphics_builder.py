@@ -4,7 +4,7 @@ from matplotlib import cm
 import sys
 
 apiPath = '../api/'
-pathsFileName = 'paths.txt'
+dataPathsFileName = 'data_paths.txt'
 nameContractFileName = 'name_contract.txt'
 
 class Point3D:
@@ -22,13 +22,13 @@ def configurePointsFileName(numberPointsFile):
 
   return pointsfileName
 
-def configurePaths():
-  paths = []
+def configureDataPaths():
+  dataPaths = []
 
-  pathsFile = open(apiPath + pathsFileName)
-  paths = pathsFile.read().split('\n')
+  dataPathsFile = open(apiPath + dataPathsFileName)
+  dataPaths = dataPathsFile.read().split('\n')
 
-  return paths
+  return dataPaths
 
 
 def unparse3DPointsFromFile(fileName):
@@ -97,11 +97,11 @@ if __name__ == '__main__':
 
   try:
     pointsfileName = configurePointsFileName(sys.argv[1])
-    paths = configurePaths()
+    dataPaths = configureDataPaths()
 
-    algorithmPoints = unparse3DPointsFromFile(paths[0] + pointsfileName)
-    functionPoints = unparse3DPointsFromFile(paths[1] + pointsfileName)
-    invalidPoints = unparse3DPointsFromFile(paths[2] + pointsfileName)
+    algorithmPoints = unparse3DPointsFromFile(dataPaths[0] + pointsfileName)
+    functionPoints = unparse3DPointsFromFile(dataPaths[1] + pointsfileName)
+    invalidPoints = unparse3DPointsFromFile(dataPaths[2] + pointsfileName)
 
     expectedOptimum.append(algorithmPoints[algorithmPoints.__len__() - 1])
     optimumPoint.append(algorithmPoints[algorithmPoints.__len__() - 2])

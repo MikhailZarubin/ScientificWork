@@ -3,33 +3,24 @@
 #include "index_algorithm.hpp"
 
 
-IndexAlgorithm::IndexAlgorithm(const Function& task, const std::vector<Function>& constraints, 
-    const IndexAlgorithmParams& algParams, const ScanParams& scanParams) :
-    _taskHelper(task, constraints), _algParams(algParams), _scanParams(scanParams),
+IndexAlgorithm::IndexAlgorithm(const TemplateTask& task, const IndexAlgorithmParams& algParams, const ScanParams& scanParams) :
+    _task(task), _algParams(algParams), _scanParams(scanParams),
     _optimalPoint(), _optimalValue(),
-    _points(), _complexity(_taskHelper.getConstraintsCount() + 1, 2), maxV(),
+    _points(), _complexity(_task.getConstraintsCount() + 1, 2), maxV(),
     _peanoPoints(), _peanoPointsClassification(), _performedStepsMap(),
-    _estimationLipschitzConstant(_taskHelper.getConstraintsCount() + 1, -DBL_MAX), _minZs(_taskHelper.getConstraintsCount() + 1, DBL_MAX) {}
-
-IndexAlgorithm::IndexAlgorithm(IConstrainedOptProblem* generator, 
-    const IndexAlgorithmParams& algParams, const ScanParams& scanParams) :
-    _taskHelper(generator), _algParams(algParams), _scanParams(scanParams),
-    _optimalPoint(), _optimalValue(),
-    _points(), _complexity(_taskHelper.getConstraintsCount() + 1, 2), maxV(),
-    _peanoPoints(), _peanoPointsClassification(), _performedStepsMap(),
-    _estimationLipschitzConstant(_taskHelper.getConstraintsCount() + 1, -DBL_MAX), _minZs(_taskHelper.getConstraintsCount() + 1, DBL_MAX) {}
+    _estimationLipschitzConstant(_task.getConstraintsCount() + 1, -DBL_MAX), _minZs(_task.getConstraintsCount() + 1, DBL_MAX) {}
 
 Point IndexAlgorithm::parsePoint(PointType peanoPoint) {
-    if (_taskHelper.getTaskDimensionSize() > 1) {
+    if (_task.getTaskDimensionSize() > 1) {
         if (peanoPoint < constants::MIN_PEANO_POINT || peanoPoint > constants::MAX_PEANO_POINT) {
             throw errors::INDEX_ALGORITHM_INTERNAL_ERROR_ERR_CODE;
         }
 
-        double* y = new double[_taskHelper.getTaskDimensionSize()];
-        utils::mapd(peanoPoint, _scanParams.density, y, static_cast<int>(_taskHelper.getTaskDimensionSize()), _scanParams.key);
+        double* y = new double[_task.getTaskDimensionSize()];
+        utils::mapd(peanoPoint, _scanParams.density, y, static_cast<int>(_task.getTaskDimensionSize()), _scanParams.key);
 
-        std::vector<PointType> nonLinearizedPoint(y, y + _taskHelper.getTaskDimensionSize());
-        auto linearArg = utils::linearTransform(nonLinearizedPoint, _taskHelper.getTaskBorders().leftBorder, _taskHelper.getTaskBorders().rightBorder);
+        std::vector<PointType> nonLinearizedPoint(y, y + _task.getTaskDimensionSize());
+        auto linearArg = utils::linearTransform(nonLinearizedPoint, _task.getTaskBorders().leftBorder, _task.getTaskBorders().rightBorder);
 
         delete[] y;
 
@@ -52,12 +43,12 @@ PointType IndexAlgorithm::startIteration() {
 
     std::string performedStepKey = performStep(constants::MIN_PEANO_POINT);
     updateOptimalPoint(startIntervalPoint, _performedStepsMap[performedStepKey].z,
-        _performedStepsMap[performedStepKey].v == _taskHelper.getConstraintsCount());
+        _performedStepsMap[performedStepKey].v == _task.getConstraintsCount());
     updateData();
 
     performedStepKey = performStep(constants::MAX_PEANO_POINT);
     updateOptimalPoint(endIntervalPoint, _performedStepsMap[performedStepKey].z,
-        _performedStepsMap[performedStepKey].v == _taskHelper.getConstraintsCount());
+        _performedStepsMap[performedStepKey].v == _task.getConstraintsCount());
     updateData();
 
     auto marks = calculateMarks();
@@ -69,10 +60,10 @@ std::string IndexAlgorithm::performStep(PointType peanoPoint) {
     Point point = parsePoint(peanoPoint);
     std::string stepKey = std::to_string(peanoPoint);
 
-    std::size_t v = _taskHelper.getConstraintsCount();
+    std::size_t v = _task.getConstraintsCount();
     PointType z = -1;
     for (std::size_t i = 0; i < v; i++) {
-        z = _taskHelper.getConstraintValue(i, point);
+        z = _task.getConstraintValue(i, point);
         _complexity.incrementFunctionCalculation(i);
         if (z > 0) {
             v = i;
@@ -81,7 +72,7 @@ std::string IndexAlgorithm::performStep(PointType peanoPoint) {
     }
 
     if (z <= 0) {
-        z = _taskHelper.getTaskValue(point);
+        z = _task.getTaskValue(point);
         _complexity.incrementFunctionCalculation(v);
     }
 
@@ -102,7 +93,7 @@ void IndexAlgorithm::updateData() {
                 reviewedPointKey = std::to_string(reviewedPoint);
                 _estimationLipschitzConstant[key] = std::max(_estimationLipschitzConstant[key],
                     fabsl(performedStepResultZ - _performedStepsMap[reviewedPointKey].z) /
-                    utils::improvementDegree(fabsl(performedStepPeanoPoint - reviewedPoint), 1.0 / _taskHelper.getTaskDimensionSize()));
+                    utils::improvementDegree(fabsl(performedStepPeanoPoint - reviewedPoint), 1.0 / _task.getTaskDimensionSize()));
             }
 
             if (_estimationLipschitzConstant[key] < std::numeric_limits<PointType>::epsilon()) {
@@ -116,7 +107,7 @@ void IndexAlgorithm::updateData() {
 }
 
 std::vector<long double> IndexAlgorithm::calculateMarks() {
-    std::vector<long double> marks(_taskHelper.getConstraintsCount() + 1);
+    std::vector<long double> marks(_task.getConstraintsCount() + 1);
     for (std::size_t v = 0; v < marks.size(); v++) {
         if (v == maxV) {
             marks[v] = _minZs[v];
@@ -141,7 +132,7 @@ std::pair<PointType, PointType> IndexAlgorithm::calculateNextStepInterval(const 
         previousPoint = *previousPointIter;
         currentPoint = *currentPointIter;
 
-        delta = utils::improvementDegree(currentPoint - previousPoint, 1.0 / _taskHelper.getTaskDimensionSize());
+        delta = utils::improvementDegree(currentPoint - previousPoint, 1.0 / _task.getTaskDimensionSize());
 
         R = calculateInterval—haracteristic(delta, marks,
             _performedStepsMap[std::to_string(previousPoint)], _performedStepsMap[std::to_string(currentPoint)]);
@@ -192,7 +183,7 @@ PointType IndexAlgorithm::calculateNextStepPeanoPoint(std::pair<PointType, Point
         return (nextStepInterval.first + nextStepInterval.second) / 2.0 -
             utils::sign(_performedStepsMap[endIntervalPointKey].z - _performedStepsMap[startIntervalPointKey].z) *
             (1.0 / (2.0 * _algParams.rCoeff)) * utils::improvementDegree(fabsl(_performedStepsMap[endIntervalPointKey].z - _performedStepsMap[startIntervalPointKey].z) /
-                _estimationLipschitzConstant[_performedStepsMap[startIntervalPointKey].v], _taskHelper.getTaskDimensionSize());
+                _estimationLipschitzConstant[_performedStepsMap[startIntervalPointKey].v], _task.getTaskDimensionSize());
     }
 }
 
@@ -210,7 +201,7 @@ TrialPoint IndexAlgorithm::run() {
         performedStepKey = performStep(newStepPoint);
         
         updateOptimalPoint(newPoint, _performedStepsMap[performedStepKey].z,
-            _performedStepsMap[performedStepKey].v == _taskHelper.getConstraintsCount());
+            _performedStepsMap[performedStepKey].v == _task.getConstraintsCount());
         updateData();
         marks = calculateMarks();
 
@@ -220,9 +211,9 @@ TrialPoint IndexAlgorithm::run() {
         newPoint = parsePoint(newStepPoint);
         _points.push_back(newPoint);
         _complexity.incrementIteration();
-        isNeededStop = utils::improvementDegree(nextStepInterval.second - nextStepInterval.first, 1.0 / _taskHelper.getTaskDimensionSize()) <= _algParams.accuracy;
+        isNeededStop = utils::improvementDegree(nextStepInterval.second - nextStepInterval.first, 1.0 / _task.getTaskDimensionSize()) <= _algParams.accuracy;
     }
-    updateOptimalPoint(newPoint, _taskHelper.getTaskValue(newPoint));
+    updateOptimalPoint(newPoint, _task.getTaskValue(newPoint));
     _points.push_back(_optimalPoint.value());
 
     return TrialPoint(_optimalPoint.value(), _optimalValue.value());
@@ -232,8 +223,8 @@ void IndexAlgorithm::updateOptimalPoint(Point potentialOptimalPoint, PointType p
     std::optional<bool> isValid) {
     if (!isValid.has_value()) {
         isValid = true;
-        for (int i = 0; i < _taskHelper.getConstraintsCount(); i++) {
-            if (_taskHelper.getConstraintValue(i, potentialOptimalPoint) > 0) {
+        for (int i = 0; i < _task.getConstraintsCount(); i++) {
+            if (_task.getConstraintValue(i, potentialOptimalPoint) > 0) {
                 isValid = false;
                 break;
             }
@@ -248,12 +239,12 @@ void IndexAlgorithm::updateOptimalPoint(Point potentialOptimalPoint, PointType p
 
 void IndexAlgorithm::clearData() {
     _points.clear();
-    _complexity = Complexity(_taskHelper.getConstraintsCount() + 1, 2);
+    _complexity = Complexity(_task.getConstraintsCount() + 1, 2);
     _peanoPoints.clear();
     _peanoPointsClassification.clear();
     _performedStepsMap.clear();
-    _estimationLipschitzConstant = std::vector<long double>(_taskHelper.getConstraintsCount() + 1, -DBL_MAX);
-    _minZs = std::vector<PointType>(_taskHelper.getConstraintsCount() + 1, DBL_MAX);
+    _estimationLipschitzConstant = std::vector<long double>(_task.getConstraintsCount() + 1, -DBL_MAX);
+    _minZs = std::vector<PointType>(_task.getConstraintsCount() + 1, DBL_MAX);
 }
 
 Points IndexAlgorithm::getPoints() {
@@ -262,4 +253,8 @@ Points IndexAlgorithm::getPoints() {
 
 Complexity IndexAlgorithm::getComplexity() {
     return _complexity;
+}
+
+TemplateTask IndexAlgorithm::getTask() {
+    return _task;
 }

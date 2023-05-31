@@ -3,21 +3,11 @@
 #include "modified_index_algorithm.hpp"
 
 
-ModifiedIndexAlgorithm::ModifiedIndexAlgorithm(const Function& task, const std::vector<Function>& constraints,
-    const IndexAlgorithmParams& algParams, const ScanParams& scanParams) : IndexAlgorithm(task, constraints, algParams, scanParams),
-_orderCheckingConstraintsNewPoint(_taskHelper.getConstraintsCount() + 1), _orderCheckingContraintsByPoint() {
-    init();
-}
-
-ModifiedIndexAlgorithm::ModifiedIndexAlgorithm(IConstrainedOptProblem* generator,
-    const IndexAlgorithmParams& algParams, const ScanParams& scanParams) : IndexAlgorithm(generator, algParams, scanParams),
-_orderCheckingConstraintsNewPoint(_taskHelper.getConstraintsCount() + 1), _orderCheckingContraintsByPoint() {
-    init();
-}
-
-void ModifiedIndexAlgorithm::init() {
-    std::vector<std::size_t> orderCheckingContraintsMinPoint(_taskHelper.getConstraintsCount() + 1);
-    std::vector<std::size_t> orderCheckingContraintsMaxPoint(_taskHelper.getConstraintsCount() + 1);
+ModifiedIndexAlgorithm::ModifiedIndexAlgorithm(const TemplateTask& task, const IndexAlgorithmParams& algParams, const ScanParams& scanParams) : 
+    IndexAlgorithm(task, algParams, scanParams),
+    _orderCheckingConstraintsNewPoint(_task.getConstraintsCount() + 1), _orderCheckingContraintsByPoint() {
+    std::vector<std::size_t> orderCheckingContraintsMinPoint(_task.getConstraintsCount() + 1);
+    std::vector<std::size_t> orderCheckingContraintsMaxPoint(_task.getConstraintsCount() + 1);
 
     std::iota(orderCheckingContraintsMinPoint.begin(), orderCheckingContraintsMinPoint.end(), 0);
     std::iota(orderCheckingContraintsMaxPoint.begin(), orderCheckingContraintsMaxPoint.end(), 0);
@@ -30,10 +20,10 @@ std::string ModifiedIndexAlgorithm::performStep(PointType peanoPoint) {
     Point point = parsePoint(peanoPoint);
     std::string stepKey = std::to_string(peanoPoint);
 
-    std::size_t v = _taskHelper.getConstraintsCount();
+    std::size_t v = _task.getConstraintsCount();
     PointType z = -1;
     for (std::size_t i = 0; i < v; i++) {
-        z = _taskHelper.getConstraintValue(_orderCheckingContraintsByPoint[stepKey][i], point);
+        z = _task.getConstraintValue(_orderCheckingContraintsByPoint[stepKey][i], point);
         _complexity.incrementFunctionCalculation(_orderCheckingContraintsByPoint[stepKey][i]);
         if (z > 0) {
             v = _orderCheckingContraintsByPoint[stepKey][i];
@@ -42,7 +32,7 @@ std::string ModifiedIndexAlgorithm::performStep(PointType peanoPoint) {
     }
 
     if (z <= 0) {
-        z = _taskHelper.getTaskValue(point);
+        z = _task.getTaskValue(point);
         _complexity.incrementFunctionCalculation(v);
     }
 
@@ -94,7 +84,7 @@ void ModifiedIndexAlgorithm::reorderCheckingCostraints(const std::string& startI
     auto p = getConstraintOrdinalNumber(_orderCheckingContraintsByPoint[startIntervalKey], _performedStepsMap[startIntervalKey].v);
     auto q = getConstraintOrdinalNumber(_orderCheckingContraintsByPoint[endIntervalKey], _performedStepsMap[endIntervalKey].v);
 
-    auto functionIndex = _taskHelper.getConstraintsCount();
+    auto functionIndex = _task.getConstraintsCount();
     if (p == q && q < functionIndex || p < q && q == functionIndex) {
         std::rotate(_orderCheckingConstraintsNewPoint.begin(),
             _orderCheckingConstraintsNewPoint.begin() + p,

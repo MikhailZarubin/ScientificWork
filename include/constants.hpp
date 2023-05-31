@@ -20,6 +20,7 @@ namespace constants {
     const static std::string KEY_SCAN_KEY = "SCAN_KEY";
     const static std::string KEY_PRINT_LEVEL = "PRINT_LEVEL";
     const static std::string KEY_ITERATION_LIMIT = "ITER_LIMIT";
+    const static std::string KEY_CUSTOM_TASK = "CUSTOM_TASK";
 
     /*
     * Configuration contract: Defined Values
@@ -48,7 +49,8 @@ namespace constants {
     */
     const static std::string API_DIR = "../api/";
     const static std::string NAME_CONTRACT_FILE = "name_contract.txt";
-    const static std::string PATHS_FILE = "paths.txt";
+    const static std::string DATA_PATHS_FILE = "data_paths.txt";
+    const static std::string CONFIG_PATH_FILE = "config_path.txt";
 
     /*
     * Internal constants
@@ -57,6 +59,7 @@ namespace constants {
     const static int BIDIMENSIONAL_POINT_SIZE = 1;
     const static long double MIN_PEANO_POINT = 0.0;
     const static long double MAX_PEANO_POINT = 1.0;
-    const static int PATHS_COUNT = 3;
+    const static int DATA_PATHS_COUNT = 3;
     const static long double STEP_PRINT_POINTS = 0.001;
+    const static int CUSTOM_TASK_NUMBER = -1;
 }

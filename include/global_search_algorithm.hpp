@@ -1,12 +1,10 @@
 #pragma once
 
 #include "base_algorithm.hpp"
-#include "complexity.hpp"
-#include "function.hpp"
 #include <set>
 
 class BidimensionalGlobalSearch : public Algorithm {
-	Function _task;
+	TemplateTask _task;
 	GlobalSearchAlgorithmParams _params;
 
 	TrialPoint _globalMinimum;
@@ -19,9 +17,10 @@ class BidimensionalGlobalSearch : public Algorithm {
 
 public:
 	BidimensionalGlobalSearch() = delete;
-	BidimensionalGlobalSearch(const Function& task, const GlobalSearchAlgorithmParams& params);
+	BidimensionalGlobalSearch(const TemplateTask& task, const GlobalSearchAlgorithmParams& params);
 	Points getPoints();
 	Complexity getComplexity();
+	TemplateTask getTask();
 	TrialPoint run();
 };
 
