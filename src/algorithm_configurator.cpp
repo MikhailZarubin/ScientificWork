@@ -49,7 +49,7 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
     ScanParams scanParams(densityScan, keyScan);
     if (utils::contains(configurationMap, constants::KEY_CUSTOM_TASK)) {
         _algorithmsMap[constants::CUSTOM_TASK_NUMBER] = createAlgorithm(algType,
-            parser::parseCustomTask(constants::API_DIR + constants::CONFIG_PATH_FILE,
+            parser::parseCustomTask(constants::API_DIR, constants::CONFIG_PATH_FILE,
                 configurationMap[constants::KEY_CUSTOM_TASK]), algParams, scanParams);
     }
     else {

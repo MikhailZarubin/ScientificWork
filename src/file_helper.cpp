@@ -48,8 +48,8 @@ std::string parser::parseFileName(const std::string& nameContractFilePath, const
 	return partsName[0] + std::to_string(taskNumber) + partsName[1];
 }
 
-TemplateTask parser::parseCustomTask(const std::string& customTaskFilePath, const std::string& customTaskFileName) {
-	std::ifstream customTaskFile(customTaskFilePath + customTaskFilePath);
+TemplateTask parser::parseCustomTask(const std::string& configFilePath, const std::string& configFileName, const std::string& customTaskFileName) {
+	std::ifstream customTaskFile(parseDirectories(configFilePath, configFileName)[0] + customTaskFileName);
 
 	std::string generalParams;
 	std::getline(customTaskFile, generalParams);
