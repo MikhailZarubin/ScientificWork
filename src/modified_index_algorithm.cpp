@@ -51,11 +51,11 @@ std::pair<PointType, PointType> ModifiedIndexAlgorithm::calculateNextStepInterva
     return nextStepInterval;
 }
 
-long double ModifiedIndexAlgorithm::calculateInterval—haracteristic(long double delta, const std::vector<long double>& marks,
+long double ModifiedIndexAlgorithm::calculateIntervalCharacteristic(long double delta, const std::vector<long double>& marks,
     IndexAlgorithmStepResult previousPointStepResult, IndexAlgorithmStepResult currentPointStepResult) {
     long double intervalCharacteristic;
     if (previousPointStepResult.v == currentPointStepResult.v) {
-        intervalCharacteristic = IndexAlgorithm::calculateInterval—haracteristic(delta, marks, previousPointStepResult, currentPointStepResult);
+        intervalCharacteristic = IndexAlgorithm::calculateIntervalCharacteristic(delta, marks, previousPointStepResult, currentPointStepResult);
     } else {
         auto p = getConstraintOrdinalNumber(_orderCheckingContraintsByPoint[std::to_string(previousPointStepResult.point)], previousPointStepResult.v);
         auto q = getConstraintOrdinalNumber(_orderCheckingContraintsByPoint[std::to_string(currentPointStepResult.point)], previousPointStepResult.v);
@@ -76,7 +76,7 @@ long double ModifiedIndexAlgorithm::calculateInterval—haracteristic(long double 
             intervalCharacteristic = 2.0 * delta - 4.0 * deltaZ / (_estimationLipschitzConstant[v] * _algParams.rCoeff);
         }
         else {
-            intervalCharacteristic = IndexAlgorithm::calculateInterval—haracteristic(delta, marks, previousPointStepResult, currentPointStepResult);
+            intervalCharacteristic = IndexAlgorithm::calculateIntervalCharacteristic(delta, marks, previousPointStepResult, currentPointStepResult);
         }
     }
     return intervalCharacteristic;

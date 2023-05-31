@@ -10,7 +10,7 @@ class ModifiedIndexAlgorithm : public IndexAlgorithm {
 
     std::string performStep(PointType mappedPoint) override;
     std::pair<PointType, PointType> calculateNextStepInterval(const std::vector<long double>& marks) override;
-    long double calculateInterval—haracteristic(long double delta, const std::vector<long double>& marks,
+    long double calculateIntervalCharacteristic(long double delta, const std::vector<long double>& marks,
         IndexAlgorithmStepResult previousPointStepResult, IndexAlgorithmStepResult currentPointStepResult) override;
     PointType calculateNextStepMappedPoint(std::pair<PointType, PointType> nextStepInterval) override;
 

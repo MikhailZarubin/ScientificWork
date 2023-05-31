@@ -35,7 +35,7 @@ protected:
 	void updateData();
 	std::vector<long double> calculateMarks();
 	virtual std::pair<PointType, PointType> calculateNextStepInterval(const std::vector<long double>& marks);
-	virtual long double calculateInterval—haracteristic(long double delta, const std::vector<long double>& marks,
+	virtual long double calculateIntervalCharacteristic(long double delta, const std::vector<long double>& marks,
 		IndexAlgorithmStepResult previousPointStepResult, IndexAlgorithmStepResult currentPointStepResult);
 	virtual PointType calculateNextStepMappedPoint(std::pair<PointType, PointType> nextStepInterval);
 

@@ -19,7 +19,7 @@ The configuration of middleware is performed via command-line arguments, which m
 | `SCAN_KEY`| Integer number greater from 1 to 3.<br />Data type: `int` | Scan parameter: key of the scan construction.<br />By default is [DEFAULT_SCAN_KEY](#defined-configuration-constants). |
 | `PRINT_LEVEL`| Integer number from 0 to 2.<br />Data type: `int` | Whether to print points to the file.<br />0 - do not print anything, 1 - print only trial points, 2 - print trial points and functions points.<br />By default is [DEFAULT_PRINT_LEVEL](#defined-configuration-constants). |
 | `ITER_LIMIT`| Integer number greater than 1.<br />Data type: `int` | Limit of iterations of the algorithm to solve the task.<br />By default is [ITERATION_LIMIT](#defined-configuration-constants). |
-| `CUSTOM_TASK`| File name with specified extension (only `.txt` is supported).<br />Data type: `string` | File name which contains task described according to [pattern](#custom-task-pattern).<br />By default is not defained. If defined then `TASK_NUM` key is ignored. |
+| `CUSTOM_TASK`| File name with specified extension (only `.txt` is supported).<br />Data type: `string` | File name which contains task described according to [pattern](#custom-task-pattern).<br />By default is not defined. If defined then `TASK_NUM` key is ignored. |
 
 ## Command Line Input Example
 ```

@@ -120,7 +120,7 @@ std::pair<PointType, PointType> IndexAlgorithm::calculateNextStepInterval(const 
 
         delta = utils::improvementDegree(currentPoint - previousPoint, 1.0 / _task.getTaskDimensionSize());
 
-        R = calculateInterval—haracteristic(delta, marks,
+        R = calculateIntervalCharacteristic(delta, marks,
             _performedStepsMap[std::to_string(previousPoint)], _performedStepsMap[std::to_string(currentPoint)]);
         if (R > maxR) {
             maxR = R;
@@ -133,7 +133,7 @@ std::pair<PointType, PointType> IndexAlgorithm::calculateNextStepInterval(const 
     return nextStepInterval;
 }
 
-long double IndexAlgorithm::calculateInterval—haracteristic(long double delta, const std::vector<long double>& marks,
+long double IndexAlgorithm::calculateIntervalCharacteristic(long double delta, const std::vector<long double>& marks,
     IndexAlgorithmStepResult previousPointStepResult, IndexAlgorithmStepResult currentPointStepResult) {
     long double intervalCharacteristic;
     if (previousPointStepResult.v == currentPointStepResult.v) {
