@@ -45,12 +45,13 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
             static_cast<constants::PrintLevel>(std::atoi(configurationMap[constants::KEY_PRINT_LEVEL].c_str())) : constants::DEFAULT_PRINT_LEVEL;
     }
 
-    IndexAlgorithmParams algParams(reliability, accuracy, epsilonReserved, iterationLimit);
+    GlobalSearchAlgorithmParams globalSearchAlgParams(reliability, accuracy);
+    IndexAlgorithmParams indexAlgParams(reliability, accuracy, epsilonReserved, iterationLimit);
     ScanParams scanParams(densityScan, keyScan);
     if (utils::contains(configurationMap, constants::KEY_CUSTOM_TASK)) {
         _algorithmsMap[constants::CUSTOM_TASK_NUMBER] = createAlgorithm(algType,
             parser::parseCustomTask(constants::API_DIR, constants::CONFIG_PATH_FILE,
-                configurationMap[constants::KEY_CUSTOM_TASK]), algParams, scanParams);
+                configurationMap[constants::KEY_CUSTOM_TASK]), globalSearchAlgParams, indexAlgParams, scanParams);
     }
     else {
         _constrainedProblemFamily = new TGrishaginConstrainedProblemFamily();
@@ -67,7 +68,7 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
         for (int i = startTaskNumber; i < endTaskNumber; i++) {
             _algorithmsMap[i] = createAlgorithm(algType, TemplateTask(_constrainedProblemFamily->operator[](i),
                 TrialPoint(_constrainedProblemFamily->operator[](i)->GetOptimumPoint(), _constrainedProblemFamily->operator[](i)->GetOptimumValue())),
-                algParams, scanParams);
+                globalSearchAlgParams, indexAlgParams, scanParams);
         }
     }
 
@@ -85,12 +86,16 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
 
 
 Algorithm* AlgorithmConfigurator::createAlgorithm(const std::string& algType,
-    const TemplateTask& templateTask, const IndexAlgorithmParams& algParams, const ScanParams& scanParams) {
+    const TemplateTask& templateTask, const GlobalSearchAlgorithmParams& globalSearchAlgParams,
+    const IndexAlgorithmParams& indexAlgParams, const ScanParams& scanParams) {
     if (algType == constants::DEFINE_INDEX_ALG) {
-        return new IndexAlgorithm(templateTask, algParams, scanParams);
+        return new IndexAlgorithm(templateTask, indexAlgParams, scanParams);
     }
     else if (algType == constants::DEFINE_MODIFIED_INDEX_ALG) {
-        return new ModifiedIndexAlgorithm(templateTask, algParams, scanParams);
+        return new ModifiedIndexAlgorithm(templateTask, indexAlgParams, scanParams);
+    }
+    else if (algType == constants::DEFINE_GLOBAL_SEARCH_ALG) {
+        return new BidimensionalGlobalSearch(templateTask, globalSearchAlgParams);
     }
     else {
         _logger("CONFIGURATION COMPLETED WITH ERROR.\nUNSUPPORTED TASK TYPE: " + algType + "\n");

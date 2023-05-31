@@ -9,10 +9,10 @@ class Complexity {
     std::vector<long int> _functionCalculationCount;
 
 public:
-    Complexity(std::size_t functionCount = 0, long int iterationCount = 0);
+    Complexity(std::size_t functionCount = 1, long int iterationCount = 0);
     Complexity(const Complexity& complexity);
     void incrementIteration();
-    void incrementFunctionCalculation(std::size_t funcNumber);
+    void incrementFunctionCalculation(std::size_t funcNumber = 0);
     long int getIterationCount();
     std::vector<long int> getFunctionsCalculationCount();
 };
