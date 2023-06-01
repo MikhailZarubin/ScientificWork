@@ -3,8 +3,8 @@
 #include "../GCGen/sample_src/Grishagin/GrishaginConstrainedProblemFamily.hpp"
 #include "global_search_algorithm.hpp"
 #include "file_helper.hpp"
+#include "logger.hpp"
 #include "modified_index_algorithm.hpp"
-#include <functional>
 #include <math.h>
 #include <map>
 
@@ -30,7 +30,7 @@
 class AlgorithmConfigurator {
     IConstrainedOptProblemFamily* _constrainedProblemFamily;
     std::map<int, Algorithm*> _algorithmsMap;
-    std::function<void(const std::string)> _logger;
+    Logger* _logger;
     constants::PrintLevel _printLevel;
 
     std::string _algorithmPointsDir;
@@ -45,7 +45,7 @@ class AlgorithmConfigurator {
     std::string getCalculationCountDescription(std::vector<long> calculationCounts);
     void printPointsToFile(int taskNumber, Points points);
 public:
-    AlgorithmConfigurator(int argc, char* argv[], std::function<void(const std::string&)> logger);
+    AlgorithmConfigurator(int argc, char* argv[], Logger* logger);
     void run();
     ~AlgorithmConfigurator();
 };
