@@ -1,8 +1,14 @@
 # Configuration of Middleware
 The configuration of middleware is performed via command-line arguments, which must match the following pattern:
 ```
-[KEY]:[VALUE]
+<KEY>:<VALUE>
 ```
+
+## Command Line Input Example
+```
+global_optimization.exe ALG_TYPE:IA TASK_EPS:0.001 CUSTOM_TASK:sphere.txt
+```
+
 ## Required Keys:
 | Key       | Value                           | Description                                                                                                       |
 |---------- |-------------------------------- |------------------------------------------------------------------------------------------------------------------ |
@@ -20,11 +26,6 @@ The configuration of middleware is performed via command-line arguments, which m
 | `PRINT_LEVEL`| Integer number from 0 to 2.<br />Data type: `int` | Whether to print points to the file.<br />0 - do not print anything, 1 - print only trial points, 2 - print trial points and functions points.<br />By default is [DEFAULT_PRINT_LEVEL](#defined-configuration-constants). |
 | `ITER_LIMIT`| Integer number greater than 1.<br />Data type: `int` | Limit of iterations of the algorithm to solve the task.<br />By default is [ITERATION_LIMIT](#defined-configuration-constants). |
 | `CUSTOM_TASK`| File name with specified extension (only `.txt` is supported).<br />Data type: `string` | File name which contains task described according to [pattern](#custom-task-pattern).<br />By default is not defined. If defined then `TASK_NUM` key is ignored. |
-
-## Command Line Input Example
-```
-global_optimization.exe ALG_TYPE:IA TASK_NUM:5 TASK_EPS:0.001 CUSTOM_TASK:sphere.txt
-```
 
 # Configuration of GUI
 The configuration of GUI is performed via command-line argument, which is an integer number from 0 to 99. This argument is required.<br />
@@ -47,7 +48,7 @@ python graphics_builder.py 5
 | `DEFAULT_PRINT_LEVEL`           | 1      |
 | `ITERATION_LIMIT`               | 5000   |
 
-## Custom Task Pattern
+# Custom Task Pattern
 Variable set should consist only lower case Latin letters.<br />
 Mathematical operations should consist only upper case Latin letters.<br />
 Symbols of mathematical operations (for example multiplication) should not be missed.<br />

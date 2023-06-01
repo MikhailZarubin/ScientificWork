@@ -18,7 +18,7 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
     
     if (!utils::contains(configurationMap, constants::KEY_ALG_TYPE)) {
         _logger("CONFIGURATION COMPLETED WITH ERROR.\n");
-        throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] MISSING IS ALGORITHM TYPE IN ARGUMENTS\n");
+        throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] ALGORITHM TYPE IS MISSING IN ARGUMENTS.\n");
     }
     std::string algType = configurationMap[constants::KEY_ALG_TYPE];
 
@@ -75,7 +75,7 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
     std::vector<std::string> paths = parser::parseDirectories(constants::API_DIR, constants::DATA_PATHS_FILE);
     if (paths.size() != constants::DATA_PATHS_COUNT) {
         _logger("CONFIGURATION CANNOT BE COMPLETED.\n");
-        throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] API DATA PATHS FILE CHANGED\n");
+        throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] API DATA PATHS FILE CHANGED.\n");
     }
     _algorithmPointsDir = paths[0];
     _functionPointsDir = paths[1];

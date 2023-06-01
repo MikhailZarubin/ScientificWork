@@ -2,6 +2,16 @@
 The program part of the scientific work on the topic of Global optimization.
 There are implementation of algorithms for calculating the minimum of multidimensional functions and GUI for demonstration of their work.
 
+## Preparation
+**Necessary tools:**
++ `git` (documentation located is https://git-scm.com/doc)
++ `cmake` (documentation located is https://cmake.org/documentation/)
++ `python` (documentation located is https://docs.python.org/3/)
+
+**Necessary libraries:**
++ `numpy` (for install input execute `pip install numpy`)
++ `matprolib` (for install input execute `pip install matplotlib`)
+
 ## Install
 ```
 git clone https://github.com/MikhailZarubin/ScientificWork
