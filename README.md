@@ -9,8 +9,8 @@ There are implementation of algorithms for calculating the minimum of multidimen
 + `python` (documentation located is https://docs.python.org/3/)
 
 **Necessary libraries:**
-+ `numpy` (for install input execute `pip install numpy`)
-+ `matprolib` (for install input execute `pip install matplotlib`)
++ `numpy` (for installation execute `pip install numpy`)
++ `matprolib` (for installation execute `pip install matplotlib`)
 
 ## Install
 ```
