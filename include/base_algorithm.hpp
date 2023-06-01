@@ -10,5 +10,5 @@ public:
     virtual Points getPoints() = 0;
     virtual Complexity getComplexity() = 0;
     virtual TemplateTask getTask() = 0;
-    virtual TrialPoint run() = 0;
+    virtual std::optional<TrialPoint> run() = 0;
 };

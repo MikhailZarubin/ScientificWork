@@ -173,7 +173,7 @@ PointType IndexAlgorithm::calculateNextStepMappedPoint(std::pair<PointType, Poin
     }
 }
 
-TrialPoint IndexAlgorithm::run() {
+std::optional<TrialPoint> IndexAlgorithm::run() {
     clearData();
 
     std::string performedStepKey;
@@ -185,7 +185,7 @@ TrialPoint IndexAlgorithm::run() {
     while (!isNeededStop && _complexity.getIterationCount() < _algParams.iterationLimit) {
         _mappedPoints.insert(newStepMappedPoint);
         performedStepKey = performStep(newStepMappedPoint);
-        
+
         updateOptimalPoint(newStepPoint, _performedStepsMap[performedStepKey].z,
             _performedStepsMap[performedStepKey].v == _task.getConstraintsCount());
         updateData();
@@ -200,9 +200,12 @@ TrialPoint IndexAlgorithm::run() {
         isNeededStop = utils::improvementDegree(nextStepInterval.second - nextStepInterval.first, 1.0 / _task.getTaskDimensionSize()) <= _algParams.accuracy;
     }
     updateOptimalPoint(newStepPoint, _task.getTaskValue(newStepPoint));
-    _points.push_back(_optimalPoint.value());
+    if (_optimalPoint.has_value()) {
+        _points.push_back(_optimalPoint.value());
+    }
 
-    return TrialPoint(_optimalPoint.value(), _optimalValue.value());
+    return _optimalPoint.has_value() && _optimalValue.has_value() ?
+        TrialPoint(_optimalPoint.value(), _optimalValue.value()) : std::optional<TrialPoint>();
 }
 
 void IndexAlgorithm::updateOptimalPoint(Point potentialOptimalPoint, PointType potentialOptimalValue,

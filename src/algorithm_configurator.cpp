@@ -111,15 +111,20 @@ void AlgorithmConfigurator::run() {
     PointType maxDeviation = -DBL_MAX;
     for (const auto& [taskNumber, algorithm]: _algorithmsMap) {
         _logger->log("CALCULATION OPTIMUM TASK <" + std::to_string(taskNumber) + "> SUCCESSFULLY STARTED.\n");
-        auto result = algorithm->run();
-        maxDeviation = std::max(maxDeviation, utils::getMaxCoordinateDifference(result.point, _algorithmsMap[taskNumber]->getTask().getOptimumPoint()));
-        _logger->log("FOUND OPTIMUM: " + 
-            getPointDescription(result.point, result.value) + "\n");
         _logger->log("EXPECTED OPTIMUM: " +
             getPointDescription(_algorithmsMap[taskNumber]->getTask().getOptimumPoint(),
                 _algorithmsMap[taskNumber]->getTask().getOptimumValue()) + "\n");
-        _logger->log("MAX DEVIATION: " + 
-            std::to_string(utils::getMaxCoordinateDifference(result.point, _algorithmsMap[taskNumber]->getTask().getOptimumPoint())) + "\n");
+        auto result = algorithm->run();
+        if (result.has_value()) {
+            maxDeviation = std::max(maxDeviation, utils::getMaxCoordinateDifference(result.value().point, _algorithmsMap[taskNumber]->getTask().getOptimumPoint()));
+            _logger->log("FOUND OPTIMUM: " +
+                getPointDescription(result.value().point, result.value().value) + "\n");
+            _logger->log("MAX DEVIATION: " +
+                std::to_string(utils::getMaxCoordinateDifference(result.value().point, _algorithmsMap[taskNumber]->getTask().getOptimumPoint())) + "\n");
+        }
+        else {
+            _logger->log("ALGORITHM DID NOT FIND ANY VALID POINTS. TRY INCREASING ACCURACY, RELIABILITY PARAMETER OR SCAN DENSITY.\n");
+        }
         _logger->log("ITERATION COUNT: " + std::to_string(algorithm-> getComplexity().getIterationCount()) + "\n");
         _logger->log("CALCULATION COUNT: " + 
             getCalculationCountDescription(algorithm->getComplexity().getFunctionsCalculationCount()) + "\n");
