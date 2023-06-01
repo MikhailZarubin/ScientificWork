@@ -3,21 +3,25 @@
 #include "algorithm_configurator.hpp"
 
 
-AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::function<void(const std::string&)> logger) :
+AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], Logger* logger) :
     _constrainedProblemFamily(nullptr), _algorithmsMap(), _logger(logger) {
+    if (_logger == nullptr) {
+        throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] LOGGER IS NULL.\n");
+    }
+
     std::map<std::string, std::string> configurationMap;
     std::vector<std::string> splitingStr;
     for (int i = 1; i < argc; i++) {
         splitingStr = utils::split(std::string(argv[i]), ":");
         if (splitingStr.size() != 2) {
-            _logger("CONFIGURATION COMPLETED WITH ERROR.\n");
+            _logger->log("CONFIGURATION COMPLETED WITH ERROR.\n");
             throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] INVALID ARGUMENT RECEIVED: " + std::string(argv[i]) + "\n");
         }
         configurationMap[splitingStr[0]] = splitingStr[1];
     }
     
     if (!utils::contains(configurationMap, constants::KEY_ALG_TYPE)) {
-        _logger("CONFIGURATION COMPLETED WITH ERROR.\n");
+        _logger->log("CONFIGURATION COMPLETED WITH ERROR.\n");
         throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] ALGORITHM TYPE IS MISSING IN ARGUMENTS.\n");
     }
     std::string algType = configurationMap[constants::KEY_ALG_TYPE];
@@ -38,7 +42,7 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
     if (utils::contains(configurationMap, constants::KEY_PRINT_LEVEL) &&
         (std::atoi(configurationMap[constants::KEY_PRINT_LEVEL].c_str()) < static_cast<int>(constants::PrintLevel::PRINT_NOT_ANYTHING) ||
             std::atoi(configurationMap[constants::KEY_PRINT_LEVEL].c_str()) > static_cast<int>(constants::PrintLevel::PRINT_ALL_POINTS))) {
-        _logger("CONFIGURATION COMPLETED WITH ERROR.\n");
+        _logger->log("CONFIGURATION COMPLETED WITH ERROR.\n");
         throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] INVALID PRINT LEVEL RECEIVED: " + configurationMap[constants::KEY_PRINT_LEVEL] + "\n");
     } else {
         _printLevel = utils::contains(configurationMap, constants::KEY_PRINT_LEVEL) ?
@@ -74,14 +78,14 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
 
     std::vector<std::string> paths = parser::parseDirectories(constants::API_DIR, constants::DATA_PATHS_FILE);
     if (paths.size() != constants::DATA_PATHS_COUNT) {
-        _logger("CONFIGURATION CANNOT BE COMPLETED.\n");
+        _logger->log("CONFIGURATION CANNOT BE COMPLETED.\n");
         throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] API (DATA PATHS FILE) IS CHANGED.\n");
     }
     _algorithmPointsDir = paths[0];
     _functionPointsDir = paths[1];
     _invalidPointsDir = paths[2];
 
-    _logger("CONFIGURATION SUCCESSFULLY COMPLETED.\n");
+    _logger->log("CONFIGURATION SUCCESSFULLY COMPLETED.\n");
 }
 
 
@@ -98,7 +102,7 @@ Algorithm* AlgorithmConfigurator::createAlgorithm(const std::string& algType,
         return new GlobalSearchAlgorithm(templateTask, globalSearchAlgParams, scanParams);
     }
     else {
-        _logger("CONFIGURATION COMPLETED WITH ERROR.\n");
+        _logger->log("CONFIGURATION COMPLETED WITH ERROR.\n");
         throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] UNKNOWN TASK TYPE: " + algType + "\n");
     }
 }
@@ -106,24 +110,24 @@ Algorithm* AlgorithmConfigurator::createAlgorithm(const std::string& algType,
 void AlgorithmConfigurator::run() {
     PointType maxDeviation = -DBL_MAX;
     for (const auto& [taskNumber, algorithm]: _algorithmsMap) {
-        _logger("CALCULATION OPTIMUM TASK <" + std::to_string(taskNumber) + "> SUCCESSFULLY STARTED.\n");
+        _logger->log("CALCULATION OPTIMUM TASK <" + std::to_string(taskNumber) + "> SUCCESSFULLY STARTED.\n");
         auto result = algorithm->run();
         maxDeviation = std::max(maxDeviation, utils::getMaxCoordinateDifference(result.point, _algorithmsMap[taskNumber]->getTask().getOptimumPoint()));
-        _logger("FOUND OPTIMUM: " + 
+        _logger->log("FOUND OPTIMUM: " + 
             getPointDescription(result.point, result.value) + "\n");
-        _logger("EXPECTED OPTIMUM: " +
+        _logger->log("EXPECTED OPTIMUM: " +
             getPointDescription(_algorithmsMap[taskNumber]->getTask().getOptimumPoint(),
                 _algorithmsMap[taskNumber]->getTask().getOptimumValue()) + "\n");
-        _logger("MAX DEVIATION: " + 
+        _logger->log("MAX DEVIATION: " + 
             std::to_string(utils::getMaxCoordinateDifference(result.point, _algorithmsMap[taskNumber]->getTask().getOptimumPoint())) + "\n");
-        _logger("ITERATION COUNT: " + std::to_string(algorithm-> getComplexity().getIterationCount()) + "\n");
-        _logger("CALCULATION COUNT: " + 
+        _logger->log("ITERATION COUNT: " + std::to_string(algorithm-> getComplexity().getIterationCount()) + "\n");
+        _logger->log("CALCULATION COUNT: " + 
             getCalculationCountDescription(algorithm->getComplexity().getFunctionsCalculationCount()) + "\n");
-        _logger("\n");
+        _logger->log("\n");
 
         printPointsToFile(taskNumber, algorithm->getPoints());
     }
-    _logger("MAX DEVIATION AMONG ALL TASKS: " + std::to_string(maxDeviation) + "\n");
+    _logger->log("MAX DEVIATION AMONG ALL TASKS: " + std::to_string(maxDeviation) + "\n");
 }
 
 std::string AlgorithmConfigurator::getPointDescription(Point point, PointType value) {

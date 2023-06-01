@@ -1,39 +1,56 @@
 ﻿#include "algorithm_configurator.hpp"
-#include <iostream>
-#include <fstream>
+#include "logger.hpp"
 
 
 int main(int argc, char* argv[]) {
-    std::ofstream logFile;
-    std::function<void(const std::string&)> logger = [&](const std::string& log) {
-        std::cout << log;
-        logFile << log;
-    };
+    Logger logger;
+    std::string errorMessage;
     int returnedCode = constants::GOOD_RETURN_CODE;
     try {
-        logFile.open(constants::LOG_FILE);
-        logFile.clear();
-        AlgorithmConfigurator algorithmConfigurator(argc, argv, logger);
+        logger.init(constants::LOG_FILE);
+        AlgorithmConfigurator algorithmConfigurator(argc, argv, &logger);
         algorithmConfigurator.run();
+        logger.close();
     }
     catch (const ErrorWrapper& internalError) {
-        logger("INTERNAL ERROR MESSAGE: " + internalError.getErrorMessage());
+        errorMessage = "INTERNAL ERROR: " + internalError.getErrorMessage();
+        if (logger.isReady()) {
+            logger.log(errorMessage);
+        }
+        else {
+            std::cerr << errorMessage;
+        }
         returnedCode = internalError.getErrorCode();
     }
-    catch (const std::runtime_error& runtimeError)
-    {
-        logger("RUNTIME ERROR: " + std::string(runtimeError.what()) + "\n");
+    catch (const std::runtime_error& runtimeError) {
+        errorMessage = "RUNTIME ERROR: " + std::string(runtimeError.what()) + "\n";
+        if (logger.isReady()) {
+            logger.log(errorMessage);
+        }
+        else {
+            std::cerr << errorMessage;
+        }
+        returnedCode = constants::BAD_RETURN_CODE;
     }
-    catch (const std::exception& exception)
-    {
-        logger("ERROR OCCURED: " + std::string(exception.what()) + "\n");
+    catch (const std::exception& exception) {
+        errorMessage = "ERROR OCCURED: " + std::string(exception.what()) + "\n";
+        if (logger.isReady()) {
+            logger.log(errorMessage);
+        }
+        else {
+            std::cerr << errorMessage;
+        }
+        returnedCode = constants::BAD_RETURN_CODE;
     }
-    catch (...)
-    {
-        logger("UNKNOWN ERROR OCCURRED. POSSIBLE MEMORY CORRUPTION.\n");
-    }
-    if (logFile.is_open()) {
-        logFile.close();
+    catch (...) {
+        errorMessage = "UNKNOWN ERROR OCCURRED. POSSIBLE MEMORY CORRUPTION.\n";
+        if (logger.isReady()) {
+            logger.log(errorMessage);
+        }
+        else {
+            std::cerr << errorMessage;
+        }
+        returnedCode = constants::BAD_RETURN_CODE;
     }
     return returnedCode;
 }
