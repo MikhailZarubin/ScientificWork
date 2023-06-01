@@ -13,7 +13,7 @@ Calculator::Calculator(std::string basicExpression) : _operationsHelper() {
 			i += 3;
 
 			if (i >= basicExpression.size() - 2) {
-				throw errors::INCORRECT_EXPRESSION_ERR_CODE;
+				throw ErrorWrapper(Errors::CALCULATOR_ERROR, "[CALCULATOR] EXPRESSION IS NOT ENDED OR UNKNOWN OPERATION IS SPECIFIED.\n");
 			}
 		} else {
 			if (basicExpression[i] == '-' &&
@@ -32,7 +32,7 @@ Calculator::Calculator(std::string basicExpression) : _operationsHelper() {
 	_infixExpression += static_cast<char>(AssistiveSymbols::CLOSING_BRACKET);
 
 	if (!utils::isCorrectExpression(_operationsHelper, _infixExpression)) {
-		throw errors::INCORRECT_EXPRESSION_ERR_CODE;
+		throw ErrorWrapper(Errors::CALCULATOR_ERROR, "[CALCULATOR] EXPRESSION IS NOT CORRECTLY. PLEASE CHECK BRACKETS.\n");
 	}
 }
 
@@ -53,7 +53,7 @@ long double Calculator::calculateResult() {
 			}
 
 			if (valuesStack.top() == DBL_MIN) {
-				throw errors::CALCULATOR_INTERNAL_ERROR_ERR_CODE;
+				throw ErrorWrapper(Errors::CALCULATOR_ERROR, "[CALCULATOR] UNKNOWN OPERATION BY INDEX " + std::to_string(i) + " IN EXPRESSION <" + postfixExpression + ">.\n");
 			}	
 		}
 		else {
@@ -72,7 +72,7 @@ long double Calculator::calculateResult() {
 	}
 
 	if (valuesStack.size() != 1) {
-		throw errors::CALCULATOR_INTERNAL_ERROR_ERR_CODE;
+		throw ErrorWrapper(Errors::CALCULATOR_ERROR, "[CALCULATOR] CALCULATOR INTERNAL ERROR. PERHAPS THERE ARE TOO MANY OPERANDS IN EXPRESSION.\n");
 	}
 
 	return valuesStack.top();

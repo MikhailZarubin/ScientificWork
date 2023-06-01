@@ -126,7 +126,8 @@ PointType ModifiedIndexAlgorithm::calculateNextStepMappedPoint(std::pair<PointTy
 std::size_t ModifiedIndexAlgorithm::getConstraintOrdinalNumber(std::vector<std::size_t> constraintsOrder, std::size_t constraintIndex) {
     auto constraintOrderNumber = utils::indexOf(constraintsOrder, constraintIndex);
     if (!constraintOrderNumber.has_value()) {
-        throw errors::MODIF_INDEX_ALGORITHM_INTERNAL_ERROR_ERR_CODE;
+        throw ErrorWrapper(Errors::MODIFIED_INDEX_ALG_ERROR, "[MODIFIED INDEX ALG] CONSTRAINT WITH INDEX <" + std::to_string(constraintIndex) +
+            "> MISSING IN CONSTRAINTS ORDER.\n");;
     }
     return constraintOrderNumber.value();
 }

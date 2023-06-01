@@ -12,14 +12,14 @@ bool PointSetModelHelper::isNeededReview(const IndexAlgorithmPointSetModel& poin
 
 PointType PointSetModelHelper::getNewPoint(const IndexAlgorithmPointSetModel& pointSetModel) {
     if (!pointSetModel.newPoint.has_value()) {
-        throw errors::POINT_SET_MODEL_ERROR_ERR_CODE;
+        throw ErrorWrapper(Errors::POINT_SET_MODEL_HELPER_ERROR, "[POINT SET MODEL HELPER] ATTEMPTED GET NEW POINT WHEN NEW POINT IS ABSENCE.\n");
     }
     return pointSetModel.newPoint.value();
 }
 
 void PointSetModelHelper::newPointReviewed(IndexAlgorithmPointSetModel* pointSetModel) {
     if (!pointSetModel->newPoint.has_value()) {
-        throw errors::POINT_SET_MODEL_ERROR_ERR_CODE;
+        throw ErrorWrapper(Errors::POINT_SET_MODEL_HELPER_ERROR, "[POINT SET MODEL HELPER] ATTEMPTED REVIEW NEW POINT WHEN NEW POINT IS ABSENCE.\n");
     }
     pointSetModel->reviewedPoints.insert(pointSetModel->newPoint.value());
     pointSetModel->newPoint.reset();

@@ -17,7 +17,7 @@ void Complexity::incrementIteration() {
 
 void Complexity::incrementFunctionCalculation(std::size_t funcNumber) {
     if (funcNumber >= _functionCalculationCount.size()) {
-        throw errors::COMPLEXITY_INVALID_FUNC_NUMBER_ERROR_ERR_CODE;
+        throw ErrorWrapper(Errors::COMPLEXITY_ERROR, "[COMPLEXITY] ATTEMPT INCREMENT FUNCTION CALCULATION WITH INDEX OUT OF RANGE: <" + std::to_string(funcNumber) + ">.\n");
     }
     _functionCalculationCount[funcNumber]++;
 }

@@ -10,15 +10,15 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
     for (int i = 1; i < argc; i++) {
         splitingStr = utils::split(std::string(argv[i]), ":");
         if (splitingStr.size() != 2) {
-            _logger("CONFIGURATION COMPLETED WITH ERROR.\nINVALID ARGUMENT RECEIVED: " + std::string(argv[i]) + "\n");
-            throw errors::INCORRECT_ARGS_VALUE_ERR_CODE;
+            _logger("CONFIGURATION COMPLETED WITH ERROR.\n");
+            throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] INVALID ARGUMENT RECEIVED: " + std::string(argv[i]) + "\n");
         }
         configurationMap[splitingStr[0]] = splitingStr[1];
     }
     
     if (!utils::contains(configurationMap, constants::KEY_ALG_TYPE)) {
-        _logger("CONFIGURATION COMPLETED WITH ERROR.\nMISSING IS ALGORITHM TYPE IN ARGUMENTS\n");
-        throw errors::INCORRECT_ARGS_COUNT_ERR_CODE;
+        _logger("CONFIGURATION COMPLETED WITH ERROR.\n");
+        throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] MISSING IS ALGORITHM TYPE IN ARGUMENTS\n");
     }
     std::string algType = configurationMap[constants::KEY_ALG_TYPE];
 
@@ -35,11 +35,11 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
     int iterationLimit = utils::contains(configurationMap, constants::KEY_ITERATION_LIMIT) ?
         std::atoi(configurationMap[constants::KEY_ITERATION_LIMIT].c_str()) : constants::DEFAULT_ITERATION_LIMIT;
 
-    if (utils::contains(configurationMap, constants::KEY_PRINT_LEVEL) && 
+    if (utils::contains(configurationMap, constants::KEY_PRINT_LEVEL) &&
         (std::atoi(configurationMap[constants::KEY_PRINT_LEVEL].c_str()) < static_cast<int>(constants::PrintLevel::PRINT_NOT_ANYTHING) ||
-        std::atoi(configurationMap[constants::KEY_PRINT_LEVEL].c_str()) > static_cast<int>(constants::PrintLevel::PRINT_ALL_POINTS))) {
-        _logger("CONFIGURATION COMPLETED WITH ERROR.\nINVALID PRINT LEVEL RECEIVED: " + configurationMap[constants::KEY_PRINT_LEVEL] + "\n");
-        throw errors::INCORRECT_ARGS_VALUE_ERR_CODE;
+            std::atoi(configurationMap[constants::KEY_PRINT_LEVEL].c_str()) > static_cast<int>(constants::PrintLevel::PRINT_ALL_POINTS))) {
+        _logger("CONFIGURATION COMPLETED WITH ERROR.\n");
+        throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] INVALID PRINT LEVEL RECEIVED: " + configurationMap[constants::KEY_PRINT_LEVEL] + "\n");
     } else {
         _printLevel = utils::contains(configurationMap, constants::KEY_PRINT_LEVEL) ?
             static_cast<constants::PrintLevel>(std::atoi(configurationMap[constants::KEY_PRINT_LEVEL].c_str())) : constants::DEFAULT_PRINT_LEVEL;
@@ -74,8 +74,8 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
 
     std::vector<std::string> paths = parser::parseDirectories(constants::API_DIR, constants::DATA_PATHS_FILE);
     if (paths.size() != constants::DATA_PATHS_COUNT) {
-        _logger("API FILES CHANGED! CONFIGURATION CANNOT BE COMPLETED.\n");
-        throw errors::API_CHANGED_ERR_CODE;
+        _logger("CONFIGURATION CANNOT BE COMPLETED.\n");
+        throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] API DATA PATHS FILE CHANGED\n");
     }
     _algorithmPointsDir = paths[0];
     _functionPointsDir = paths[1];
@@ -98,8 +98,8 @@ Algorithm* AlgorithmConfigurator::createAlgorithm(const std::string& algType,
         return new GlobalSearchAlgorithm(templateTask, globalSearchAlgParams, scanParams);
     }
     else {
-        _logger("CONFIGURATION COMPLETED WITH ERROR.\nUNSUPPORTED TASK TYPE: " + algType + "\n");
-        throw errors::INCORRECT_ARGS_VALUE_ERR_CODE;
+        _logger("CONFIGURATION COMPLETED WITH ERROR.\n");
+        throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] UNKNOWN TASK TYPE: " + algType + "\n");
     }
 }
 
