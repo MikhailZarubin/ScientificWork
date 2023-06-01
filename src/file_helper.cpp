@@ -30,6 +30,10 @@ Points deepEnumeration(Point truncatedStartPoint, Point finishPoint, PointType s
 
 std::vector<std::string> parser::parseDirectories(const std::string& pathsFilePath, const std::string& pathsFileName) {
 	std::ifstream pathsFile(pathsFilePath + pathsFileName);
+	if (!pathsFile.is_open()) {
+		throw ErrorWrapper(Errors::FILE_PARSER_ERROR, "[FILE HELPER] CAN NOT OPEN FILE <" + pathsFilePath + pathsFileName + ">.\n");
+	}
+
 	std::string path;
 	std::vector<std::string> paths;
 
@@ -41,6 +45,10 @@ std::vector<std::string> parser::parseDirectories(const std::string& pathsFilePa
 
 std::string parser::parseFileName(const std::string& nameContractFilePath, const std::string& nameContractFileName, int taskNumber) {
 	std::ifstream nameContractFile(nameContractFilePath + nameContractFileName);
+	if (!nameContractFile.is_open()) {
+		throw ErrorWrapper(Errors::FILE_PARSER_ERROR, "[FILE HELPER] CAN NOT OPEN FILE <" + nameContractFilePath + nameContractFileName + ">.\n");
+	}
+
 	std::string nameContract;
 
 	std::getline(nameContractFile, nameContract);
@@ -59,6 +67,9 @@ TemplateTask parser::parseCustomTask(const std::string& configFilePath, const st
 	}
 
 	std::ifstream customTaskFile(customTaskDirectory[0] + customTaskFileName);
+	if (!customTaskFile.is_open()) {
+		throw ErrorWrapper(Errors::FILE_PARSER_ERROR, "[FILE HELPER] CAN NOT OPEN FILE <" + customTaskDirectory[0] + customTaskFileName + ">.\n");
+	}
 
 	std::string generalParams;
 	std::getline(customTaskFile, generalParams);
@@ -132,6 +143,10 @@ TemplateTask parser::parseCustomTask(const std::string& configFilePath, const st
 
 void writer::writePointsToFile(const std::string& fileName, Points points, const std::function<PointType(Point)>& getValue) {
 	std::ofstream outputFile(fileName);
+	if (!outputFile.is_open()) {
+		throw ErrorWrapper(Errors::FILE_WRITER_ERROR, "[FILE HELPER] CAN NOT OPEN FILE <" + fileName + ">.\n");
+	}
+
 	outputFile.clear();
 
 	for (Point point : points) {
@@ -151,6 +166,10 @@ void writer::writePointIntervalToFile(const std::string& fileName, Point startPo
 	}
 
 	std::ofstream outputFile(fileName);
+	if (!outputFile.is_open()) {
+		throw ErrorWrapper(Errors::FILE_WRITER_ERROR, "[FILE HELPER] CAN NOT OPEN FILE <" + fileName + ">.\n");
+	}
+
 	outputFile.clear();
 
 	Points allPoints = deepEnumeration(startPoint, finishPoint, step);

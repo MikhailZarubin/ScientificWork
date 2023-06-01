@@ -217,7 +217,7 @@ void IndexAlgorithm::updateOptimalPoint(Point potentialOptimalPoint, PointType p
         }
     }
 
-    if (isValid && (!_optimalValue.has_value() || potentialOptimalValue < _optimalValue)) {
+    if (isValid.value() && (!_optimalValue.has_value() || potentialOptimalValue < _optimalValue)) {
         _optimalPoint = potentialOptimalPoint;
         _optimalValue = potentialOptimalValue;
     }
