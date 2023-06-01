@@ -18,7 +18,7 @@ TrialPoint& TrialPoint::operator = (const TrialPoint& trialPoint) {
 
 GlobalSearchAlgorithmParams::GlobalSearchAlgorithmParams(double rCoeff, double accuracy) {
     if (rCoeff <= constants::MIN_R) {
-        throw ErrorWrapper(Errors::MODELS_ERROR, "[MODELS] RELIABILITY PARAMETER IS <" + std::to_string(rCoeff) + ">. MININMUM RELIABILITY VALUE IS 1.\n");
+        throw ErrorWrapper(Errors::MODELS_ERROR, "[MODELS] RELIABILITY PARAMETER IS <" + std::to_string(rCoeff) + ">. MININMUM VALUE IS 1.\n");
     }
 
     if (accuracy <= constants::MIN_ACCURACY) {
@@ -33,7 +33,7 @@ GlobalSearchAlgorithmParams::GlobalSearchAlgorithmParams(const GlobalSearchAlgor
 
 IndexAlgorithmParams::IndexAlgorithmParams(double rCoeff, double accuracy, double delta, int iterationLimit) {
     if (rCoeff <= constants::MIN_R) {
-        throw ErrorWrapper(Errors::MODELS_ERROR, "[MODELS] RELIABILITY PARAMETER IS <" + std::to_string(rCoeff) + ">. MININMUM RELIABILITY VALUE IS 1.\n");
+        throw ErrorWrapper(Errors::MODELS_ERROR, "[MODELS] RELIABILITY PARAMETER IS <" + std::to_string(rCoeff) + ">. MININMUM VALUE IS 1.\n");
     }
 
     if (accuracy <= constants::MIN_ACCURACY) {

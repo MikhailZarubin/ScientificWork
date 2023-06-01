@@ -5,7 +5,7 @@
 
 void Logger::init(const std::string& logFileName) {
     if (_logFile.is_open()) {
-        throw ErrorWrapper(Errors::LOGGER_ERROR, "[LOGGER] LOGGER ALREADY INITIALISATION.\n");
+        throw ErrorWrapper(Errors::LOGGER_ERROR, "[LOGGER] LOGGER HAS BEEN ALREADY INITIALIZED.\n");
     }
 
     _logFile.open(logFileName);
@@ -23,7 +23,7 @@ void Logger::log (const std::string& message) {
 
 void Logger::close() {
     if (!_logFile.is_open()) {
-        throw ErrorWrapper(Errors::LOGGER_ERROR, "[LOGGER] LOGGER NOT INITIALIZED.\n");
+        throw ErrorWrapper(Errors::LOGGER_ERROR, "[LOGGER] LOGGER IS NOT INITIALIZED.\n");
     }
 
     _logFile.close();
