@@ -3,16 +3,15 @@
 #include "models.hpp"
 #include "calculator.hpp"
 #include <string>
-#include <optional>
 
 
 class Function {
     std::string _expression;
     std::string _variableSet;
-    std::optional<Borders> _borders;
+    Borders _borders;
 
 public:
-    Function(const std::string& expression, const std::string& variableSet, std::optional<Borders> borders = std::optional<Borders>());
+    Function(const std::string& expression, const std::string& variableSet, Borders borders);
     Function(const Function& function);
     Point getLeftBorder();
     Point getRightBorder();

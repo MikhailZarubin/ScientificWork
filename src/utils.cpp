@@ -70,7 +70,7 @@ std::string utils::infixToPostfix(const std::string& infixExpr) {
     }
 
     if (!operationsStack.empty()) {
-        throw errors::INCORRECT_EXPRESSION_ERR_CODE;
+        throw ErrorWrapper(Errors::UTILS_ERROR, "[UTILS] CONVERTING TO POSTFIX OCCURRED ERROR. PERHAPS THERE ARE TOO MANY OPERATIONS IN EXPRESSION.\n");
     }
 
     return postfixExpression;
@@ -157,7 +157,7 @@ long double utils::improvementDegree(long double arg, long double degree) {
 
 PointType utils::getMaxCoordinateDifference(Point point1, Point point2) {
     if (point1.size() != point2.size()) {
-        throw errors::INCORRECT_POINT_SIZE_ERR_CODE;
+        throw ErrorWrapper(Errors::UTILS_ERROR, "[UTILS] DIFFERENT SIZES OF POINT 1 AND POINT 2.\n");
     }
 
     std::size_t dimension = point1.size();
@@ -322,7 +322,9 @@ void node(int is) {
 Point utils::getPointFromMapping(std::size_t dimensionSize, Borders borders, ScanParams scanParams, PointType mappedPoint) {
     if (dimensionSize > 1) {
         if (mappedPoint < constants::MIN_PEANO_POINT || mappedPoint > constants::MAX_PEANO_POINT) {
-            throw errors::MAPPED_POINT_ERROR_ERR_CODE;
+            throw ErrorWrapper(Errors::UTILS_ERROR, "[UTILS] RECEIVED MAPPED POINT <" + std::to_string(mappedPoint) +
+                ">. EXPECTED MAPPED POINT FROM <" + std::to_string(constants::MIN_PEANO_POINT) + "> TO <" +
+                std::to_string(constants::MAX_PEANO_POINT) + ">.\n");
         }
 
         double* y = new double[dimensionSize];

@@ -45,16 +45,28 @@ std::string parser::parseFileName(const std::string& nameContractFilePath, const
 
 	std::getline(nameContractFile, nameContract);
 	std::vector<std::string> partsName = utils::split(nameContract, "{}");
+
+	if (partsName.size() != 2) {
+		throw ErrorWrapper(Errors::FILE_PARSER_ERROR, "[FILE HELPER] FILE NAME CONSISTS OF <" + std::to_string(partsName.size()) + "> PARTS, <2> IS EXPECTED.\n");
+	}
 	return partsName[0] + std::to_string(taskNumber) + partsName[1];
 }
 
 TemplateTask parser::parseCustomTask(const std::string& configFilePath, const std::string& configFileName, const std::string& customTaskFileName) {
-	std::ifstream customTaskFile(parseDirectories(configFilePath, configFileName)[0] + customTaskFileName);
+	std::vector<std::string> customTaskDirectory = parseDirectories(configFilePath, configFileName);
+	if (customTaskDirectory.size() != 1) {
+		throw ErrorWrapper(Errors::FILE_PARSER_ERROR, "[FILE HELPER] MULTIPLE CUSTOM TASK DIRECTORIES. EXPECTED IS ONE.\n");
+	}
+
+	std::ifstream customTaskFile(customTaskDirectory[0] + customTaskFileName);
 
 	std::string generalParams;
 	std::getline(customTaskFile, generalParams);
 	std::vector<std::string> splittedGeneralParams = utils::split(generalParams, " ");
 
+	if (splittedGeneralParams.size() < 2) {
+		throw ErrorWrapper(Errors::FILE_PARSER_ERROR, "[FILE HELPER] VARIABLE SET OR CONSTRAINTS COUNT IS NOT SPECIFIED.\n");
+	}
 	std::string variableSet = splittedGeneralParams[0];
 	int constrantsCount = std::atoi(splittedGeneralParams[1].c_str());
 
@@ -63,12 +75,26 @@ TemplateTask parser::parseCustomTask(const std::string& configFilePath, const st
 	std::vector<std::string> splittedBorders = utils::split(bordersParams, " ");
 
 	Points borders;
-	for (int i = 0; i < splittedBorders.size(); i++) {
+	std::size_t minDimension = INT_MAX, maxDimension = 0;
+	for (std::size_t i = 0; i < splittedBorders.size(); i++) {
 		borders.push_back({});
 		std::vector<std::string> border = utils::split(splittedBorders[i], ",");
-		for (int j = 0; j < border.size(); j++) {
+		minDimension = std::min(minDimension, border.size());
+		maxDimension = std::max(maxDimension, border.size());
+		for (std::size_t j = 0; j < border.size(); j++) {
 			borders[i].push_back(std::atof(border[j].c_str()));
 		}
+	}
+
+	if (minDimension != maxDimension) {
+		throw ErrorWrapper(Errors::FILE_PARSER_ERROR, "[FILE HELPER] BORDER HAVE DIFFERENT DIMENSIONS.\n");
+	}
+	else if (minDimension != variableSet.size()) {
+		throw ErrorWrapper(Errors::FILE_PARSER_ERROR, "[FILE HELPER] DIMENSIONS OF BORDER NOT MATCH WITH VARIABLES COUNT.\n");
+	}
+
+	if (borders.size() != 2) {
+		throw ErrorWrapper(Errors::FILE_PARSER_ERROR, "[FILE HELPER] RECEIVED <" + std::to_string(borders.size()) + "> BORDERS, <2> IS EXPECTED.\n");
 	}
 
 	std::string expression;
@@ -87,10 +113,17 @@ TemplateTask parser::parseCustomTask(const std::string& configFilePath, const st
 	std::getline(customTaskFile, optimalTrialPoint);
 	std::vector<std::string> splittedOptimalTrialPoint = utils::split(optimalTrialPoint, " ");
 
+	if (splittedOptimalTrialPoint.size() < 2) {
+		throw ErrorWrapper(Errors::FILE_PARSER_ERROR, "[FILE HELPER] OPTIMAL POINT OR OPTIMAL VALUE IS NOT SPECIFIED.\n");
+	}
+
 	Point optimalPoint;
 	std::vector<std::string> splittedOptimalPoint = utils::split(splittedOptimalTrialPoint[0], ",");
 	for (int i = 0; i < splittedOptimalPoint.size(); i++) {
 		optimalPoint.push_back(std::atof(splittedOptimalPoint[i].c_str()));
+	}
+	if (optimalPoint.size() != variableSet.size()) {
+		throw ErrorWrapper(Errors::FILE_PARSER_ERROR, "[FILE HELPER] DIMENSIONS OF OPTIMAL POINT NOT MATCH WITH VARIABLES COUNT.\n");
 	}
 	PointType optimalValue = std::atof(splittedOptimalTrialPoint[1].c_str());
 
@@ -114,7 +147,7 @@ void writer::writePointsToFile(const std::string& fileName, Points points, const
 void writer::writePointIntervalToFile(const std::string& fileName, Point startPoint, Point finishPoint, PointType step,
 	const std::function<PointType(Point)>& getValue, const std::function<bool(Point)>& condition) {
 	if (startPoint.size() != finishPoint.size()) {
-		throw errors::FILE_WRITER_ERROR_ERR_CODE;
+		throw ErrorWrapper(Errors::FILE_WRITER_ERROR, "[FILE HELPER] DIFFERENT SIZES OF START AND FINISH POINTS.\n");
 	}
 
 	std::ofstream outputFile(fileName);

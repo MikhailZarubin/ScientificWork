@@ -19,11 +19,11 @@ Borders TemplateTask::getTaskBorders() {
         leftBorder = _function.value().getLeftBorder();
         rightBorder = _function.value().getRightBorder();
     }
-    else if (_constrainedOptProblem.has_value()) {
+    else if (_constrainedOptProblem.has_value() && _constrainedOptProblem.value() != nullptr) {
         _constrainedOptProblem.value()->GetBounds(leftBorder, rightBorder);
     }
     else {
-        throw errors::TASK_HELPER_INTERNAL_ERROR_ERR_CODE;
+        throw ErrorWrapper(Errors::TEMPLATE_TASK_ERROR, "[TEMPLATE TASK] TASK IS NOT INITIALIZED.\n");
     }
     return Borders(leftBorder, rightBorder);
 }
@@ -33,25 +33,35 @@ PointType TemplateTask::getTaskValue(Point point) {
     if (_function.has_value()) {
         answer = _function.value().getValue(point);
     }
-    else if (_constrainedOptProblem.has_value()) {
+    else if (_constrainedOptProblem.has_value() && _constrainedOptProblem.value() != nullptr) {
         answer = _constrainedOptProblem.value()->ComputeFunction(point);
     }
     else {
-        throw errors::TASK_HELPER_INTERNAL_ERROR_ERR_CODE;
+        throw ErrorWrapper(Errors::TEMPLATE_TASK_ERROR, "[TEMPLATE TASK] TASK IS NOT INITIALIZED.\n");
     }
     return answer;
 }
 
 PointType TemplateTask::getConstraintValue(std::size_t constraintIndex, Point point) {
     PointType answer;
-    if (_constraints.has_value() && constraintIndex < _constraints.value().size()) {
-        answer = _constraints.value()[constraintIndex].getValue(point);
+    if (_constraints.has_value()) {
+        if (constraintIndex < _constraints.value().size()) {
+            answer = _constraints.value()[constraintIndex].getValue(point);
+        }
+        else {
+            throw ErrorWrapper(Errors::TEMPLATE_TASK_ERROR, "[TEMPLATE TASK] RECEIVED CONSTRAINT INDEX OUT OF RANGE.\n");
+        }
     }
-    else if (_constrainedOptProblem.has_value() && constraintIndex < _constrainedOptProblem.value()->GetConstraintsNumber()) {
-        answer = _constrainedOptProblem.value()->ComputeConstraint(constraintIndex, point);
+    else if (_constrainedOptProblem.has_value() && _constrainedOptProblem.value() != nullptr) {
+        if (constraintIndex < _constrainedOptProblem.value()->GetConstraintsNumber()) {
+            answer = _constrainedOptProblem.value()->ComputeConstraint(constraintIndex, point);
+        }
+        else {
+            throw ErrorWrapper(Errors::TEMPLATE_TASK_ERROR, "[TEMPLATE TASK] RECEIVED CONSTRAINT INDEX OUT OF RANGE.\n");
+        }
     }
     else {
-        throw errors::TASK_HELPER_INTERNAL_ERROR_ERR_CODE;
+        throw ErrorWrapper(Errors::TEMPLATE_TASK_ERROR, "[TEMPLATE TASK] TASK IS NOT INITIALIZED.\n");
     }
     return answer;
 }
@@ -61,11 +71,11 @@ std::size_t TemplateTask::getTaskDimensionSize() {
     if (_function.has_value()) {
         dimensionSize = _function.value().getDimensionSize();
     }
-    else if (_constrainedOptProblem.has_value()) {
+    else if (_constrainedOptProblem.has_value() && _constrainedOptProblem.value() != nullptr) {
         dimensionSize = _constrainedOptProblem.value()->GetDimension();
     }
     else {
-        throw errors::TASK_HELPER_INTERNAL_ERROR_ERR_CODE;
+        throw ErrorWrapper(Errors::TEMPLATE_TASK_ERROR, "[TEMPLATE TASK] TASK IS NOT INITIALIZED.\n");
     }
     return dimensionSize;
 }
@@ -75,11 +85,11 @@ std::size_t TemplateTask::getConstraintsCount() {
     if (_constraints.has_value()) {
         constraintsCount = _constraints.value().size();
     }
-    else if (_constrainedOptProblem.has_value()) {
+    else if (_constrainedOptProblem.has_value() && _constrainedOptProblem.value() != nullptr) {
         constraintsCount = _constrainedOptProblem.value()->GetConstraintsNumber();
     }
     else {
-        throw errors::TASK_HELPER_INTERNAL_ERROR_ERR_CODE;
+        throw ErrorWrapper(Errors::TEMPLATE_TASK_ERROR, "[TEMPLATE TASK] TASK IS NOT INITIALIZED.\n");
     }
     return constraintsCount;
 }

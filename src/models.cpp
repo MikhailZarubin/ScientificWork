@@ -18,7 +18,7 @@ TrialPoint& TrialPoint::operator = (const TrialPoint& trialPoint) {
 
 GlobalSearchAlgorithmParams::GlobalSearchAlgorithmParams(double rCoeff, double accuracy) {
     if (rCoeff <= constants::MIN_R) {
-        throw errors::INCORRECT_PARAM_ERR_CODE;
+        throw ErrorWrapper(Errors::MODELS_ERROR, "[MODELS] RELIABILITY PARAMETER IS LESS 1. MININMUM RELIABILITY VALUE IS 1.\n");
     }
 
     this->rCoeff = rCoeff;
@@ -29,7 +29,7 @@ GlobalSearchAlgorithmParams::GlobalSearchAlgorithmParams(const GlobalSearchAlgor
 
 IndexAlgorithmParams::IndexAlgorithmParams(double rCoeff, double accuracy, double delta, int iterationLimit) {
     if (rCoeff <= constants::MIN_R) {
-        throw errors::INCORRECT_PARAM_ERR_CODE;
+        throw ErrorWrapper(Errors::MODELS_ERROR, "[MODELS] RELIABILITY PARAMETER IS LESS 1. MININMUM RELIABILITY VALUE IS 1.\n");
     }
 
     this->rCoeff = rCoeff;
@@ -49,7 +49,7 @@ ScanParams::ScanParams(const ScanParams& params) : ScanParams(params.density, pa
 
 Borders::Borders(const Point& leftBorder, const Point& rightBorder) {
     if (rightBorder < leftBorder) {
-        throw errors::INCORRECT_BORDERS_ERR_CODE;
+        throw ErrorWrapper(Errors::MODELS_ERROR, "[MODELS] RIGHT BORDER IS SMALLER LEFT BORDER.\n");
     }
     this->leftBorder = leftBorder;
     this->rightBorder = rightBorder;

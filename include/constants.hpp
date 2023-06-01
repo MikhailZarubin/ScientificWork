@@ -52,6 +52,7 @@ namespace constants {
     const static std::string NAME_CONTRACT_FILE = "name_contract.txt";
     const static std::string DATA_PATHS_FILE = "data_paths.txt";
     const static std::string CONFIG_PATH_FILE = "config_path.txt";
+    const static std::string LOG_FILE = "log.txt";
 
     /*
     * Internal constants
@@ -63,4 +64,6 @@ namespace constants {
     const static int DATA_PATHS_COUNT = 3;
     const static long double STEP_PRINT_POINTS = 0.001;
     const static int CUSTOM_TASK_NUMBER = -1;
+    const static int GOOD_RETURN_CODE = 0;
+    const static int BAD_RETURN_CODE = -1;
 }
