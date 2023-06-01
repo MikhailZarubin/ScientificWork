@@ -15,7 +15,7 @@ enum class Errors {
     UTILS_ERROR = 9,
     MODELS_ERROR = 10,
     MODIFIED_INDEX_ALG_ERROR = 11,
-    LOGGER_ERROR
+    LOGGER_ERROR = 12
 };
 
 class ErrorWrapper {
