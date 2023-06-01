@@ -75,7 +75,7 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], std::functi
     std::vector<std::string> paths = parser::parseDirectories(constants::API_DIR, constants::DATA_PATHS_FILE);
     if (paths.size() != constants::DATA_PATHS_COUNT) {
         _logger("CONFIGURATION CANNOT BE COMPLETED.\n");
-        throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] API DATA PATHS FILE CHANGED.\n");
+        throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] API (DATA PATHS FILE) IS CHANGED.\n");
     }
     _algorithmPointsDir = paths[0];
     _functionPointsDir = paths[1];
