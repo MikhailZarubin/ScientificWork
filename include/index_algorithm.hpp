@@ -49,6 +49,6 @@ public:
 	Points getPoints();
 	Complexity getComplexity();
 	TemplateTask getTask();
-	TrialPoint run();
+	std::optional<TrialPoint> run();
 };
 

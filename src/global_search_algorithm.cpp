@@ -97,7 +97,7 @@ PointType GlobalSearchAlgorithm::calculateNextStepPoint(std::pair<PointType, Poi
         0.5 * (_cachedFunctionValues[std::to_string(nextStepInterval.second)] - _cachedFunctionValues[std::to_string(nextStepInterval.first)]) / _algCoefficient;
 }
 
-TrialPoint GlobalSearchAlgorithm::run() {
+std::optional<TrialPoint> GlobalSearchAlgorithm::run() {
     clearData();
     startIteration();
 
