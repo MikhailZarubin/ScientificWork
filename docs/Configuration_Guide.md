@@ -29,8 +29,8 @@ global_optimization.exe ALG_TYPE:IA TASK_NUM:5 TASK_EPS:0.001
 | `CUSTOM_TASK`| Name of text file with described task.<br />Data type: `string` | Name of text file which consist of task described according to [pattern](#custom-task-pattern). File extension (must be `.txt`) must not be specified. <br />By default is not defined. If defined then `TASK_NUM` key is ignored. |
 
 # Configuration of GUI
-The configuration of GUI is performed via command-line argument, which is an integer number from 0 to 99 or string name of text file with custom task. This argument is required.<br />
-Before launching a GUI application for a task with a number or name `X`, it is necessary to configure and run the middleware for solving this task (pass the `X` value by `TASK_NUM` or `CUSTOM_TASK` key). <br />Moreover, if the launch is performed for the first time, it is also necessary to pass the `2` value by the `PRINT_LEVEL` key so that the middleware was generated information for plotting functions.<br />
+The configuration of GUI is performed via command-line argument, which is an `taskId` (integer number from 0 to 99 or string name of text file with custom task). This argument is required.<br />
+Before launching a GUI application for a task with some id `ID`, it is necessary to configure and run the middleware for solving this task (pass the `ID` value by `TASK_NUM` or `CUSTOM_TASK` key). <br />Moreover, if the launch is performed for the first time, it is also necessary to pass the `2` value by the `PRINT_LEVEL` key so that the middleware was generated information for plotting functions.<br />
 Supported only three-dimensional functions.<br />
 
 ## Command Line Input Examples

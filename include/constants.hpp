@@ -63,7 +63,6 @@ namespace constants {
     const static long double MAX_PEANO_POINT = 1.0;
     const static int DATA_PATHS_COUNT = 3;
     const static long double STEP_PRINT_POINTS = 0.001;
-    const static int CUSTOM_TASK_NUMBER = -1;
     const static int GOOD_RETURN_CODE = 0;
     const static int BAD_RETURN_CODE = -1;
     const static long double MIN_ACCURACY = 0.0;

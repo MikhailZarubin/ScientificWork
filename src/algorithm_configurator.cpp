@@ -53,24 +53,25 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], Logger* log
     IndexAlgorithmParams indexAlgParams(reliability, accuracy, epsilonReserved, iterationLimit);
     ScanParams scanParams(densityScan, keyScan);
     if (utils::contains(configurationMap, constants::KEY_CUSTOM_TASK)) {
-        _algorithmsMap[constants::CUSTOM_TASK_NUMBER] = createAlgorithm(algType,
+        std::string taskId = configurationMap[constants::KEY_CUSTOM_TASK];
+        _algorithmsMap[taskId] = createAlgorithm(algType,
             parser::parseCustomTask(constants::API_DIR, constants::CONFIG_PATH_FILE,
-                configurationMap[constants::KEY_CUSTOM_TASK] + constants::TXT_FILE_EXTENSION), globalSearchAlgParams, indexAlgParams, scanParams);
+                taskId + constants::TXT_FILE_EXTENSION), globalSearchAlgParams, indexAlgParams, scanParams);
     }
     else {
         _constrainedProblemFamily = new TGrishaginConstrainedProblemFamily();
-        int startTaskNumber, endTaskNumber;
+        int startTaskId, endTaskId;
         if (utils::contains(configurationMap, constants::KEY_TASK_NUMBER)) {
-            startTaskNumber = std::atoi(configurationMap[constants::KEY_TASK_NUMBER].c_str());
-            endTaskNumber = startTaskNumber + 1;
+            startTaskId = std::atoi(configurationMap[constants::KEY_TASK_NUMBER].c_str());
+            endTaskId = startTaskId + 1;
         }
         else {
-            startTaskNumber = 0;
-            endTaskNumber = _constrainedProblemFamily->GetFamilySize();
+            startTaskId = 0;
+            endTaskId = _constrainedProblemFamily->GetFamilySize();
         }
 
-        for (int i = startTaskNumber; i < endTaskNumber; i++) {
-            _algorithmsMap[i] = createAlgorithm(algType, TemplateTask(_constrainedProblemFamily->operator[](i),
+        for (int i = startTaskId; i < endTaskId; i++) {
+            _algorithmsMap[std::to_string(i)] = createAlgorithm(algType, TemplateTask(_constrainedProblemFamily->operator[](i),
                 TrialPoint(_constrainedProblemFamily->operator[](i)->GetOptimumPoint(), _constrainedProblemFamily->operator[](i)->GetOptimumValue())),
                 globalSearchAlgParams, indexAlgParams, scanParams);
         }
@@ -109,18 +110,18 @@ Algorithm* AlgorithmConfigurator::createAlgorithm(const std::string& algType,
 
 void AlgorithmConfigurator::run() {
     PointType maxDeviation = -DBL_MAX;
-    for (const auto& [taskNumber, algorithm] : _algorithmsMap) {
-        _logger->log("CALCULATION OPTIMUM TASK <" + std::to_string(taskNumber) + "> SUCCESSFULLY STARTED.\n");
+    for (const auto& [taskId, algorithm] : _algorithmsMap) {
+        _logger->log("CALCULATION OPTIMUM TASK <" + taskId + "> SUCCESSFULLY STARTED.\n");
         _logger->log("EXPECTED OPTIMUM: " +
-            getPointDescription(_algorithmsMap[taskNumber]->getTask().getOptimumPoint(),
-                _algorithmsMap[taskNumber]->getTask().getOptimumValue()) + "\n");
+            getPointDescription(_algorithmsMap[taskId]->getTask().getOptimumPoint(),
+                _algorithmsMap[taskId]->getTask().getOptimumValue()) + "\n");
         auto result = algorithm->run();
         if (result.has_value()) {
-            maxDeviation = std::max(maxDeviation, utils::getMaxCoordinateDifference(result.value().point, _algorithmsMap[taskNumber]->getTask().getOptimumPoint()));
+            maxDeviation = std::max(maxDeviation, utils::getMaxCoordinateDifference(result.value().point, _algorithmsMap[taskId]->getTask().getOptimumPoint()));
             _logger->log("FOUND OPTIMUM: " +
                 getPointDescription(result.value().point, result.value().value) + "\n");
             _logger->log("MAX DEVIATION: " +
-                std::to_string(utils::getMaxCoordinateDifference(result.value().point, _algorithmsMap[taskNumber]->getTask().getOptimumPoint())) + "\n");
+                std::to_string(utils::getMaxCoordinateDifference(result.value().point, _algorithmsMap[taskId]->getTask().getOptimumPoint())) + "\n");
         }
         else {
             _logger->log("ALGORITHM DID NOT FIND ANY VALID POINTS. TRY INCREASING ACCURACY, RELIABILITY PARAMETER OR SCAN DENSITY.\n");
@@ -130,7 +131,7 @@ void AlgorithmConfigurator::run() {
             getCalculationCountDescription(algorithm->getComplexity().getFunctionsCalculationCount()) + "\n");
         _logger->log("\n");
 
-        printPointsToFile(taskNumber, algorithm->getPoints());
+        printPointsToFile(taskId, algorithm->getPoints());
     }
 
     if (!utils::equal(maxDeviation, -DBL_MAX)) {
@@ -158,20 +159,20 @@ std::string AlgorithmConfigurator::getCalculationCountDescription(std::vector<lo
     return calculationCount;
 }
 
-void AlgorithmConfigurator::printPointsToFile(int taskNumber, Points points) {
-    Borders borders = _algorithmsMap[taskNumber]->getTask().getTaskBorders();
-    std::string pointsFileName = parser::parseFileName(constants::API_DIR, constants::NAME_CONTRACT_FILE, taskNumber);
+void AlgorithmConfigurator::printPointsToFile(const std::string& taskId, Points points) {
+    Borders borders = _algorithmsMap[taskId]->getTask().getTaskBorders();
+    std::string pointsFileName = parser::parseFileName(constants::API_DIR, constants::NAME_CONTRACT_FILE, taskId);
     switch (_printLevel) {
     case constants::PrintLevel::PRINT_ALL_POINTS:
         writer::writePointIntervalToFile(_functionPointsDir + pointsFileName, borders.leftBorder, borders.rightBorder,
-            constants::STEP_PRINT_POINTS, [&](Point point) { return _algorithmsMap[taskNumber]->getTask().getTaskValue(point); },
+            constants::STEP_PRINT_POINTS, [&](Point point) { return _algorithmsMap[taskId]->getTask().getTaskValue(point); },
             [&](Point point) { return true; });
         writer::writePointIntervalToFile(_invalidPointsDir + pointsFileName, borders.leftBorder, borders.rightBorder,
-            constants::STEP_PRINT_POINTS, [&](Point point) { return _algorithmsMap[taskNumber]->getTask().getTaskValue(point); },
+            constants::STEP_PRINT_POINTS, [&](Point point) { return _algorithmsMap[taskId]->getTask().getTaskValue(point); },
             [&](Point point) {
                 bool isValid = true;
-                for (int i = 0; i < _algorithmsMap[taskNumber]->getTask().getConstraintsCount(); i++) {
-                    if (_algorithmsMap[taskNumber]->getTask().getConstraintValue(i, point) > 0) {
+                for (int i = 0; i < _algorithmsMap[taskId]->getTask().getConstraintsCount(); i++) {
+                    if (_algorithmsMap[taskId]->getTask().getConstraintValue(i, point) > 0) {
                         isValid = false;
                         break;
                     }
@@ -179,9 +180,9 @@ void AlgorithmConfigurator::printPointsToFile(int taskNumber, Points points) {
                 return !isValid;
             });
     case constants::PrintLevel::PRINT_ONLY_TRIAL_POINT:
-        points.push_back(_algorithmsMap[taskNumber]->getTask().getOptimumPoint());
+        points.push_back(_algorithmsMap[taskId]->getTask().getOptimumPoint());
         writer::writePointsToFile(_algorithmPointsDir + pointsFileName,
-            points, [&](Point point) { return _algorithmsMap[taskNumber]->getTask().getTaskValue(point); });
+            points, [&](Point point) { return _algorithmsMap[taskId]->getTask().getTaskValue(point); });
         break;
     default:
         break;
