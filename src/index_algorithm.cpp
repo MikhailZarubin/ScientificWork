@@ -4,7 +4,7 @@
 
 
 IndexAlgorithm::IndexAlgorithm(const TemplateTask& task, const IndexAlgorithmParams& algParams, const ScanParams& scanParams) :
-    _task(task), _algParams(algParams), _scanParams(scanParams),
+    Algorithm(task), _algParams(algParams), _scanParams(scanParams),
     _optimalPoint(), _optimalValue(),
     _points(), _complexity(_task.getConstraintsCount() + 1, 2), maxV(),
     _mappedPoints(), _mappedPointsClassification(), _performedStepsMap(),
@@ -242,8 +242,4 @@ Points IndexAlgorithm::getPoints() {
 
 Complexity IndexAlgorithm::getComplexity() {
     return _complexity;
-}
-
-TemplateTask IndexAlgorithm::getTask() {
-    return _task;
 }
