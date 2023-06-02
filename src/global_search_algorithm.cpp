@@ -4,7 +4,7 @@
 
 
 GlobalSearchAlgorithm::GlobalSearchAlgorithm(const TemplateTask& task, const GlobalSearchAlgorithmParams& algParams, const ScanParams& scanParams) :
-    _task(task), _algParams(algParams), _scanParams(scanParams),
+    Algorithm(task), _algParams(algParams), _scanParams(scanParams),
     _optimumPoint(), _cachedFunctionValues(), _maxAbsoluteFirstDifference(-DBL_MAX), _algCoefficient(),
     _points(), _complexity(), _checkedMappedPoints() {}
 
@@ -136,10 +136,6 @@ Points GlobalSearchAlgorithm::getPoints() {
 
 Complexity GlobalSearchAlgorithm::getComplexity() {
     return _complexity;
-}
-
-TemplateTask GlobalSearchAlgorithm::getTask() {
-    return _task;
 }
 
 void GlobalSearchAlgorithm::clearData() {
