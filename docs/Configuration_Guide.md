@@ -6,7 +6,8 @@ The configuration of middleware is performed via command-line arguments, which m
 
 ## Command Line Input Example
 ```
-global_optimization.exe ALG_TYPE:IA TASK_EPS:0.001 CUSTOM_TASK:sphere.txt
+global_optimization.exe ALG_TYPE:GSA CUSTOM_TASK:sphere
+global_optimization.exe ALG_TYPE:IA TASK_NUM:5 TASK_EPS:0.001
 ```
 
 ## Required Keys:
@@ -25,16 +26,17 @@ global_optimization.exe ALG_TYPE:IA TASK_EPS:0.001 CUSTOM_TASK:sphere.txt
 | `SCAN_KEY`| Integer number greater from 1 to 3.<br />Data type: `int` | Scan parameter: key of the scan construction.<br />By default is [DEFAULT_SCAN_KEY](#defined-configuration-constants). |
 | `PRINT_LEVEL`| Integer number from 0 to 2.<br />Data type: `int` | Whether to print points to the file.<br />0 - do not print anything, 1 - print only trial points, 2 - print trial points and functions points.<br />By default is [DEFAULT_PRINT_LEVEL](#defined-configuration-constants). |
 | `ITER_LIMIT`| Integer number greater than 1.<br />Data type: `int` | Limit of iterations of the algorithm to solve the task.<br />By default is [ITERATION_LIMIT](#defined-configuration-constants). |
-| `CUSTOM_TASK`| Name of file with described task (only `.txt` is supported).<br />Data type: `string` | Name of file which consist of task described according to [pattern](#custom-task-pattern).<br />By default is not defined. If defined then `TASK_NUM` key is ignored. |
+| `CUSTOM_TASK`| Name of text file with described task.<br />Data type: `string` | Name of text file which consist of task described according to [pattern](#custom-task-pattern). File extension (must be `.txt`) must not be specified. <br />By default is not defined. If defined then `TASK_NUM` key is ignored. |
 
 # Configuration of GUI
-The configuration of GUI is performed via command-line argument, which is an integer number from 0 to 99. This argument is required.<br />
-Before launching a GUI application for a task with a number `N`, it is necessary to configure and run the middleware for solving this task (pass the `N` value by `TASK_NUM` key). <br />Moreover, if the launch is performed for the first time, it is also necessary to pass the `2` value by the `PRINT_LEVEL` key so that the middleware was generated information for plotting functions.<br />
+The configuration of GUI is performed via command-line argument, which is an integer number from 0 to 99 or string name of text file with custom task. This argument is required.<br />
+Before launching a GUI application for a task with a number or name `X`, it is necessary to configure and run the middleware for solving this task (pass the `X` value by `TASK_NUM` or `CUSTOM_TASK` key). <br />Moreover, if the launch is performed for the first time, it is also necessary to pass the `2` value by the `PRINT_LEVEL` key so that the middleware was generated information for plotting functions.<br />
 Supported only three-dimensional functions.<br />
 
-## Command Line Input Example
+## Command Line Input Examples
 ```
 python graphics_builder.py 5
+python graphics_builder.py sphere
 ```
 
 # Defined Configuration Constants
@@ -52,6 +54,7 @@ python graphics_builder.py 5
 Variable set should consist only lower case Latin letters.<br />
 Mathematical operations should consist only upper case Latin letters.<br />
 Symbols of mathematical operations (for example multiplication) should not be missed.<br />
+Task should be like the following template:<br /> 
 ```
 <variable set> <count of constraints>
 <left task border> <right task border>

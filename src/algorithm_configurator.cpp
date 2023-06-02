@@ -55,7 +55,7 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], Logger* log
     if (utils::contains(configurationMap, constants::KEY_CUSTOM_TASK)) {
         _algorithmsMap[constants::CUSTOM_TASK_NUMBER] = createAlgorithm(algType,
             parser::parseCustomTask(constants::API_DIR, constants::CONFIG_PATH_FILE,
-                configurationMap[constants::KEY_CUSTOM_TASK]), globalSearchAlgParams, indexAlgParams, scanParams);
+                configurationMap[constants::KEY_CUSTOM_TASK] + constants::TXT_FILE_EXTENSION), globalSearchAlgParams, indexAlgParams, scanParams);
     }
     else {
         _constrainedProblemFamily = new TGrishaginConstrainedProblemFamily();
@@ -109,7 +109,7 @@ Algorithm* AlgorithmConfigurator::createAlgorithm(const std::string& algType,
 
 void AlgorithmConfigurator::run() {
     PointType maxDeviation = -DBL_MAX;
-    for (const auto& [taskNumber, algorithm]: _algorithmsMap) {
+    for (const auto& [taskNumber, algorithm] : _algorithmsMap) {
         _logger->log("CALCULATION OPTIMUM TASK <" + std::to_string(taskNumber) + "> SUCCESSFULLY STARTED.\n");
         _logger->log("EXPECTED OPTIMUM: " +
             getPointDescription(_algorithmsMap[taskNumber]->getTask().getOptimumPoint(),
@@ -125,14 +125,17 @@ void AlgorithmConfigurator::run() {
         else {
             _logger->log("ALGORITHM DID NOT FIND ANY VALID POINTS. TRY INCREASING ACCURACY, RELIABILITY PARAMETER OR SCAN DENSITY.\n");
         }
-        _logger->log("ITERATION COUNT: " + std::to_string(algorithm-> getComplexity().getIterationCount()) + "\n");
-        _logger->log("CALCULATION COUNT: " + 
+        _logger->log("ITERATION COUNT: " + std::to_string(algorithm->getComplexity().getIterationCount()) + "\n");
+        _logger->log("CALCULATION COUNT: " +
             getCalculationCountDescription(algorithm->getComplexity().getFunctionsCalculationCount()) + "\n");
         _logger->log("\n");
 
         printPointsToFile(taskNumber, algorithm->getPoints());
     }
-    _logger->log("MAX DEVIATION AMONG ALL TASKS: " + std::to_string(maxDeviation) + "\n");
+
+    if (!utils::equal(maxDeviation, -DBL_MAX)) {
+        _logger->log("MAX DEVIATION AMONG ALL TASKS: " + std::to_string(maxDeviation) + "\n");
+    }
 }
 
 std::string AlgorithmConfigurator::getPointDescription(Point point, PointType value) {

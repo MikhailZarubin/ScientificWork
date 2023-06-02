@@ -67,4 +67,5 @@ namespace constants {
     const static int GOOD_RETURN_CODE = 0;
     const static int BAD_RETURN_CODE = -1;
     const static long double MIN_ACCURACY = 0.0;
+    const static std::string TXT_FILE_EXTENSION = ".txt";
 }
