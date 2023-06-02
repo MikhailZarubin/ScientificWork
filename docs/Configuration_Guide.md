@@ -4,7 +4,7 @@ The configuration of middleware is performed via command-line arguments, which m
 <KEY>:<VALUE>
 ```
 
-## Command Line Input Example
+## Command Line Input Examples
 ```
 global_optimization.exe ALG_TYPE:GSA CUSTOM_TASK:sphere
 global_optimization.exe ALG_TYPE:IA TASK_NUM:5 TASK_EPS:0.001
