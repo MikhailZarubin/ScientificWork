@@ -29,7 +29,7 @@
 
 class AlgorithmConfigurator {
     IConstrainedOptProblemFamily* _constrainedProblemFamily;
-    std::map<int, Algorithm*> _algorithmsMap;
+    std::map<std::string, Algorithm*> _algorithmsMap;
     Logger* _logger;
     constants::PrintLevel _printLevel;
 
@@ -43,7 +43,7 @@ class AlgorithmConfigurator {
 
     std::string getPointDescription(Point point, PointType value);
     std::string getCalculationCountDescription(std::vector<long> calculationCounts);
-    void printPointsToFile(int taskNumber, Points points);
+    void printPointsToFile(const std::string& taskId, Points points);
 public:
     AlgorithmConfigurator(int argc, char* argv[], Logger* logger);
     void run();

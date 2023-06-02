@@ -43,7 +43,7 @@ std::vector<std::string> parser::parseDirectories(const std::string& pathsFilePa
 	return paths;
 }
 
-std::string parser::parseFileName(const std::string& nameContractFilePath, const std::string& nameContractFileName, int taskNumber) {
+std::string parser::parseFileName(const std::string& nameContractFilePath, const std::string& nameContractFileName, const std::string& taskId) {
 	std::ifstream nameContractFile(nameContractFilePath + nameContractFileName);
 	if (!nameContractFile.is_open()) {
 		throw ErrorWrapper(Errors::FILE_PARSER_ERROR, "[FILE HELPER] CAN NOT OPEN FILE <" + nameContractFilePath + nameContractFileName + ">.\n");
@@ -57,7 +57,7 @@ std::string parser::parseFileName(const std::string& nameContractFilePath, const
 	if (partsName.size() != 2) {
 		throw ErrorWrapper(Errors::FILE_PARSER_ERROR, "[FILE HELPER] FILE NAME CONSISTS OF <" + std::to_string(partsName.size()) + "> PARTS, <2> IS EXPECTED.\n");
 	}
-	return partsName[0] + std::to_string(taskNumber) + partsName[1];
+	return partsName[0] + taskId + partsName[1];
 }
 
 TemplateTask parser::parseCustomTask(const std::string& configFilePath, const std::string& configFileName, const std::string& customTaskFileName) {

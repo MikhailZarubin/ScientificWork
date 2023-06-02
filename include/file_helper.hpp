@@ -9,7 +9,7 @@
 
 namespace parser {
     std::vector<std::string> parseDirectories(const std::string& pathsFilePath, const std::string& pathsFileName);
-    std::string parseFileName(const std::string& nameContractFilePath, const std::string& nameContractFileName, int taskNumber);
+    std::string parseFileName(const std::string& nameContractFilePath, const std::string& nameContractFileName, const std::string& taskId);
     TemplateTask parseCustomTask(const std::string& configFilePath, const std::string& configFileName, const std::string& customTaskFileName);
 }
 
