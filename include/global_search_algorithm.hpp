@@ -6,7 +6,6 @@
 
 
 class GlobalSearchAlgorithm : public Algorithm {
-	TemplateTask _task;
 	GlobalSearchAlgorithmParams _algParams;
 	ScanParams _scanParams;
 
@@ -30,7 +29,6 @@ public:
 	GlobalSearchAlgorithm(const TemplateTask& task, const GlobalSearchAlgorithmParams& algParams, const ScanParams& scanParams);
 	Points getPoints();
 	Complexity getComplexity();
-	TemplateTask getTask();
 	std::optional<TrialPoint> run();
 };
 

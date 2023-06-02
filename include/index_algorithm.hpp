@@ -14,7 +14,6 @@
 
 class IndexAlgorithm : public Algorithm {
 protected:
-	TemplateTask _task;
 	IndexAlgorithmParams _algParams;
 	ScanParams _scanParams;
 	Points _points;
@@ -48,7 +47,6 @@ public:
 	IndexAlgorithm(const TemplateTask& task, const IndexAlgorithmParams& algParams, const ScanParams& scanParams);
 	Points getPoints();
 	Complexity getComplexity();
-	TemplateTask getTask();
 	std::optional<TrialPoint> run();
 };
 

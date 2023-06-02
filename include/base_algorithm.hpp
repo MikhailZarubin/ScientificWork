@@ -6,9 +6,13 @@
 
 
 class Algorithm {
+protected:
+    TemplateTask _task;
+
 public:
+    Algorithm(const TemplateTask& task);
+    TemplateTask getTask();
     virtual Points getPoints() = 0;
     virtual Complexity getComplexity() = 0;
-    virtual TemplateTask getTask() = 0;
     virtual std::optional<TrialPoint> run() = 0;
 };
