@@ -4,7 +4,7 @@
 
 
 AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], Logger* logger) :
-    _constrainedProblemFamily(nullptr), _algorithmsMap(), _logger(logger) {
+    _constrainedProblemFamily(nullptr), _algorithmsMap(utils::stringKeysComparator), _logger(logger) {
     if (_logger == nullptr) {
         throw ErrorWrapper(Errors::CONFIGURATION_ERROR, "[CONFIGURATOR] LOGGER IS NULL.\n");
     }

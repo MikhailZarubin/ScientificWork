@@ -192,6 +192,19 @@ Point linearTransform(const Point nonLinearizedPoint, const Point& leftBorders, 
     return linearizedPoint;
 }
 
+bool utils::stringKeysComparator(const std::string& key1, const std::string& key2) {
+    if (key1.size() != key2.size()) {
+        return key1.size() < key2.size();
+    }
+    int keySize = key1.size();
+    for (int i = 0; i < keySize; i++) {
+        if (key1[i] != key2[i]) {
+            return key1[i] < key2[i];
+        }
+    }
+    return key1 < key2;
+}
+
 int n1, nexp, l, iq, iu[10], iv[10];
 void mapd(double x, int m, double* y, int n, int key) {
     /* mapping y(x) : 1 - center, 2 - line, 3 - node */
