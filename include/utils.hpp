@@ -22,6 +22,7 @@ namespace utils {
     PointType getMaxCoordinateDifference(Point point1, Point point2);
     std::vector<std::string> split(const std::string& inputStr, const std::string& delimiter);
     Point getPointFromMapping(std::size_t dimensionSize, Borders borders, ScanParams scanParams, PointType mappedPoint);
+    bool stringKeysComparator(const std::string& key1, const std::string& key2);
 
     template <class DataType>
     std::optional<DataType> indexOf(std::vector<DataType> collection, DataType elem) {
