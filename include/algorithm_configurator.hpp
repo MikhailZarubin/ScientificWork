@@ -30,6 +30,8 @@
 class AlgorithmConfigurator {
     IConstrainedOptProblemFamily* _constrainedProblemFamily;
     std::map<std::string, Algorithm*, std::function<bool(const std::string&, const std::string&)>> _algorithmsMap;
+    double expectedAccuracy;
+
     Logger* _logger;
     constants::PrintLevel _printLevel;
 

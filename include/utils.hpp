@@ -23,6 +23,7 @@ namespace utils {
     std::vector<std::string> split(const std::string& inputStr, const std::string& delimiter);
     Point getPointFromMapping(std::size_t dimensionSize, Borders borders, ScanParams scanParams, PointType mappedPoint);
     bool stringKeysComparator(const std::string& key1, const std::string& key2);
+    long findSumAllElements(const std::vector<long>& data);
 
     template <class DataType>
     std::optional<DataType> indexOf(std::vector<DataType> collection, DataType elem) {
@@ -38,5 +39,19 @@ namespace utils {
     template <class KeyType, class ValueType>
     bool contains(const std::map<KeyType, ValueType>& inputMap, KeyType key) {
         return inputMap.find(key) != inputMap.end();
+    }
+
+    template <class DataType>
+    std::string convertToString(const std::vector<DataType>& data, const std::string& delimiter, std::function<std::string(const DataType&)> converter) {
+        std::string convertedData;
+        auto iter = data.begin();
+
+        while (std::next(iter) != data.end()) {
+            convertedData += converter(*iter) + delimiter;
+            iter = std::next(iter);
+        }
+        convertedData += converter(*iter);
+
+        return convertedData;
     }
 }

@@ -205,6 +205,14 @@ bool utils::stringKeysComparator(const std::string& key1, const std::string& key
     return key1 < key2;
 }
 
+long utils::findSumAllElements(const std::vector<long>& data) {
+    long sum = 0;
+    for (const auto& elem : data) {
+        sum += elem;
+    }
+    return sum;
+}
+
 int n1, nexp, l, iq, iu[10], iv[10];
 void mapd(double x, int m, double* y, int n, int key) {
     /* mapping y(x) : 1 - center, 2 - line, 3 - node */

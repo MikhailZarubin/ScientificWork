@@ -28,7 +28,7 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], Logger* log
 
     double reliability = utils::contains(configurationMap, constants::KEY_TASK_RELIABILITY) ?
         std::atof(configurationMap[constants::KEY_TASK_RELIABILITY].c_str()) : constants::DEFAULT_TASK_RELIABILITY;
-    double accuracy = utils::contains(configurationMap, constants::KEY_TASK_ACCURACY) ?
+    expectedAccuracy = utils::contains(configurationMap, constants::KEY_TASK_ACCURACY) ?
         std::atof(configurationMap[constants::KEY_TASK_ACCURACY].c_str()) : constants::DEFAULT_TASK_ACCURACY;
     double epsilonReserved = utils::contains(configurationMap, constants::KEY_TASK_EPSILON_RESERVED) ?
         std::atof(configurationMap[constants::KEY_TASK_EPSILON_RESERVED].c_str()) : constants::DEFAULT_TASK_EPSILON_RESERVED;
@@ -49,8 +49,8 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], Logger* log
             static_cast<constants::PrintLevel>(std::atoi(configurationMap[constants::KEY_PRINT_LEVEL].c_str())) : constants::DEFAULT_PRINT_LEVEL;
     }
 
-    GlobalSearchAlgorithmParams globalSearchAlgParams(reliability, accuracy);
-    IndexAlgorithmParams indexAlgParams(reliability, accuracy, epsilonReserved, iterationLimit);
+    GlobalSearchAlgorithmParams globalSearchAlgParams(reliability, expectedAccuracy);
+    IndexAlgorithmParams indexAlgParams(reliability, expectedAccuracy, epsilonReserved, iterationLimit);
     ScanParams scanParams(densityScan, keyScan);
     if (utils::contains(configurationMap, constants::KEY_CUSTOM_TASK)) {
         std::string taskId = configurationMap[constants::KEY_CUSTOM_TASK];
@@ -67,7 +67,7 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], Logger* log
         }
         else {
             startTaskId = 0;
-            endTaskId = _constrainedProblemFamily->GetFamilySize();
+            endTaskId = 10;// _constrainedProblemFamily->GetFamilySize();
         }
 
         for (int i = startTaskId; i < endTaskId; i++) {
@@ -109,7 +109,9 @@ Algorithm* AlgorithmConfigurator::createAlgorithm(const std::string& algType,
 }
 
 void AlgorithmConfigurator::run() {
-    PointType maxDeviation = -DBL_MAX;
+    PointType deviation;
+    std::vector<string> incorrectlySolvedTasks;
+    long int totalIterations = 0, totalInvalidCheks = 0;
     for (const auto& [taskId, algorithm] : _algorithmsMap) {
         _logger->log("CALCULATION OPTIMUM TASK <" + taskId + "> SUCCESSFULLY STARTED.\n");
         _logger->log("EXPECTED OPTIMUM: " +
@@ -117,7 +119,10 @@ void AlgorithmConfigurator::run() {
                 _algorithmsMap[taskId]->getTask().getOptimumValue()) + "\n");
         auto result = algorithm->run();
         if (result.has_value()) {
-            maxDeviation = std::max(maxDeviation, utils::getMaxCoordinateDifference(result.value().point, _algorithmsMap[taskId]->getTask().getOptimumPoint()));
+            deviation = utils::getMaxCoordinateDifference(result.value().point, _algorithmsMap[taskId]->getTask().getOptimumPoint());
+            if (deviation > expectedAccuracy) {
+                incorrectlySolvedTasks.push_back(taskId);
+            }
             _logger->log("FOUND OPTIMUM: " +
                 getPointDescription(result.value().point, result.value().value) + "\n");
             _logger->log("MAX DEVIATION: " +
@@ -126,6 +131,9 @@ void AlgorithmConfigurator::run() {
         else {
             _logger->log("ALGORITHM DID NOT FIND ANY VALID POINTS. TRY INCREASING ACCURACY, RELIABILITY PARAMETER OR SCAN DENSITY.\n");
         }
+        totalIterations += algorithm->getComplexity().getIterationCount();
+        totalInvalidCheks += utils::findSumAllElements(algorithm->getComplexity().getFunctionsCalculationCount()) -
+            algorithm->getComplexity().getFunctionsCalculationCount()[algorithm->getTask().getTaskDimensionSize()] * algorithm->getTask().getConstraintsCount();
         _logger->log("ITERATION COUNT: " + std::to_string(algorithm->getComplexity().getIterationCount()) + "\n");
         _logger->log("CALCULATION COUNT: " +
             getCalculationCountDescription(algorithm->getComplexity().getFunctionsCalculationCount()) + "\n");
@@ -134,9 +142,15 @@ void AlgorithmConfigurator::run() {
         printPointsToFile(taskId, algorithm->getPoints());
     }
 
-    if (!utils::equal(maxDeviation, -DBL_MAX)) {
-        _logger->log("MAX DEVIATION AMONG ALL TASKS: " + std::to_string(maxDeviation) + "\n");
+    if (!_algorithmsMap.empty()) {
+        _logger->log("AVERAGE COUNT OF ITERATIONS: " + std::to_string(totalIterations / _algorithmsMap.size()) + "\n");
+        _logger->log("AVERAGE COUNT OF CHECKS IN INVALID POINTS: " + std::to_string(totalInvalidCheks / _algorithmsMap.size()) + "\n");
     }
+    if (!incorrectlySolvedTasks.empty()) {
+        _logger->log("INCORRECTLY SOLVED TASKS: " +
+            utils::convertToString<std::string>(incorrectlySolvedTasks, ", ", [&](const std::string& elem) { return elem; }) + "\n");
+    }
+    _logger->log("COUNT OF INCORRECTLY SOLVED TASKS: " + std::to_string(incorrectlySolvedTasks.size()) + "\n");
 }
 
 std::string AlgorithmConfigurator::getPointDescription(Point point, PointType value) {
