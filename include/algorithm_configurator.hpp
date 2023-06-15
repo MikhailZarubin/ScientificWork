@@ -20,8 +20,8 @@
 * {TASK_EPS}:{Task parameter: delta (epsilon reserved). Data type: double. By default is constants::DEFAULT_TASK_EPSILON_RESERVED}
 * {SCAN_DEN}:{Scan parameter: density of the scan construction. Data type: int. By default is constants::DEFAULT_SCAN_DENSITY}
 * {SCAN_KEY}:{Scan parameter: key of the scan construction. Data type: int. By default is constants::DEFAULT_SCAN_KEY}
-* {PRINT_LEVEL}:{Whether to print points to the file. 0 - do not print anything, 1 - print only trial points, 2 - print trial points and functions points.
-* Data type: int. By default is constants::DEFAULT_PRINT_LEVEL}
+* {PRINT_LEVEL}:{Whether to print points to the file. 0 - do not print anything, 1 - print only trial points, 2 - print trial points and function points, 
+* 3 - print trial points, function points and constraint points. Data type: int. By default is constants::DEFAULT_PRINT_LEVEL}
 * {ITER_LIMIT}:{Limit of iterations of the algorithm to solve the task. Data type: int. By default is constants::ITERATION_LIMIT}
 * {CUSTOM_TASK}:{File with model of task which should be created by descripted pattern in configuration guide. Data type: string. By default is not defined}
 */
@@ -36,6 +36,7 @@ class AlgorithmConfigurator {
     std::string _algorithmPointsDir;
     std::string _functionPointsDir;
     std::string _invalidPointsDir;
+    std::string _constraintPointsDir;
 
     Algorithm* createAlgorithm(const std::string& algType,
         const TemplateTask& templateTask, const GlobalSearchAlgorithmParams& globalSearchAlgParams,
@@ -43,7 +44,7 @@ class AlgorithmConfigurator {
 
     std::string getPointDescription(Point point, PointType value);
     std::string getCalculationCountDescription(std::vector<long> calculationCounts);
-    void printPointsToFile(const std::string& taskId, Points points);
+    void printPointsToFile(const std::string& taskId, std::vector<Points> points);
 public:
     AlgorithmConfigurator(int argc, char* argv[], Logger* logger);
     void run();

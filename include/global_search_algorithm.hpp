@@ -27,7 +27,7 @@ class GlobalSearchAlgorithm : public Algorithm {
 public:
 	GlobalSearchAlgorithm() = delete;
 	GlobalSearchAlgorithm(const TemplateTask& task, const GlobalSearchAlgorithmParams& algParams, const ScanParams& scanParams);
-	Points getPoints();
+	std::vector<Points> getPoints();
 	Complexity getComplexity();
 	std::optional<TrialPoint> run();
 };

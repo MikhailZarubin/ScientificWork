@@ -6,7 +6,7 @@
 IndexAlgorithm::IndexAlgorithm(const TemplateTask& task, const IndexAlgorithmParams& algParams, const ScanParams& scanParams) :
     Algorithm(task), _algParams(algParams), _scanParams(scanParams),
     _optimalPoint(), _optimalValue(),
-    _points(), _complexity(_task.getConstraintsCount() + 1, 2), maxV(),
+    _points(_task.getConstraintsCount() + 1), _complexity(_task.getConstraintsCount() + 1, 2), maxV(),
     _mappedPoints(), _mappedPointsClassification(), _performedStepsMap(),
     _estimationLipschitzConstant(_task.getConstraintsCount() + 1, -DBL_MAX), _minZs(_task.getConstraintsCount() + 1, DBL_MAX) {}
 
@@ -24,9 +24,6 @@ PointType IndexAlgorithm::startIteration() {
     _mappedPoints.insert(leftMappedPoint);
     _mappedPoints.insert(rightMappedPoint);
 
-    _points.push_back(leftIntervalPoint);
-    _points.push_back(rigthIntervalPoint);
-
     std::string performedStepKey = performStep(leftMappedPoint);
     updateOptimalPoint(leftIntervalPoint, _performedStepsMap[performedStepKey].z,
         _performedStepsMap[performedStepKey].v == _task.getConstraintsCount());
@@ -39,6 +36,10 @@ PointType IndexAlgorithm::startIteration() {
 
     auto marks = calculateMarks();
     auto nextStepInterval = calculateNextStepInterval(marks);
+
+    _points[_performedStepsMap[std::to_string(leftMappedPoint)].v].push_back(leftIntervalPoint);
+    _points[_performedStepsMap[std::to_string(rightMappedPoint)].v].push_back(rigthIntervalPoint);
+
     return calculateNextStepMappedPoint(nextStepInterval);
 }
 
@@ -185,6 +186,7 @@ std::optional<TrialPoint> IndexAlgorithm::run() {
     while (!isNeededStop && _complexity.getIterationCount() < _algParams.iterationLimit) {
         _mappedPoints.insert(newStepMappedPoint);
         performedStepKey = performStep(newStepMappedPoint);
+        _points[_performedStepsMap[performedStepKey].v].push_back(newStepPoint);
 
         updateOptimalPoint(newStepPoint, _performedStepsMap[performedStepKey].z,
             _performedStepsMap[performedStepKey].v == _task.getConstraintsCount());
@@ -195,13 +197,12 @@ std::optional<TrialPoint> IndexAlgorithm::run() {
         newStepMappedPoint = calculateNextStepMappedPoint(nextStepInterval);
 
         newStepPoint = utils::getPointFromMapping(_task.getTaskDimensionSize(), _task.getTaskBorders(), _scanParams, newStepMappedPoint);
-        _points.push_back(newStepPoint);
         _complexity.incrementIteration();
         isNeededStop = utils::improvementDegree(nextStepInterval.second - nextStepInterval.first, 1.0 / _task.getTaskDimensionSize()) <= _algParams.accuracy;
     }
     updateOptimalPoint(newStepPoint, _task.getTaskValue(newStepPoint));
     if (_optimalPoint.has_value()) {
-        _points.push_back(_optimalPoint.value());
+        _points[_points.size() - 1].push_back(_optimalPoint.value());
     }
 
     return _optimalPoint.has_value() && _optimalValue.has_value() ?
@@ -228,6 +229,7 @@ void IndexAlgorithm::updateOptimalPoint(Point potentialOptimalPoint, PointType p
 
 void IndexAlgorithm::clearData() {
     _points.clear();
+    _points.resize(_task.getConstraintsCount() + 1);
     _complexity = Complexity(_task.getConstraintsCount() + 1, 2);
     _mappedPoints.clear();
     _mappedPointsClassification.clear();
@@ -236,7 +238,7 @@ void IndexAlgorithm::clearData() {
     _minZs = std::vector<PointType>(_task.getConstraintsCount() + 1, DBL_MAX);
 }
 
-Points IndexAlgorithm::getPoints() {
+std::vector<Points> IndexAlgorithm::getPoints() {
     return _points;
 }
 

@@ -16,7 +16,7 @@ class IndexAlgorithm : public Algorithm {
 protected:
 	IndexAlgorithmParams _algParams;
 	ScanParams _scanParams;
-	Points _points;
+	std::vector<Points> _points;
 	Complexity _complexity;
 
 	std::optional<Point> _optimalPoint;
@@ -45,7 +45,7 @@ protected:
 public:
 	IndexAlgorithm() = delete;
 	IndexAlgorithm(const TemplateTask& task, const IndexAlgorithmParams& algParams, const ScanParams& scanParams);
-	Points getPoints();
+	std::vector<Points> getPoints();
 	Complexity getComplexity();
 	std::optional<TrialPoint> run();
 };

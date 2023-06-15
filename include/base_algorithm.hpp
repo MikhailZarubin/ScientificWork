@@ -12,7 +12,7 @@ protected:
 public:
     Algorithm(const TemplateTask& task);
     TemplateTask getTask();
-    virtual Points getPoints() = 0;
+    virtual std::vector<Points> getPoints() = 0;
     virtual Complexity getComplexity() = 0;
     virtual std::optional<TrialPoint> run() = 0;
 };

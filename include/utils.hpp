@@ -39,4 +39,24 @@ namespace utils {
     bool contains(const std::map<KeyType, ValueType>& inputMap, KeyType key) {
         return inputMap.find(key) != inputMap.end();
     }
+
+    template <class DataType>
+    std::vector<DataType> mergeVectors(std::vector<std::vector<DataType>> data, std::size_t startIndex, std::size_t endIndex) {
+        std::vector<DataType> result;
+        for (std::size_t i = startIndex; i <= std::min(data.size() - 1, endIndex); i++) {
+            for (std::size_t j = 0; j < data[i].size(); j++) {
+                result.push_back(data[i][j]);
+            }
+        }
+        return result;
+    }
+
+    template <class DataType>
+    std::vector<DataType> mergeVectors(std::vector<DataType> data1, std::vector<DataType> data2) {
+        std::vector<DataType> result(data1);
+        for (const auto& elem: data2) {
+            result.push_back(elem);
+        }
+        return result;
+    }
 }

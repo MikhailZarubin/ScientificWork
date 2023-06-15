@@ -130,8 +130,8 @@ std::optional<TrialPoint> GlobalSearchAlgorithm::run() {
     return _optimumPoint;
 }
 
-Points GlobalSearchAlgorithm::getPoints() {
-    return _points;
+std::vector<Points> GlobalSearchAlgorithm::getPoints() {
+    return { _points };
 }
 
 Complexity GlobalSearchAlgorithm::getComplexity() {

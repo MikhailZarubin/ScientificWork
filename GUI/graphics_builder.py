@@ -1,3 +1,5 @@
+from operator import indexOf
+import os.path as pth
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
@@ -6,6 +8,8 @@ import sys
 apiPath = '../api/'
 dataPathsFileName = 'data_paths.txt'
 nameContractFileName = 'name_contract.txt'
+functionSuffix = '_function'
+trialSuffix = '_trial'
 
 class Point2D:
   def __init__(self, x, y):
@@ -115,6 +119,8 @@ if __name__ == '__main__':
   optimumPoint = []
   expectedOptimum = []
   invalidPoints = []
+  constraintFunctionPoints = []
+  constraintTrialPoints = []
 
   try:
     pointsfileName = configurePointsFileName(sys.argv[1])
@@ -123,6 +129,12 @@ if __name__ == '__main__':
     algorithmPoints = unparsePointsFromFile(dataPaths[0] + pointsfileName)
     functionPoints = unparsePointsFromFile(dataPaths[1] + pointsfileName)
     invalidPoints = unparsePointsFromFile(dataPaths[2] + pointsfileName)
+
+    constantNumber = 0
+    while pth.isfile(dataPaths[3] + configurePointsFileName(sys.argv[1] + functionSuffix + str(constantNumber))) and pth.isfile(dataPaths[3] + configurePointsFileName(sys.argv[1] + trialSuffix + str(constantNumber))):
+       constraintFunctionPoints.append(unparsePointsFromFile(dataPaths[3] + configurePointsFileName(sys.argv[1] + functionSuffix + str(constantNumber))))
+       constraintTrialPoints.append(unparsePointsFromFile(dataPaths[3] + configurePointsFileName(sys.argv[1] + trialSuffix + str(constantNumber))))
+       constantNumber = constantNumber + 1
 
     expectedOptimum.append(algorithmPoints[algorithmPoints.__len__() - 1])
     optimumPoint.append(algorithmPoints[algorithmPoints.__len__() - 2])
@@ -144,11 +156,33 @@ if __name__ == '__main__':
       expectedOptX, expectedOptY = convertPoints2DtoArrays(expectedOptimum)
       invalidX, invalidY = convertPoints2DtoArrays(invalidPoints)
 
-      plt.scatter(funcX, funcY, c = 'black', s = 0.5) 
+      constraintFunctionPointsX = []
+      constraintFunctionPointsY = []
+      constraintTrialPointsX = []
+      constraintTrialPointsY = []
+      for i in range(len(constraintFunctionPoints)):
+         constraintFunctionPointsArray = convertPoints2DtoArrays(constraintFunctionPoints[i])
+         constraintTrialPointsArray = convertPoints2DtoArrays(constraintTrialPoints[i])
+         constraintFunctionPointsX.append(constraintFunctionPointsArray[0])
+         constraintFunctionPointsY.append(constraintFunctionPointsArray[1])
+         constraintTrialPointsX.append(constraintTrialPointsArray[0])
+         constraintTrialPointsY.append(constraintTrialPointsArray[1])
+
+      plt.scatter(funcX, funcY, c = 'gray', s = 0.5) 
+      plt.text(funcX.max(), funcY.max(),'f(x)')
       plt.scatter(invalidX, invalidY, c = 'blue', alpha=0.3, s = 0.5)
-      plt.scatter(algX, algY, c = 'red', s = 3)
+      plt.scatter(algX, algY, c = 'red', s =5)
       plt.scatter(optX, optY, c = 'yellow', s = 50, alpha=0.5)
       plt.scatter(expectedOptX, expectedOptY, c = 'green', s = 50, alpha=0.5)
+
+      for i in range(len(constraintFunctionPoints)):
+          plt.scatter(constraintFunctionPointsX[i], constraintFunctionPointsY[i], c = 'tan', s = 0.5) 
+          plt.scatter(constraintTrialPointsX[i], constraintTrialPointsY[i], c = 'red', s = 5)
+          maxConstraintFunctionPointX = constraintFunctionPointsX[i].max()
+          plt.text(maxConstraintFunctionPointX, constraintFunctionPointsY[i][indexOf(constraintFunctionPointsX[i],maxConstraintFunctionPointX)], 'g' + str(i) + '(x)')
+      if (len(constraintFunctionPoints) > 0):
+        plt.plot([funcX.min(), funcX.max(), None], [0, 0, None], 'b--', c = 'pink', label='y=0')
+        plt.text(funcX.max(), 0, 'y=0')
 
       plt.show()
     elif functionPoints.__len__() > 0 and isinstance(functionPoints[0], Point3D):

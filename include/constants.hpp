@@ -31,7 +31,8 @@ namespace constants {
     enum class PrintLevel {
         PRINT_NOT_ANYTHING = 0,
         PRINT_ONLY_TRIAL_POINT = 1,
-        PRINT_ALL_POINTS = 2
+        PRINT_FUNCTION_POINTS = 2,
+        PRINT_ALL_POINTS = 3
     };
 
     /*
@@ -61,7 +62,7 @@ namespace constants {
     const static int BIDIMENSIONAL_POINT_SIZE = 1;
     const static long double MIN_PEANO_POINT = 0.0;
     const static long double MAX_PEANO_POINT = 1.0;
-    const static int DATA_PATHS_COUNT = 3;
+    const static int DATA_PATHS_COUNT = 4;
     const static long double STEP_PRINT_POINTS = 0.001;
     const static int GOOD_RETURN_CODE = 0;
     const static int BAD_RETURN_CODE = -1;

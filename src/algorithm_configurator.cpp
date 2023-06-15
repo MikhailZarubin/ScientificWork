@@ -85,6 +85,7 @@ AlgorithmConfigurator::AlgorithmConfigurator(int argc, char* argv[], Logger* log
     _algorithmPointsDir = paths[0];
     _functionPointsDir = paths[1];
     _invalidPointsDir = paths[2];
+    _constraintPointsDir = paths[3];
 
     _logger->log("CONFIGURATION SUCCESSFULLY COMPLETED.\n");
 }
@@ -159,11 +160,23 @@ std::string AlgorithmConfigurator::getCalculationCountDescription(std::vector<lo
     return calculationCount;
 }
 
-void AlgorithmConfigurator::printPointsToFile(const std::string& taskId, Points points) {
+void AlgorithmConfigurator::printPointsToFile(const std::string& taskId, std::vector<Points> points) {
     Borders borders = _algorithmsMap[taskId]->getTask().getTaskBorders();
     std::string pointsFileName = parser::parseFileName(constants::API_DIR, constants::NAME_CONTRACT_FILE, taskId);
     switch (_printLevel) {
     case constants::PrintLevel::PRINT_ALL_POINTS:
+        for (int i = 0; i < _algorithmsMap[taskId]->getTask().getConstraintsCount(); i++) {
+            writer::writePointsToFile(_constraintPointsDir + 
+                parser::parseFileName(constants::API_DIR, constants::NAME_CONTRACT_FILE, taskId + "_trial" + std::to_string(i)),
+                utils::mergeVectors(points[i], points[points.size()-1]), [&](Point point) { return _algorithmsMap[taskId]->getTask().getConstraintValue(i, point); });
+
+            writer::writePointIntervalToFile(_constraintPointsDir + 
+                parser::parseFileName(constants::API_DIR, constants::NAME_CONTRACT_FILE, taskId + "_function" + std::to_string(i)),
+                borders.leftBorder, borders.rightBorder, constants::STEP_PRINT_POINTS,
+                [&](Point point) { return _algorithmsMap[taskId]->getTask().getConstraintValue(i, point); },
+                [&](Point point) { return true; });
+        }
+    case constants::PrintLevel::PRINT_FUNCTION_POINTS:
         writer::writePointIntervalToFile(_functionPointsDir + pointsFileName, borders.leftBorder, borders.rightBorder,
             constants::STEP_PRINT_POINTS, [&](Point point) { return _algorithmsMap[taskId]->getTask().getTaskValue(point); },
             [&](Point point) { return true; });
@@ -180,9 +193,9 @@ void AlgorithmConfigurator::printPointsToFile(const std::string& taskId, Points 
                 return !isValid;
             });
     case constants::PrintLevel::PRINT_ONLY_TRIAL_POINT:
-        points.push_back(_algorithmsMap[taskId]->getTask().getOptimumPoint());
+        points[points.size() - 1].push_back(_algorithmsMap[taskId]->getTask().getOptimumPoint());
         writer::writePointsToFile(_algorithmPointsDir + pointsFileName,
-            points, [&](Point point) { return _algorithmsMap[taskId]->getTask().getTaskValue(point); });
+            points[points.size() - 1], [&](Point point) { return _algorithmsMap[taskId]->getTask().getTaskValue(point); });
         break;
     default:
         break;
